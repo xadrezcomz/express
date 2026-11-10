@@ -231,7 +231,7 @@
     var tema = null;
     PZ.temas.forEach(function (t) { if (!tema && TEMAS[t]) tema = TEMAS[t]; });
     if (usouAjuda) {
-      diz('Essa foi a solução. Amanhã tem outro!', 'bom');
+      diz('Essa foi a solução. Amanhã tem mais!', 'bom');
       elVitoriaTexto.textContent = '';
       return;
     }
