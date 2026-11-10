@@ -26,6 +26,20 @@ Puzzle, partida e frase mudam à meia-noite (horário do aparelho) e seguem a or
 arquivos: 728 puzzles (a dificuldade sobe de segunda a domingo), 400 partidas e 408 frases,
 então nada se repete em menos de um ano.
 
+## Temas de data (Natal, Carnaval...)
+
+O visual normal do site é o **ponto base**. Um tema é uma "roupa" por cima dele, que nunca
+altera os arquivos do base:
+
+- `tema` em **`js/config.js`** escolhe a roupa: `'natal'` veste o Natal, `''` volta ao ponto base.
+- Para espiar sem publicar: abra o site com `?tema=natal` ou `?tema=base`.
+- Cada tema mora em `temas/<nome>.css` (cores e enfeites) e `temas/<nome>.js` (movimento, como a
+  neve), mais uma linha na lista de `js/temas.js`. Para criar outro, copie os do Natal.
+- A tag `ponto-base` do git guarda o site como estava antes do primeiro tema.
+
+`img/pecas-express/` tem um conjunto de peças próprio (gerado por `ferramentas/gera-pecas-express.py`),
+ainda não usado pelo site.
+
 ## Refazer os bancos
 
 ```sh

@@ -1,0 +1,109 @@
+/* ==========================================================================
+   Tema de Natal. Tudo aqui vale só com <html data-tema="natal">, então o
+   ponto base (css/estilo.css) fica intocado. Liga e desliga em js/config.js.
+   ========================================================================== */
+html[data-tema="natal"]{
+  --natal-vermelho:#ff4d5e; --natal-verde:#35d07f; --natal-neve:#eaf4ff;
+}
+
+/* ---- pisca-pisca debaixo do topo: duas fileiras de lâmpadas que se alternam */
+html[data-tema="natal"] .topo::before,
+html[data-tema="natal"] .topo::after{
+  content:'';position:absolute;left:0;right:0;top:100%;height:18px;pointer-events:none;
+  background-repeat:repeat-x;background-size:96px 18px;
+}
+html[data-tema="natal"] .topo::before{
+  background-image:
+    radial-gradient(circle at 12px 8px,#ff4d5e 5px,transparent 6px),
+    radial-gradient(circle at 60px 8px,#ffd36b 5px,transparent 6px);
+  filter:drop-shadow(0 0 6px rgba(255,120,110,.9));animation:natal-pisca 1.6s steps(1) infinite;
+}
+html[data-tema="natal"] .topo::after{
+  background-image:
+    radial-gradient(circle at 36px 8px,#35d07f 5px,transparent 6px),
+    radial-gradient(circle at 84px 8px,#6bd0ff 5px,transparent 6px);
+  filter:drop-shadow(0 0 6px rgba(90,230,170,.9));animation:natal-pisca 1.6s steps(1) -0.8s infinite;
+}
+@keyframes natal-pisca{0%{opacity:1}50%{opacity:.3}}
+
+/* ---- topo do site: noite de Natal, com um monte de neve embaixo e gorro no título */
+html[data-tema="natal"] .hero{
+  background:
+    radial-gradient(90% 60% at 80% 12%,rgba(255,77,94,.2),transparent 65%),
+    radial-gradient(80% 55% at 8% 88%,rgba(53,208,127,.16),transparent 65%),
+    linear-gradient(180deg,#06092a 0%,#0c1040 55%,#0a0620 100%);
+}
+html[data-tema="natal"] .hero::after{
+  content:'';position:absolute;left:-10%;right:-10%;bottom:-46px;height:120px;z-index:-1;pointer-events:none;border-radius:50%;
+  background:radial-gradient(60% 100% at 50% 100%,rgba(255,255,255,.95),rgba(214,230,255,.8) 60%,rgba(214,230,255,.55));
+  box-shadow:0 -10px 40px rgba(200,225,255,.35);
+}
+html[data-tema="natal"] .hero h1{position:relative}
+html[data-tema="natal"] .hero h1::before{
+  content:'';position:absolute;left:50%;top:0;width:.62em;height:.62em;
+  transform:translate(-2.02em,-.4em) rotate(-16deg);
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M14 74C20 34 52 6 92 34c-16-4-24 4-22 40z' fill='%23e8283c'/%3E%3Cpath d='M40 30c14-6 28-4 40 4' stroke='%23ff7a86' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3Crect x='6' y='68' width='72' height='20' rx='10' fill='%23fff'/%3E%3Ccircle cx='90' cy='36' r='10' fill='%23fff'/%3E%3C/svg%3E") center/contain no-repeat;
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.4));
+}
+html[data-tema="natal"] .hero h1 span{
+  background:linear-gradient(92deg,#fff2c4 5%,#ffc43d 45%,#ff4d5e 100%);
+  -webkit-background-clip:text;background-clip:text;
+}
+html[data-tema="natal"] .selo{border-color:rgba(255,77,94,.7);background:rgba(60,12,34,.75)}
+html[data-tema="natal"] .selo b{color:var(--natal-verde)}
+html[data-tema="natal"] .efeitos{bottom:calc(22px + env(safe-area-inset-bottom))}
+
+/* ---- títulos das seções com ícone natalino */
+html[data-tema="natal"] .olho{color:var(--natal-verde)}
+html[data-tema="natal"] #como .olho::before{content:'❄️ '}
+html[data-tema="natal"] #puzzle .olho::before{content:'🎁 '}
+html[data-tema="natal"] #partida .olho::before{content:'⭐ '}
+html[data-tema="natal"] #frase .olho::before{content:'🔔 '}
+html[data-tema="natal"] #curso .olho::before{content:'🎄 '}
+
+/* ---- neve acumulada em cima dos cartões */
+html[data-tema="natal"] .cartao,
+html[data-tema="natal"] .puzzle-vitoria{position:relative}
+html[data-tema="natal"] .cartao::before,
+html[data-tema="natal"] .frase-cartao::after,
+html[data-tema="natal"] .puzzle-vitoria::before{
+  content:'';position:absolute;left:16px;right:16px;top:-8px;height:20px;pointer-events:none;border-radius:10px 10px 0 0;
+  background:
+    radial-gradient(circle at 10px 10px,var(--natal-neve) 9.5px,transparent 10px) 0 0/20px 20px round,
+    linear-gradient(var(--natal-neve),var(--natal-neve)) 0 0/100% 10px no-repeat;
+  filter:drop-shadow(0 2px 3px rgba(10,6,32,.35));
+}
+html[data-tema="natal"] .frase-cartao{overflow:visible}
+html[data-tema="natal"] .frase-aspas{color:rgba(255,77,94,.4)}
+html[data-tema="natal"] .frase-cartao figcaption{border-left-color:var(--natal-vermelho)}
+html[data-tema="natal"] .passos li:nth-child(odd) .passo-icone{background:rgba(255,77,94,.16);border-color:rgba(255,77,94,.55)}
+html[data-tema="natal"] .passos li:nth-child(even) .passo-icone{background:rgba(53,208,127,.16);border-color:rgba(53,208,127,.55)}
+
+/* ---- puzzle e partida: moldura em vermelho e verde */
+html[data-tema="natal"] .tab-moldura{
+  background:linear-gradient(145deg,#a3202f,#171042 45%,#0f5a36);
+  box-shadow:0 0 0 1px rgba(255,255,255,.3),inset 0 1px 0 rgba(255,255,255,.2),
+    0 24px 60px -24px rgba(0,0,0,.9),0 0 60px -12px rgba(255,77,94,.6);
+}
+html[data-tema="natal"] .p3-palco{border-color:rgba(255,77,94,.55);
+  box-shadow:0 30px 70px -36px #000,0 0 60px -20px rgba(53,208,127,.55)}
+html[data-tema="natal"] .etiqueta{border-color:rgba(53,208,127,.45)}
+
+/* ---- cartão do curso: presente no canto e contorno de fita */
+html[data-tema="natal"] .curso-cartao{border-color:rgba(255,77,94,.75);
+  box-shadow:0 40px 90px -40px rgba(0,0,0,.95),0 0 80px -20px rgba(255,77,94,.5)}
+html[data-tema="natal"] .curso-cartao::before{
+  content:'🎁';position:absolute;top:10px;right:14px;z-index:2;font-size:2.75rem;line-height:1;
+  transform:rotate(12deg);filter:drop-shadow(0 4px 6px rgba(0,0,0,.45));animation:natal-balanca 3s ease-in-out infinite;
+}
+@keyframes natal-balanca{50%{transform:rotate(-6deg) scale(1.08)}}
+html[data-tema="natal"] .curso-lista li::before{content:'❄';background:rgba(255,77,94,.2);color:#fff}
+
+/* ---- rodapé e a neve que cai (o canvas é criado por temas/natal.js) */
+html[data-tema="natal"] .natal-voto{font-family:var(--titulo);font-weight:700;font-size:1.25rem;color:#fff}
+.natal-neve{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:45}
+
+@media (prefers-reduced-motion:reduce){
+  html[data-tema="natal"] .topo::before,html[data-tema="natal"] .topo::after,
+  html[data-tema="natal"] .curso-cartao::before{animation:none}
+}

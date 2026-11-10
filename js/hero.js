@@ -50,6 +50,9 @@
     return 'rgb(' + Math.round(a[0] + (b[0] - a[0]) * t) + ',' + Math.round(a[1] + (b[1] - a[1]) * t) + ',' + Math.round(a[2] + (b[2] - a[2]) * t) + ')';
   }
   // cada propulsão ganha uma paleta pronta de 8 tons, para não montar texto de cor a cada fagulha
+  // o tema de data pode trazer uma propulsão a mais, que já vem escolhida (js/temas.js)
+  var TEMA = window.XE_TEMA || {};
+  if (TEMA.propulsao) PROPULSOES.unshift(TEMA.propulsao);
   PROPULSOES.forEach(function (p) {
     var a = rgb(p.c1), b = rgb(p.c2); p.tons = [];
     for (var k = 0; k < 8; k++) p.tons.push(mistura(a, b, k / 7));
@@ -457,7 +460,19 @@
     if (n.tipo.id === 'foguete') ctx.rotate(n.ang);
     else ctx.rotate(Math.cos(n.ang) * 0.32 * Math.min(1, n.vel / 120));
     ctx.drawImage(c, -lado / 2, -lado / 2, lado, lado);
+    if (TEMA.gorro && n.tipo.id !== 'foguete') gorro(lado, n.tipo.id[1]);
     ctx.restore();
+  }
+
+  // O gorro de Natal das peças (tema de data): assenta no topo de cada desenho.
+  var TOPO_PECA = { k: 6, q: 8, r: 9, b: 6, n: 7, p: 9 };   // onde a peça começa, no desenho de 45 de altura
+  function gorro(lado, peca) {
+    var y = (-0.42 + TOPO_PECA[peca] / 45 * 0.84) * lado + lado * 0.07, g = lado * 0.2;
+    ctx.fillStyle = '#e8283c';
+    ctx.beginPath(); ctx.moveTo(-g, y); ctx.quadraticCurveTo(-g * 0.2, y - g * 2.1, g * 1.25, y - g * 1.25); ctx.quadraticCurveTo(g * 0.6, y - g * 0.9, g, y); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(g * 1.3, y - g * 1.2, g * 0.34, 0, TAU); ctx.fill();
+    ctx.fillRect(-g * 1.2, y - g * 0.22, g * 2.4, g * 0.5);
   }
 
   // ---------------------------------------------------------------- céu vivo

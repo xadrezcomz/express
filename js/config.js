@@ -11,5 +11,11 @@ window.XE_CONFIG = {
   preco: '',               // ex.: 'R$ 97'      (aparece grande no cartão)
   precoDe: '',             // ex.: 'R$ 197'     (aparece riscado; opcional)
   parcelas: '',            // ex.: 'ou 12x de R$ 9,70'  (opcional)
-  instagram: 'https://www.instagram.com/xadrezcomz/'
+  instagram: 'https://www.instagram.com/xadrezcomz/',
+
+  // TEMA DE DATA: a "roupa" do site. Vazio ('') é o ponto base, o visual normal.
+  // Para vestir um tema, escreva o nome dele (os temas ficam na pasta temas/ e a
+  // lista está em js/temas.js). Hoje existe: 'natal'.
+  // Para espiar um tema sem publicar: abra o site com ?tema=natal (ou ?tema=base).
+  tema: 'natal'
 };
