@@ -15,7 +15,7 @@ preços), os botões de compra aparecem no topo, no cartão do curso e numa barr
 | Seção | Onde está | De onde veio |
 |---|---|---|
 | Topo: foguete e peças voando com rastro e propulsão | `js/hero.js` | Rastros e propulsões do Rock Orbit, refeitos em canvas 2D |
-| Puzzle do dia | `js/puzzle.js`, `dados/puzzles.js` | Banco aberto do Lichess (CC0); peças e cores do tabuleiro do Slide Chess |
+| Desafio do dia | `js/puzzle.js`, `dados/puzzles.js` | Banco aberto do Lichess (CC0); peças e cores do tabuleiro do Slide Chess |
 | Partida do dia (tabuleiro 3D) | `js/partida.js`, `dados/partidas.js` | 400 partidas clássicas (PGN Mentor) |
 | Frase do dia | `js/site.js`, `dados/frases.js` | 408 frases de figuras do xadrez e do esporte |
 | O curso (cartão de venda) | `index.html`, `js/site.js`, `js/config.js` | |

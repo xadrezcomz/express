@@ -233,10 +233,11 @@ button{font:inherit;color:inherit}
 /* ------------------------------------------------------------- puzzle do dia */
 .puzzle{background:
   radial-gradient(70% 50% at 100% 0%,rgba(46,230,255,.1),transparent 70%),var(--fundo2)}
-.puzzle-area{display:grid;gap:22px;margin-top:14px;align-items:start}
+/* O desafio: uma coluna só, com quem joga em cima e o tabuleiro logo abaixo. */
+.desafio{width:min(100%,620px);margin:18px auto 0;display:flex;flex-direction:column;gap:12px}
 /* O tabuleiro: casas em ladrilhos arredondados nas cores do site, sobre um fundo escuro. */
 .tab-moldura{
-  width:min(100%,calc(100svh - var(--topo) - 40px),620px);margin-inline:auto;
+  width:min(100%,calc(100svh - var(--topo) - 110px),620px);margin-inline:auto;
   padding:clamp(6px,1.6vw,12px);border-radius:22px;
   background:linear-gradient(145deg,#3a2c9c,#171042 60%,#0d0730);
   box-shadow:0 0 0 1px var(--linha2),inset 0 1px 0 rgba(255,255,255,.14),
@@ -290,32 +291,47 @@ button{font:inherit;color:inherit}
 @keyframes venceu{30%{transform:scale(1.025)}100%{transform:none}}
 .tab-moldura.venceu{box-shadow:0 0 0 2px var(--ouro),0 24px 60px -24px rgba(0,0,0,.9),0 0 70px -8px rgba(255,200,80,.85)}
 
-.puzzle-lado{display:flex;flex-direction:column;gap:14px;width:min(100%,620px);margin-inline:auto}
-.puzzle-info{display:flex;flex-wrap:wrap;gap:8px}
 /* quem joga e o que se pede: fica acima do tabuleiro, para ser lido antes */
-.puzzle-vez{display:flex;align-items:center;gap:12px;margin-top:22px;font-family:var(--titulo);font-weight:700;font-size:1.375rem;color:#fff}
+.puzzle-vez{display:flex;align-items:center;gap:12px;font-family:var(--titulo);font-weight:700;font-size:1.375rem;color:#fff}
 .bolinha{flex:none;width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #cfd3e6;box-shadow:0 0 12px rgba(255,255,255,.5)}
 .bolinha.pretas{background:#1b1b24;border-color:#8f95b8;box-shadow:none}
-.puzzle-msg{min-height:1.6em;font-size:1.125rem;font-weight:600;color:var(--suave)}
-.puzzle-msg.bom{color:#9cf59a}
-.puzzle-msg.ruim{color:#ffb0a8}
-.puzzle-botoes{display:flex;flex-wrap:wrap;gap:10px}
-.puzzle-botoes .botao{flex:1 1 9rem;min-height:50px;padding-inline:.9em}
-.puzzle-vitoria{
-  display:flex;flex-direction:column;gap:10px;padding:20px;border-radius:18px;
-  background:linear-gradient(160deg,rgba(255,196,61,.2),rgba(255,122,46,.1));
-  border:1px solid rgba(255,211,107,.6);animation:sobe .5s ease;
+.desafio-ajuda{font-size:1.0625rem;color:var(--suave)}
+/* a linha de ajuda guarda o seu lugar mesmo escondida, para o tabuleiro não pular quando ela aparece */
+.desafio-ajuda[hidden]{display:block !important;visibility:hidden}
+.desafio-ajuda button,.resultado-links button{
+  background:none;border:0;padding:.5em .2em;min-height:44px;cursor:pointer;
+  font-weight:700;color:var(--ciano);text-decoration:underline;text-underline-offset:3px;
+}
+.tab-moldura{position:relative}
+/* o recado do momento ("Não é esse", "Boa!") flutua sobre o topo do tabuleiro */
+.desafio-recado{
+  position:absolute;left:50%;top:14px;z-index:6;max-width:calc(100% - 28px);width:max-content;
+  padding:.5em 1.1em;border-radius:99px;text-align:center;pointer-events:none;
+  font-family:var(--titulo);font-weight:700;font-size:1.125rem;color:#fff;
+  background:rgba(13,7,48,.92);border:2px solid var(--linha2);box-shadow:0 10px 30px -10px #000;
+  opacity:0;transform:translate(-50%,-10px);transition:opacity .25s ease,transform .25s ease;
+}
+.desafio-recado.aparece{opacity:1;transform:translate(-50%,0)}
+.desafio-recado.bom{border-color:#7cff5a;color:#d6ffcc}
+.desafio-recado.ruim{border-color:#ff4f78;color:#ffd3dc}
+
+/* o resultado: toma o lugar do tabuleiro, do mesmo tamanho ou maior */
+.tab-moldura.fim .tabuleiro{position:absolute;inset:clamp(6px,1.6vw,12px);width:auto;opacity:.12;pointer-events:none}
+.resultado{
+  position:relative;min-height:calc(min(100vw - 2*clamp(18px,4vw,48px),620px) - 2*clamp(6px,1.6vw,12px));
+  display:flex;flex-direction:column;justify-content:center;gap:14px;
+  padding:clamp(20px,6vw,36px) clamp(16px,5vw,32px);text-align:center;animation:sobe .5s ease;
 }
 @keyframes sobe{from{opacity:0;transform:translateY(14px) scale(.98)}}
-.vitoria-titulo{font-family:var(--titulo);font-weight:700;font-size:1.75rem;color:var(--ouro)}
-.vitoria-texto{font-size:1.125rem;color:#fff}
-.vitoria-proximo{color:var(--suave)}
-.vitoria-proximo b{color:#fff;font-variant-numeric:tabular-nums}
-@media (min-width:900px){
-  .puzzle-area{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:40px}
-  .tab-moldura{margin:0}
-  .puzzle-lado{padding-top:6px}
-}
+.resultado-titulo{font-family:var(--titulo);font-weight:700;font-size:clamp(1.625rem,7vw,2.25rem);line-height:1.15;color:var(--ouro);text-wrap:balance;
+  text-shadow:0 0 24px rgba(255,190,80,.45)}
+.resultado-golpe{align-self:center;padding:.35em 1em;border-radius:99px;font-weight:700;font-size:1.0625rem;color:#fff;
+  background:rgba(46,230,255,.16);border:1px solid rgba(46,230,255,.55)}
+.resultado-texto{font-size:1.125rem;line-height:1.5;color:#fff;text-wrap:pretty}
+.resultado-pe{display:flex;flex-direction:column;gap:4px;font-size:1rem;color:var(--suave)}
+.resultado-pe b{color:#fff;font-variant-numeric:tabular-nums}
+.resultado-pe #pzSequencia{color:#ffe2bd;font-weight:700}
+.resultado-links{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;margin-top:-6px}
 
 /* a festa de confete, por cima de tudo */
 .festa{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:80;display:none}
