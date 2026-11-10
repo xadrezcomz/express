@@ -261,13 +261,14 @@
     }
   }
 
-  function desenhaRastro(nave) {
+  // `largura` e `tempo` só vêm de fora (o puzzle do dia); no voo valem o tamanho e o relógio daqui.
+  function desenhaRastro(nave, largura, tempo) {
     var pts = nave.pts, n = pts.length;
     if (n < 3) return;
     // a ponta do rastro acompanha a nave sem degrau
     pts.push({ x: nave.x, y: nave.y, r: 0 }); n++;
     normais(pts, n);
-    var c = nave.rgb, c2 = nave.rgb2, larg = tam * 0.26, id = RASTROS[rastroAtual].id, t = relogio, i, f;
+    var c = nave.rgb, c2 = nave.rgb2, larg = largura || tam * 0.26, id = RASTROS[rastroAtual].id, t = tempo === undefined ? relogio : tempo, i, f;
     ctx.lineCap = 'round';
 
     if (id === 'liso' || id === 'arcoiris') {
@@ -624,4 +625,17 @@
 
   // para os testes automáticos poderem olhar o estado
   window.XE_VOO = { naves: naves, rastros: RASTROS, propulsoes: PROPULSOES };
+
+  // O rastro escolhido aqui em cima também aparece nas peças do puzzle do dia:
+  // o puzzle entrega o seu canvas e os pontos, e o desenho é o mesmo do voo.
+  var CORES_PECA = {};
+  TIPOS.forEach(function (t) { if (t.id !== 'foguete') CORES_PECA[t.id[1]] = { rgb: rgb(t.cor), rgb2: rgb(t.cor2) }; });
+  window.XE_RASTRO = {
+    cores: CORES_PECA,
+    // rastro: { pts: [{x, y, r}], x, y, rgb, rgb2, fase }
+    desenha: function (outroCtx, rastro, largura, tempo) {
+      var meu = ctx; ctx = outroCtx;
+      try { desenhaRastro(rastro, largura, tempo); } finally { ctx.globalAlpha = 1; ctx = meu; }
+    }
+  };
 })();

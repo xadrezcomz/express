@@ -65,7 +65,8 @@
   }
   function criaPeca(i, p) {
     var el = document.createElement('div');
-    el.className = 'peca' + (X.corDa(p) === minhaCor ? ' minha' : '');
+    el.className = 'peca ' + (p === p.toUpperCase() ? 'branca' : 'preta') + (X.corDa(p) === minhaCor ? ' minha' : '');
+    el.tipo = p.toLowerCase();
     el.style.backgroundImage = imagem(p);
     poe(el, i);
     elPecas.appendChild(el); pecas[i] = el;
@@ -89,17 +90,59 @@
   // Aplica o lance na posição e anima as peças.
   function aplica(l) {
     var el = pecas[l.de], vitima = l.enPassant ? l.para + (pos.vez === 'w' ? 8 : -8) : l.para;
-    if (pecas[vitima]) { var morta = pecas[vitima]; morta.classList.add('some'); setTimeout(function () { morta.remove(); }, 220); delete pecas[vitima]; }
-    delete pecas[l.de]; pecas[l.para] = el; poe(el, l.para);
+    if (pecas[vitima]) { var morta = pecas[vitima]; morta.classList.add('some'); setTimeout(function () { morta.remove(); }, 420); delete pecas[vitima]; }
+    delete pecas[l.de]; pecas[l.para] = el; poe(el, l.para); rastreia(el);
     if (l.roque) {
       var deT = l.roque === 'curto' ? l.para + 1 : l.para - 2, paraT = l.roque === 'curto' ? l.para - 1 : l.para + 1;
-      pecas[paraT] = pecas[deT]; delete pecas[deT]; poe(pecas[paraT], paraT);
+      pecas[paraT] = pecas[deT]; delete pecas[deT]; poe(pecas[paraT], paraT); rastreia(pecas[paraT]);
     }
     if (l.promo) el.style.backgroundImage = imagem(pos.vez === 'w' ? l.promo.toUpperCase() : l.promo);
     pos = X.joga(pos, l);
     marca('veio', [l.de]); marca('foi', [l.para]); marca('dica', []); marca('errou', []);
     marca('xeque', X.emXeque(pos) ? [X.casaDoRei(pos, pos.vez)] : []);
     escolhe(-1);
+  }
+
+  // ---------------------------------------------------------------- rastro das peças
+  // A peça que anda deixa o rastro escolhido no topo do site (js/hero.js desenha).
+  // A cada quadro medimos onde a peça está na tela, então o rastro acompanha tanto
+  // a animação do lance quanto o dedo arrastando.
+  var telaRastro = document.getElementById('tabRastro'), ctxRastro = telaRastro && telaRastro.getContext ? telaRastro.getContext('2d') : null;
+  var rastros = [], rastroLigado = false, dprRastro = 1, ladoTab = 0;
+  var CALMO = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  function rastreia(el) {
+    if (!ctxRastro || !window.XE_RASTRO || CALMO || !el) return;
+    for (var k = 0; k < rastros.length; k++) if (rastros[k].el === el) { rastros[k].parada = 0; return; }
+    var cores = window.XE_RASTRO.cores[el.tipo] || window.XE_RASTRO.cores.p;
+    rastros.push({ el: el, pts: [], x: 0, y: 0, rgb: cores.rgb, rgb2: cores.rgb2, fase: Math.random() * 100, parada: 0, novo: true });
+    if (!rastroLigado) {
+      var r = elTab.getBoundingClientRect();
+      dprRastro = Math.min(window.devicePixelRatio || 1, 2); ladoTab = r.width;
+      telaRastro.width = telaRastro.height = Math.round(ladoTab * dprRastro);
+      rastroLigado = true; requestAnimationFrame(quadroRastro);
+    }
+  }
+  function quadroRastro(agora) {
+    var tab = elTab.getBoundingClientRect(), casa = tab.width / 8;
+    ctxRastro.setTransform(dprRastro, 0, 0, dprRastro, 0, 0);
+    ctxRastro.clearRect(0, 0, ladoTab, ladoTab);
+    for (var k = rastros.length - 1; k >= 0; k--) {
+      var t = rastros[k], viva = t.el.isConnected && !t.el.classList.contains('some');
+      if (viva) {
+        var r = t.el.getBoundingClientRect(), x = r.left + r.width / 2 - tab.left, y = r.top + r.height / 2 - tab.top;
+        var andou = t.novo ? 99 : Math.abs(x - t.x) + Math.abs(y - t.y);
+        t.x = x; t.y = y; t.novo = false;
+        var u = t.pts[t.pts.length - 1];
+        if (!u || Math.abs(u.x - x) + Math.abs(u.y - y) >= casa * 0.09) { t.pts.push({ x: x, y: y, r: Math.random() }); if (t.pts.length > 46) t.pts.shift(); }
+        t.parada = andou < 0.5 ? t.parada + 1 : 0;
+      } else t.parada = 99;
+      // parou: o rastro fica um instante à mostra e depois a cauda encolhe até sumir
+      if (t.parada > 22) t.pts.shift();
+      if (t.pts.length < 3 && t.parada > 22) { rastros.splice(k, 1); continue; }
+      window.XE_RASTRO.desenha(ctxRastro, t, casa * 0.34, agora / 1000);
+    }
+    if (rastros.length) requestAnimationFrame(quadroRastro);
+    else { ctxRastro.clearRect(0, 0, ladoTab, ladoTab); rastroLigado = false; }
   }
 
   function diz(texto, tipo) { elMsg.textContent = texto; elMsg.className = 'puzzle-msg' + (tipo ? ' ' + tipo : ''); }
@@ -156,7 +199,7 @@
     espera = setTimeout(function () {
       aplica(X.deUCI(pos, PZ.lances[passo])); passo++; estado = 'jogando';
       diz('Isso! E agora?', 'bom');
-    }, 550);
+    }, 800);
     return true;
   }
 
@@ -211,7 +254,7 @@
     (function proximo() {
       if (passo >= PZ.lances.length) { vence(); return; }
       aplica(X.deUCI(pos, PZ.lances[passo])); passo++;
-      espera = setTimeout(proximo, 900);
+      espera = setTimeout(proximo, 1100);
     })();
   });
   btDeNovo.addEventListener('click', comeca);
@@ -241,6 +284,7 @@
     arrasto.mexeu = true;
     var r = elTab.getBoundingClientRect(), lado = r.width / 8;
     arrasto.el.classList.add('arrastando');
+    rastreia(arrasto.el);
     arrasto.el.style.transform = 'translate(' + (ev.clientX - r.left - lado / 2) + 'px,' + (ev.clientY - r.top - lado * (ev.pointerType === 'touch' ? 1.1 : 0.5)) + 'px) scale(' + (ev.pointerType === 'touch' ? 1.5 : 1.1) + ')';
   });
   function solta(ev) {
