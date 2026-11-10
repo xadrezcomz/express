@@ -26,6 +26,44 @@ Puzzle, partida e frase mudam à meia-noite (horário do aparelho) e seguem a or
 arquivos: 728 puzzles (a dificuldade sobe de segunda a domingo), 400 partidas e 408 frases,
 então nada se repete em menos de um ano.
 
+## Temas de data (Natal, Carnaval...)
+
+O visual normal do site é o **ponto base**. Um tema é uma "roupa" por cima dele, que nunca
+altera os arquivos do base. `tema` em **`js/config.js`** manda:
+
+| Valor | O que acontece |
+|---|---|
+| `'auto'` | o tema entra e sai sozinho nas datas do calendário |
+| `''` | ponto base, sem tema |
+| `'natal'` (ou outro nome) | força esse tema; com `temaAte: 'AAAA-MM-DD'` ele vale até esse dia e depois o site volta ao automático |
+
+Calendário automático (em `js/temas.js`, função `calendario`):
+
+| Tema | No ar |
+|---|---|
+| `ano-novo` | 27 de dezembro a 6 de janeiro |
+| `carnaval` | da sexta de Carnaval à quarta-feira de cinzas |
+| `pascoa` | a semana da Páscoa |
+| `maes` | a semana do Dia das Mães (2º domingo de maio) |
+| `junina` | junho inteiro |
+| `xadrez` | 14 a 20 de julho (Dia Internacional do Xadrez) |
+| `pais` | a semana do Dia dos Pais (2º domingo de agosto) |
+| `criancas` | 5 a 12 de outubro |
+| `halloween` | 25 a 31 de outubro |
+| `black-friday` | a semana da Black Friday até a segunda seguinte |
+| `natal` | 1º a 26 de dezembro |
+
+Para espiar sem publicar: `?tema=carnaval`, `?tema=base` ou `?dia=2027-02-08` no fim do endereço.
+
+Cada tema é uma entrada na lista de `js/temas.js` (frases, o que cai do céu, confete) e um
+arquivo `temas/<nome>.css` (cores, ícones e enfeites). O que é igual em todos fica em
+`temas/comum.css` e `js/tema-efeitos.js`.
+
+No histórico do git, o commit `61c0294` é o site como estava antes do primeiro tema.
+
+`img/pecas-express/` tem um conjunto de peças próprio (gerado por `ferramentas/gera-pecas-express.py`),
+ainda não usado pelo site.
+
 ## Refazer os bancos
 
 ```sh

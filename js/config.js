@@ -11,5 +11,14 @@ window.XE_CONFIG = {
   preco: '',               // ex.: 'R$ 97'      (aparece grande no cartão)
   precoDe: '',             // ex.: 'R$ 197'     (aparece riscado; opcional)
   parcelas: '',            // ex.: 'ou 12x de R$ 9,70'  (opcional)
-  instagram: 'https://www.instagram.com/xadrezcomz/'
+  instagram: 'https://www.instagram.com/xadrezcomz/',
+
+  // TEMA DE DATA: a "roupa" do site (Natal, Carnaval, Páscoa...). As datas e a
+  // lista dos temas estão em js/temas.js.
+  //   'auto'  o tema entra e sai sozinho nas datas certas
+  //   ''      ponto base: o visual normal, sem tema nenhum
+  //   'natal' (ou outro nome) força esse tema; com `temaAte` ele vale até esse
+  //           dia e depois o site volta ao automático
+  tema: 'natal',
+  temaAte: '2026-12-26'
 };

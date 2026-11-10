@@ -1,0 +1,5 @@
+/* Tema de Dia das Mães. (O que é comum a todos os temas está em temas/comum.css.) */
+html[data-tema="maes"]{
+  --t1:#ff6fb5; --t2:#ffc2e0; --t-fim:#ff6fb5;
+  --i-como:'💐 '; --i-puzzle:'💗 '; --i-partida:'♛ '; --i-frase:'🌸 '; --i-curso:'🎁 '; --i-canto:'💐';
+}

@@ -1,0 +1,5 @@
+/* Tema de Dia dos Pais. (O que é comum a todos os temas está em temas/comum.css.) */
+html[data-tema="pais"]{
+  --t1:#4a9bff; --t2:#bfe6ff; --t-fim:#4a9bff;
+  --i-como:'👔 '; --i-puzzle:'💙 '; --i-partida:'♚ '; --i-frase:'⭐ '; --i-curso:'🎁 '; --i-canto:'🏆';
+}

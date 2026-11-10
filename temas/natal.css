@@ -1,0 +1,49 @@
+/* Tema de Natal: vermelho e verde, pisca-pisca, gorro no título e neve nos cartões.
+   (O que é comum a todos os temas está em temas/comum.css.) */
+html[data-tema="natal"]{
+  --t1:#ff4d5e; --t2:#35d07f; --t-fim:#ff4d5e; --natal-neve:#eaf4ff;
+  --i-como:'❄️ '; --i-puzzle:'🎁 '; --i-partida:'⭐ '; --i-frase:'🔔 '; --i-curso:'🎄 '; --i-canto:'🎁';
+}
+/* pisca-pisca debaixo do topo: duas fileiras de lâmpadas que se alternam */
+html[data-tema="natal"] .topo::before{
+  content:'';
+  background-image:radial-gradient(circle at 12px 8px,#ff4d5e 5px,transparent 6px),radial-gradient(circle at 60px 8px,#ffd36b 5px,transparent 6px);
+  filter:drop-shadow(0 0 6px rgba(255,120,110,.9));animation:natal-pisca 1.6s steps(1) infinite;
+}
+html[data-tema="natal"] .topo::after{
+  content:'';
+  background-image:radial-gradient(circle at 36px 8px,#35d07f 5px,transparent 6px),radial-gradient(circle at 84px 8px,#6bd0ff 5px,transparent 6px);
+  filter:drop-shadow(0 0 6px rgba(90,230,170,.9));animation:natal-pisca 1.6s steps(1) -0.8s infinite;
+}
+@keyframes natal-pisca{0%{opacity:1}50%{opacity:.3}}
+
+/* noite de Natal no topo: um monte de neve embaixo e gorro no "X" do título */
+html[data-tema="natal"] .hero::after{
+  content:'';position:absolute;left:-10%;right:-10%;bottom:-46px;height:120px;z-index:-1;pointer-events:none;border-radius:50%;
+  background:radial-gradient(60% 100% at 50% 100%,rgba(255,255,255,.95),rgba(214,230,255,.8) 60%,rgba(214,230,255,.55));
+  box-shadow:0 -10px 40px rgba(200,225,255,.35);
+}
+html[data-tema="natal"] .hero h1{position:relative}
+html[data-tema="natal"] .hero h1::before{
+  content:'';position:absolute;left:50%;top:0;width:.62em;height:.62em;
+  transform:translate(-2.02em,-.4em) rotate(-16deg);
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M14 74C20 34 52 6 92 34c-16-4-24 4-22 40z' fill='%23e8283c'/%3E%3Cpath d='M40 30c14-6 28-4 40 4' stroke='%23ff7a86' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3Crect x='6' y='68' width='72' height='20' rx='10' fill='%23fff'/%3E%3Ccircle cx='90' cy='36' r='10' fill='%23fff'/%3E%3C/svg%3E") center/contain no-repeat;
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.4));
+}
+html[data-tema="natal"] .selo{background:rgba(60,12,34,.75)}
+html[data-tema="natal"] .efeitos{bottom:calc(22px + env(safe-area-inset-bottom))}
+
+/* neve acumulada em cima dos cartões */
+html[data-tema="natal"] .cartao,
+html[data-tema="natal"] .puzzle-vitoria{position:relative}
+html[data-tema="natal"] .cartao::before,
+html[data-tema="natal"] .frase-cartao::after,
+html[data-tema="natal"] .puzzle-vitoria::before{
+  content:'';position:absolute;left:16px;right:16px;top:-8px;height:20px;pointer-events:none;border-radius:10px 10px 0 0;
+  background:
+    radial-gradient(circle at 10px 10px,var(--natal-neve) 9.5px,transparent 10px) 0 0/20px 20px round,
+    linear-gradient(var(--natal-neve),var(--natal-neve)) 0 0/100% 10px no-repeat;
+  filter:drop-shadow(0 2px 3px rgba(10,6,32,.35));
+}
+html[data-tema="natal"] .frase-cartao{overflow:visible}
+html[data-tema="natal"] .curso-lista li::before{content:'❄';background:rgba(255,77,94,.2);color:#fff}

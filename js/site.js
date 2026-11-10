@@ -127,7 +127,8 @@
     var L = window.innerWidth, A = window.innerHeight;
     telaFesta.width = L * dpr; telaFesta.height = A * dpr; telaFesta.classList.add('ligada');
     var r = origem.getBoundingClientRect(), ox = r.left + r.width / 2, oy = Math.min(A * 0.75, Math.max(A * 0.25, r.top + r.height / 2));
-    var CORES = ['#ffd36b', '#ff9a3d', '#2ee6ff', '#a06bff', '#ff4fd8', '#7cff5a', '#ffffff'], GLIFOS = ['♞', '♛', '♜', '♝', '♚', '♟', '★'];
+    var TEMA = window.XE_TEMA || {};
+    var CORES = TEMA.festaCores || ['#ffd36b', '#ff9a3d', '#2ee6ff', '#a06bff', '#ff4fd8', '#7cff5a', '#ffffff'], GLIFOS = TEMA.festaGlifos || ['♞', '♛', '♜', '♝', '♚', '♟', '★'];
     var pecas = [], qtd = L < 600 ? 90 : 150;
     for (var k = 0; k < qtd; k++) {
       var ang = -Math.PI / 2 + (Math.random() - 0.5) * 2.6, v = 380 + Math.random() * 620;
