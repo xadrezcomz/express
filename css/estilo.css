@@ -11,7 +11,6 @@
   --titulo:"Chakra Petch","Exo 2",system-ui,sans-serif;
   --corpo:"Exo 2",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --topo:60px;
-  --clara:#eeeed2; --escura:#769656;
 }
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:calc(var(--topo) + 8px);-webkit-text-size-adjust:100%}
@@ -206,45 +205,55 @@ button{font:inherit;color:inherit}
 .puzzle{background:
   radial-gradient(70% 50% at 100% 0%,rgba(46,230,255,.1),transparent 70%),var(--fundo2)}
 .puzzle-area{display:grid;gap:22px;margin-top:26px;align-items:start}
+/* O tabuleiro: casas em ladrilhos arredondados nas cores do site, sobre um fundo escuro. */
 .tab-moldura{
   width:min(100%,calc(100svh - var(--topo) - 40px),620px);margin-inline:auto;
-  padding:clamp(5px,1.4vw,10px);border-radius:16px;
-  background:linear-gradient(145deg,#2c2376,#171042);
-  box-shadow:0 0 0 1px var(--linha2),0 24px 60px -24px rgba(0,0,0,.9),0 0 50px -14px rgba(160,107,255,.55);
+  padding:clamp(6px,1.6vw,12px);border-radius:22px;
+  background:linear-gradient(145deg,#3a2c9c,#171042 60%,#0d0730);
+  box-shadow:0 0 0 1px var(--linha2),inset 0 1px 0 rgba(255,255,255,.14),
+    0 24px 60px -24px rgba(0,0,0,.9),0 0 60px -12px rgba(160,107,255,.7);
+  transition:box-shadow .4s ease;
 }
-.tabuleiro{position:relative;width:100%;aspect-ratio:1;border-radius:8px;overflow:hidden;
+.tabuleiro{position:relative;width:100%;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#0d0730;
   -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
 .casas{position:absolute;inset:0;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr)}
-.casa{position:relative;background:var(--escura)}
-.casa.clara{background:var(--clara)}
-.casa::after{content:'';position:absolute;inset:0;pointer-events:none;transition:background .12s linear}
-.casa.veio::after{background:rgba(255,206,60,.36)}
-.casa.foi::after{background:rgba(255,206,60,.52)}
-.casa.escolhida::after{background:rgba(46,230,255,.5);box-shadow:inset 0 0 0 3px #12c6e6}
-.casa.dica::after{background:rgba(255,211,107,.62);box-shadow:inset 0 0 0 4px #ffb53d;animation:dica 1s ease-in-out infinite}
-.casa.errou::after{background:rgba(255,70,70,.62)}
-.casa.xeque::after{background:radial-gradient(circle,rgba(255,40,40,.9) 0%,rgba(255,40,40,.45) 45%,transparent 72%)}
-@keyframes dica{50%{background:rgba(255,211,107,.28)}}
+/* o respiro entre os ladrilhos vem do padding: o fundo só pinta a parte de dentro */
+.casa{position:relative;padding:1.5px;border-radius:16%;background:linear-gradient(145deg,#7f6cf0,#5a45c9) content-box}
+.casa.clara{background:linear-gradient(145deg,#ece7ff,#c5baff) content-box}
+.casa::after{content:'';position:absolute;inset:1.5px;border-radius:14%;pointer-events:none;transition:background .15s linear,box-shadow .15s linear}
+.casa.veio::after{background:rgba(255,211,107,.42)}
+.casa.foi::after{background:rgba(255,211,107,.6);box-shadow:inset 0 0 0 2px rgba(255,236,170,.9)}
+.casa.escolhida::after{background:rgba(46,230,255,.42);box-shadow:inset 0 0 0 3px var(--ciano),0 0 16px rgba(46,230,255,.8)}
+.casa.dica::after{background:rgba(255,211,107,.6);box-shadow:inset 0 0 0 4px #ffb53d,0 0 18px rgba(255,190,80,.9);animation:dica 1s ease-in-out infinite}
+.casa.errou::after{background:rgba(255,79,120,.7);box-shadow:inset 0 0 0 3px #ff4f78}
+.casa.xeque::after{background:radial-gradient(circle,rgba(255,60,90,.95) 0%,rgba(255,60,90,.5) 45%,transparent 74%)}
+@keyframes dica{50%{background:rgba(255,211,107,.25)}}
 .casa.pode{cursor:pointer}
-.casa.pode::before{content:'';position:absolute;left:50%;top:50%;width:32%;height:32%;z-index:1;
-  transform:translate(-50%,-50%);border-radius:50%;background:rgba(15,25,15,.34);pointer-events:none}
-.casa.pode.ocupada::before{width:92%;height:92%;background:none;box-shadow:inset 0 0 0 5px rgba(15,25,15,.34)}
+.casa.pode::before{content:'';position:absolute;left:50%;top:50%;width:30%;height:30%;z-index:1;
+  transform:translate(-50%,-50%);border-radius:50%;background:var(--ciano);pointer-events:none;
+  box-shadow:0 0 0 3px rgba(13,7,48,.55),0 0 12px rgba(46,230,255,.9)}
+.casa.pode.ocupada::before{width:84%;height:84%;background:none;box-shadow:inset 0 0 0 4px var(--ciano),0 0 12px rgba(46,230,255,.8)}
 .casa .coord{position:absolute;font-family:var(--titulo);font-weight:700;line-height:1;pointer-events:none;
-  font-size:clamp(10px,2.6vw,14px);color:var(--clara)}
-.casa.clara .coord{color:#5d7a43}
-.coord.fila{top:3px;left:4px}
-.coord.coluna{bottom:3px;right:4px}
+  font-size:clamp(10px,2.6vw,14px);color:#efeaff}
+.casa.clara .coord{color:#5a45c9}
+.coord.fila{top:5px;left:6px}
+.coord.coluna{bottom:5px;right:6px}
 
+/* o rastro das peças (o mesmo escolhido no topo do site), entre as casas e as peças */
+/* a sombra escura em volta faz o rastro aparecer também nas casas claras */
+.tab-rastro{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;filter:drop-shadow(0 0 3px rgba(13,7,48,.95)) drop-shadow(0 0 1px rgba(13,7,48,.9))}
 .pecas{position:absolute;inset:0;pointer-events:none}
 .peca{
   position:absolute;left:0;top:0;width:12.5%;height:12.5%;
-  background:center/92% no-repeat;will-change:transform;
-  transition:transform .22s cubic-bezier(.3,.9,.4,1);
-  filter:drop-shadow(0 2px 2px rgba(0,0,0,.35));
+  background:center/88% no-repeat;will-change:transform;
+  transition:transform .42s cubic-bezier(.3,.8,.3,1);
+  filter:drop-shadow(0 3px 3px rgba(13,7,48,.5));
 }
+/* as pretas ganham um fio de luz para não sumirem nas casas roxas */
+.peca.preta{filter:drop-shadow(0 0 1px rgba(255,255,255,.9)) drop-shadow(0 3px 3px rgba(13,7,48,.5))}
 .peca.minha{pointer-events:auto;cursor:grab;touch-action:none}
-.peca.arrastando{transition:none;z-index:5;cursor:grabbing;filter:drop-shadow(0 8px 8px rgba(0,0,0,.45))}
-.peca.some{opacity:0;transition:opacity .18s ease,transform .22s}
+.peca.arrastando{transition:none;z-index:5;cursor:grabbing;filter:drop-shadow(0 10px 10px rgba(13,7,48,.6))}
+.peca.some{opacity:0;transition:opacity .25s ease,transform .42s}
 .peca.treme{animation:treme .38s ease}
 @keyframes treme{20%{translate:-7% 0}40%{translate:7% 0}60%{translate:-5% 0}80%{translate:4% 0}}
 .tabuleiro.venceu{animation:venceu .7s ease}
