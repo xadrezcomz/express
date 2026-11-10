@@ -128,7 +128,7 @@ button{font:inherit;color:inherit}
   position:absolute;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));width:56px;height:56px;margin-left:-28px;
   display:grid;place-items:center;-webkit-tap-highlight-color:transparent;
 }
-.hero-desce span{
+.hero-desce span,.desce span{
   width:18px;height:18px;border-right:3px solid #fff;border-bottom:3px solid #fff;border-radius:2px;
   transform:rotate(45deg);animation:desce 1.8s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(160,107,255,.9));
 }
@@ -234,7 +234,10 @@ button{font:inherit;color:inherit}
 .puzzle{background:
   radial-gradient(70% 50% at 100% 0%,rgba(46,230,255,.1),transparent 70%),var(--fundo2)}
 /* O desafio: uma coluna só, com quem joga em cima e o tabuleiro logo abaixo. */
-.desafio{width:min(100%,620px);margin:18px auto 0;display:flex;flex-direction:column;gap:12px}
+.desafio{width:min(100%,620px);margin:14px auto 0;display:flex;flex-direction:column;gap:12px}
+/* pouco espaço entre o desafio e a seção de baixo: a setinha faz a ligação */
+.puzzle{padding-bottom:6px}
+.partida{padding-top:clamp(28px,6vw,64px)}
 /* O tabuleiro: casas em ladrilhos arredondados nas cores do site, sobre um fundo escuro. */
 .tab-moldura{
   width:min(100%,calc(100svh - var(--topo) - 110px),620px);margin-inline:auto;
@@ -295,13 +298,21 @@ button{font:inherit;color:inherit}
 .puzzle-vez{display:flex;align-items:center;gap:12px;font-family:var(--titulo);font-weight:700;font-size:1.375rem;color:#fff}
 .bolinha{flex:none;width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #cfd3e6;box-shadow:0 0 12px rgba(255,255,255,.5)}
 .bolinha.pretas{background:#1b1b24;border-color:#8f95b8;box-shadow:none}
-.desafio-ajuda{font-size:1.0625rem;color:var(--suave)}
-/* a linha de ajuda guarda o seu lugar mesmo escondida, para o tabuleiro não pular quando ela aparece */
-.desafio-ajuda[hidden]{display:block !important;visibility:hidden}
-.desafio-ajuda button,.resultado-links button{
+/* a ajuda fica presa na borda de baixo do tabuleiro, sem ocupar espaço na página */
+.desafio-ajuda{
+  position:absolute;left:50%;bottom:-20px;z-index:6;transform:translateX(-50%);width:max-content;max-width:calc(100% - 20px);
+  min-height:44px;padding:.4em 1.2em;border-radius:99px;cursor:pointer;
+  font-size:1.0625rem;font-weight:600;color:var(--suave);
+  background:#171042;border:2px solid var(--ciano);box-shadow:0 10px 26px -10px #000,0 0 18px -4px rgba(46,230,255,.7);
+  animation:sobe .35s ease;-webkit-tap-highlight-color:transparent;
+}
+.desafio-ajuda b{color:var(--ciano)}
+.resultado-links button{
   background:none;border:0;padding:.5em .2em;min-height:44px;cursor:pointer;
   font-weight:700;color:var(--ciano);text-decoration:underline;text-underline-offset:3px;
 }
+/* a setinha que chama para a seção seguinte (a mesma do topo do site) */
+.desce{align-self:center;width:56px;height:56px;margin-top:10px;display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
 .tab-moldura{position:relative}
 /* o recado do momento ("Não é esse", "Boa!") flutua sobre o topo do tabuleiro */
 .desafio-recado{
@@ -549,6 +560,6 @@ body.tem-barra .rodape{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   .revela{opacity:1;transform:none;transition:none}
-  .hero-desce span,.tela-ponto,.casa.dica::after{animation:none}
+  .hero-desce span,.desce span,.tela-ponto,.casa.dica::after{animation:none}
   .curso-cartao{transform:none !important}
 }
