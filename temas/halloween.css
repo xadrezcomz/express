@@ -1,0 +1,7 @@
+/* Tema de Halloween. (O que é comum a todos os temas está em temas/comum.css.) */
+html[data-tema="halloween"]{
+  --t1:#ff8a1f; --t2:#a06bff; --t-fim:#ff8a1f;
+  --i-como:'🎃 '; --i-puzzle:'👻 '; --i-partida:'🦇 '; --i-frase:'🕯️ '; --i-curso:'🍬 '; --i-canto:'🎃';
+}
+/* a noite fica mais escura */
+html[data-tema="halloween"] .hero{background:radial-gradient(90% 60% at 80% 12%,rgba(255,138,31,.22),transparent 65%),radial-gradient(80% 55% at 8% 88%,rgba(124,255,90,.1),transparent 65%),linear-gradient(180deg,#050210 0%,#12062a 55%,#0a0620 100%)}

@@ -1,0 +1,7 @@
+/* Tema de Carnaval. (O que é comum a todos os temas está em temas/comum.css.) */
+html[data-tema="carnaval"]{
+  --t1:#ff4fd8; --t2:#2ee6ff; --t-fim:#ff4fd8;
+  --i-como:'🎭 '; --i-puzzle:'🎉 '; --i-partida:'🥁 '; --i-frase:'🎺 '; --i-curso:'🎊 '; --i-canto:'🎭';
+}
+/* bandeirolas coloridas debaixo do topo */
+html[data-tema="carnaval"] .topo::before{content:'';background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 18'%3E%3Cpath d='M0 2h96' stroke='%23fff' stroke-opacity='.6'/%3E%3Cpath d='M2 2h20l-10 15z' fill='%23ff4fd8'/%3E%3Cpath d='M26 2h20l-10 15z' fill='%23ffd36b'/%3E%3Cpath d='M50 2h20l-10 15z' fill='%232ee6ff'/%3E%3Cpath d='M74 2h20l-10 15z' fill='%237cff5a'/%3E%3C/svg%3E");filter:drop-shadow(0 0 5px rgba(255,255,255,.6))}

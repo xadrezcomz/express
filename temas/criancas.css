@@ -1,0 +1,7 @@
+/* Tema de Dia das Crianças. (O que é comum a todos os temas está em temas/comum.css.) */
+html[data-tema="criancas"]{
+  --t1:#ff4fd8; --t2:#7cff5a; --t-fim:#2ee6ff;
+  --i-como:'🎈 '; --i-puzzle:'🧩 '; --i-partida:'🎠 '; --i-frase:'🍭 '; --i-curso:'🎁 '; --i-canto:'🎈';
+}
+/* balões coloridos debaixo do topo */
+html[data-tema="criancas"] .topo::before{content:'';background-image:radial-gradient(circle at 12px 8px,#ff4d5e 5px,transparent 6px),radial-gradient(circle at 36px 8px,#ffd36b 5px,transparent 6px),radial-gradient(circle at 60px 8px,#2ee6ff 5px,transparent 6px),radial-gradient(circle at 84px 8px,#7cff5a 5px,transparent 6px);filter:drop-shadow(0 0 5px rgba(255,255,255,.6))}

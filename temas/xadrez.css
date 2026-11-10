@@ -1,0 +1,7 @@
+/* Tema de Dia Internacional do Xadrez. (O que é comum a todos os temas está em temas/comum.css.) */
+html[data-tema="xadrez"]{
+  --t1:#ffd36b; --t2:#2ee6ff; --t-fim:#ff7a2e;
+  --i-como:'♟️ '; --i-puzzle:'♞ '; --i-partida:'♛ '; --i-frase:'♚ '; --i-curso:'🏆 '; --i-canto:'🏆';
+}
+/* uma faixa de casas de tabuleiro debaixo do topo */
+html[data-tema="xadrez"] .topo::before{content:'';height:10px;background:repeating-conic-gradient(#ffd36b 0 25%,transparent 0 50%) 0 0/20px 10px;opacity:.85}

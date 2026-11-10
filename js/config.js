@@ -13,9 +13,12 @@ window.XE_CONFIG = {
   parcelas: '',            // ex.: 'ou 12x de R$ 9,70'  (opcional)
   instagram: 'https://www.instagram.com/xadrezcomz/',
 
-  // TEMA DE DATA: a "roupa" do site. Vazio ('') é o ponto base, o visual normal.
-  // Para vestir um tema, escreva o nome dele (os temas ficam na pasta temas/ e a
-  // lista está em js/temas.js). Hoje existe: 'natal'.
-  // Para espiar um tema sem publicar: abra o site com ?tema=natal (ou ?tema=base).
-  tema: 'natal'
+  // TEMA DE DATA: a "roupa" do site (Natal, Carnaval, Páscoa...). As datas e a
+  // lista dos temas estão em js/temas.js.
+  //   'auto'  o tema entra e sai sozinho nas datas certas
+  //   ''      ponto base: o visual normal, sem tema nenhum
+  //   'natal' (ou outro nome) força esse tema; com `temaAte` ele vale até esse
+  //           dia e depois o site volta ao automático
+  tema: 'natal',
+  temaAte: '2026-12-26'
 };

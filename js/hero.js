@@ -60,6 +60,8 @@
   var ARCO = []; for (var h = 0; h < 24; h++) ARCO.push('hsl(' + h * 15 + ',100%,65%)');
 
   var rastroAtual = 0, propAtual = 0;
+  // sem escolha guardada, vale a propulsão que o tema de data indicar
+  PROPULSOES.forEach(function (p, k) { if (p.id === TEMA.propulsaoPadrao) propAtual = k; });
   try {
     var salvo = JSON.parse(localStorage.getItem('xe.efeitos') || '{}');
     RASTROS.forEach(function (r, k) { if (r.id === salvo.rastro) rastroAtual = k; });
@@ -611,11 +613,14 @@
   function mostraEfeitos() {
     if (btRastro) btRastro.querySelector('b').textContent = RASTROS[rastroAtual].nome;
     if (btProp) btProp.querySelector('b').textContent = PROPULSOES[propAtual].nome;
-    try { localStorage.setItem('xe.efeitos', JSON.stringify({ rastro: RASTROS[rastroAtual].id, propulsao: PROPULSOES[propAtual].id })); } catch (e) { /* tudo bem */ }
     if (CALMO) desenha(0);
   }
-  if (btRastro) btRastro.addEventListener('click', function () { rastroAtual = (rastroAtual + 1) % RASTROS.length; mostraEfeitos(); interagiu(); });
-  if (btProp) btProp.addEventListener('click', function () { propAtual = (propAtual + 1) % PROPULSOES.length; fagulhas.length = 0; mostraEfeitos(); interagiu(); });
+  // só guarda o que a pessoa escolheu de verdade; assim a propulsão de um tema de data não fica presa para sempre
+  function guarda() {
+    try { localStorage.setItem('xe.efeitos', JSON.stringify({ rastro: RASTROS[rastroAtual].id, propulsao: PROPULSOES[propAtual].id })); } catch (e) { /* tudo bem */ }
+  }
+  if (btRastro) btRastro.addEventListener('click', function () { rastroAtual = (rastroAtual + 1) % RASTROS.length; mostraEfeitos(); guarda(); interagiu(); });
+  if (btProp) btProp.addEventListener('click', function () { propAtual = (propAtual + 1) % PROPULSOES.length; fagulhas.length = 0; mostraEfeitos(); guarda(); interagiu(); });
 
   // ---------------------------------------------------------------- começa
   criaNaves();

@@ -1,0 +1,5 @@
+/* Tema de Páscoa. (O que é comum a todos os temas está em temas/comum.css.) */
+html[data-tema="pascoa"]{
+  --t1:#ff9ccf; --t2:#8ee6a8; --t-fim:#ff9ccf;
+  --i-como:'🐣 '; --i-puzzle:'🥚 '; --i-partida:'🐰 '; --i-frase:'🌷 '; --i-curso:'🍫 '; --i-canto:'🐰';
+}
