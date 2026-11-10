@@ -104,7 +104,8 @@
   }
 
   // ---------------------------------------------------------------- rastro das peças
-  // A peça que anda deixa o rastro escolhido no topo do site (js/hero.js desenha).
+  // A peça que anda deixa o mesmo rastro que a peça do seu tipo está usando no topo do site
+  // naquele momento (js/hero.js desenha e faz o rodízio).
   // A cada quadro medimos onde a peça está na tela, então o rastro acompanha tanto
   // a animação do lance quanto o dedo arrastando.
   var telaRastro = document.getElementById('tabRastro'), ctxRastro = telaRastro && telaRastro.getContext ? telaRastro.getContext('2d') : null;
@@ -114,7 +115,8 @@
     if (!ctxRastro || !window.XE_RASTRO || CALMO || !el) return;
     for (var k = 0; k < rastros.length; k++) if (rastros[k].el === el) { rastros[k].parada = 0; return; }
     var cores = window.XE_RASTRO.cores[el.tipo] || window.XE_RASTRO.cores.p;
-    rastros.push({ el: el, pts: [], x: 0, y: 0, rgb: cores.rgb, rgb2: cores.rgb2, fase: Math.random() * 100, parada: 0, novo: true });
+    rastros.push({ el: el, pts: [], x: 0, y: 0, rgb: cores.rgb, rgb2: cores.rgb2, fase: Math.random() * 100, parada: 0, novo: true,
+      rastro: window.XE_RASTRO.estilo(el.tipo) });
     if (!rastroLigado) {
       var r = elTab.getBoundingClientRect();
       dprRastro = Math.min(window.devicePixelRatio || 1, 2); ladoTab = r.width;

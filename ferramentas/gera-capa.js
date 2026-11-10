@@ -12,7 +12,7 @@ const { chromium } = require('playwright');
   const p = await b.newPage({ viewport: { width: 1200, height: 630 } });
   await p.goto('http://localhost:8765/?tema=base');
   await p.addStyleTag({ content: `
-    .topo,.hero-dica,.efeitos,.acoes,.selo,.hero-texto::before{display:none!important}
+    .topo,.hero-desce,.acoes,.selo,.hero-texto::before{display:none!important}
     .hero{min-height:630px;height:630px;padding:0;justify-content:center}
     .hero-texto{max-width:none;gap:26px}
     .hero h1{font-size:212px;line-height:.9}

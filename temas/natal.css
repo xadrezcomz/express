@@ -31,7 +31,6 @@ html[data-tema="natal"] .hero h1::before{
   filter:drop-shadow(0 3px 4px rgba(0,0,0,.4));
 }
 html[data-tema="natal"] .selo{background:rgba(60,12,34,.75)}
-html[data-tema="natal"] .efeitos{bottom:calc(22px + env(safe-area-inset-bottom))}
 
 /* neve acumulada em cima dos cartões */
 html[data-tema="natal"] .cartao,

@@ -2,9 +2,10 @@
 // voando com rastro e propulsão, como no Rock Orbit (lá em 3D; aqui num
 // canvas 2D, leve o bastante para o celular).
 //
-// - No celular: arraste uma peça para pilotar; um toque no espaço chama a mais próxima.
+// - No celular: arrastar uma peça pilota; um toque no espaço chama a mais próxima.
 // - No computador: a peça mais perto do mouse passa a segui-lo; um clique dá turbo em todas.
-// - Os dois botões do canto trocam o desenho do rastro e a propulsão.
+// - Cada nave voa com um rastro e uma propulsão diferentes das outras, e eles vão
+//   trocando sozinhos. O puzzle do dia usa os mesmos rastros nas suas peças.
 (function () {
   'use strict';
 
@@ -59,14 +60,19 @@
   });
   var ARCO = []; for (var h = 0; h < 24; h++) ARCO.push('hsl(' + h * 15 + ',100%,65%)');
 
-  var rastroAtual = 0, propAtual = 0;
-  // sem escolha guardada, vale a propulsão que o tema de data indicar
-  PROPULSOES.forEach(function (p, k) { if (p.id === TEMA.propulsaoPadrao) propAtual = k; });
-  try {
-    var salvo = JSON.parse(localStorage.getItem('xe.efeitos') || '{}');
-    RASTROS.forEach(function (r, k) { if (r.id === salvo.rastro) rastroAtual = k; });
-    PROPULSOES.forEach(function (p, k) { if (p.id === salvo.propulsao) propAtual = k; });
-  } catch (e) { /* sem armazenamento: começa no padrão */ }
+  // O rodízio dos efeitos: cada nave tem um rastro e uma propulsão só dela, e de
+  // tempos em tempos todas passam para o seguinte. Como os dois rodízios têm ritmos
+  // diferentes, as combinações vão variando. Segue o relógio de verdade (e não o do
+  // voo), para continuar trocando mesmo com o topo do site fora da tela.
+  var TROCA_RASTRO = 9, TROCA_PROP = 13;      // segundos
+  function rastroDa(k) { return (k + Math.floor(Date.now() / 1000 / TROCA_RASTRO)) % RASTROS.length; }
+  function propDa(k) {
+    // o foguete fica com a propulsão do tema de data, quando houver uma
+    if (k === 0 && (TEMA.propulsao || TEMA.propulsaoPadrao)) {
+      for (var q = 0; q < PROPULSOES.length; q++) if (PROPULSOES[q].id === (TEMA.propulsao ? TEMA.propulsao.id : TEMA.propulsaoPadrao)) return q;
+    }
+    return (k * 5 + Math.floor(Date.now() / 1000 / TROCA_PROP)) % PROPULSOES.length;   // 5 não repete entre as naves
+  }
 
   // ---------------------------------------------------------------- as naves
   var TIPOS = [
@@ -89,7 +95,7 @@
         tipo: t, x: 0, y: 0, ang: Math.random() * TAU, vel: 0, velBase: 0,
         f1: 0.35 + Math.random() * 0.4, f2: 0.9 + Math.random() * 0.7, fase: Math.random() * 100,
         pts: [], andou: 0, emite: 0, turbo: 0, piloto: false, destino: null, img: null, carimbo: null,
-        rgb: rgb(t.cor), rgb2: rgb(t.cor2)
+        rgb: rgb(t.cor), rgb2: rgb(t.cor2), rastro: rastroDa(k), prop: propDa(k)
       };
       if (t.id !== 'foguete') {
         n.img = new Image();
@@ -186,7 +192,7 @@
 
   // ---------------------------------------------------------------- fagulhas da propulsão
   function solta(n, dt) {
-    var p = PROPULSOES[propAtual];
+    var p = PROPULSOES[n.prop];
     var ritmo = (TOQUE ? 16 : 26) * (0.35 + n.vel / 140) * (n.turbo > 0 ? 1.8 : 1);
     n.emite += ritmo * dt;
     while (n.emite >= 1) {
@@ -199,15 +205,14 @@
         vx: Math.cos(tras) * v, vy: Math.sin(tras) * v,
         vida: 0, max: (forma === 3 ? 0.9 : 0.5) + Math.random() * 0.45,
         t: (forma ? 5 : 3) + Math.random() * (forma ? 5 : 3.5), forma: forma,
-        giro: Math.random() * TAU, tom: p.arco ? Math.floor(Math.random() * 24) : -1
+        giro: Math.random() * TAU, tom: p.arco ? Math.floor(Math.random() * 24) : -1, p: p
       });
     }
   }
 
   function desenhaFagulhas(dt) {
-    var p = PROPULSOES[propAtual];
     for (var k = fagulhas.length - 1; k >= 0; k--) {
-      var f = fagulhas[k];
+      var f = fagulhas[k], p = f.p;
       f.vida += dt;
       if (f.vida >= f.max) { fagulhas.splice(k, 1); continue; }
       f.x += f.vx * dt; f.y += f.vy * dt;
@@ -273,7 +278,7 @@
     // a ponta do rastro acompanha a nave sem degrau
     pts.push({ x: nave.x, y: nave.y, r: 0 }); n++;
     normais(pts, n);
-    var c = nave.rgb, c2 = nave.rgb2, larg = largura || tam * 0.26, id = RASTROS[rastroAtual].id, t = tempo === undefined ? relogio : tempo, i, f;
+    var c = nave.rgb, c2 = nave.rgb2, larg = largura || tam * 0.26, id = RASTROS[nave.rastro || 0].id, t = tempo === undefined ? relogio : tempo, i, f;
     ctx.lineCap = 'round';
 
     if (id === 'liso' || id === 'arcoiris') {
@@ -378,7 +383,7 @@
   // ---------------------------------------------------------------- as naves em si
   // A chama: duas gotas de luz atrás da nave, tremendo.
   function desenhaChama(n) {
-    var p = PROPULSOES[propAtual];
+    var p = PROPULSOES[n.prop];
     if (p.semCone) return;
     var cn = p.cone || [1, 1], forca = Math.min(1.5, 0.35 + n.vel / 150) * (n.turbo > 0 ? 1.35 : 1);
     var comp = tam * 0.85 * cn[1] * forca * (0.85 + 0.15 * Math.sin(relogio * 38 + n.fase)), lar = tam * 0.2 * cn[0];
@@ -503,7 +508,7 @@
   // ---------------------------------------------------------------- o quadro
   function passo(dt) {
     relogio += dt;
-    for (var k = 0; k < naves.length; k++) anda(naves[k], dt);
+    for (var k = 0; k < naves.length; k++) { naves[k].rastro = rastroDa(k); naves[k].prop = propDa(k); anda(naves[k], dt); }
   }
   function desenha(dt) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -539,8 +544,6 @@
 
   // ---------------------------------------------------------------- pilotar
   var ponteiro = { x: 0, y: 0 }, pilotada = null, dedo = null;
-  var dica = document.getElementById('heroDica');
-  function interagiu() { if (dica) dica.classList.add('some'); }
   function local(ev) {
     var r = tela.getBoundingClientRect();
     return { x: ev.clientX - r.left, y: ev.clientY - r.top };
@@ -556,7 +559,7 @@
   function pilota(n) {
     if (pilotada && pilotada !== n) pilotada.piloto = false;
     pilotada = n;
-    if (n) { n.piloto = true; n.destino = null; interagiu(); }
+    if (n) { n.piloto = true; n.destino = null; }
   }
   function ehControle(alvo) { return alvo.closest && alvo.closest('a,button'); }
 
@@ -583,7 +586,7 @@
     else if (!dedo.mexeu && ev.type === 'touchend' && !ehControle(ev.target)) {
       // toque no espaço vazio: a peça mais próxima vai até lá
       var n = maisPerto(dedo, 9999);
-      if (n) { n.destino = { x: dedo.x, y: dedo.y, t: 2.5 }; n.turbo = 0.5; interagiu(); }
+      if (n) { n.destino = { x: dedo.x, y: dedo.y, t: 2.5 }; n.turbo = 0.5; }
     }
     dedo = null;
   }
@@ -605,27 +608,12 @@
   hero.addEventListener('click', function (ev) {
     if (TOQUE || ehControle(ev.target)) return;
     naves.forEach(function (n) { n.turbo = 0.9; });
-    interagiu();
+   
   });
-
-  // ---------------------------------------------------------------- botões de efeito
-  var btRastro = document.getElementById('btRastro'), btProp = document.getElementById('btPropulsao');
-  function mostraEfeitos() {
-    if (btRastro) btRastro.querySelector('b').textContent = RASTROS[rastroAtual].nome;
-    if (btProp) btProp.querySelector('b').textContent = PROPULSOES[propAtual].nome;
-    if (CALMO) desenha(0);
-  }
-  // só guarda o que a pessoa escolheu de verdade; assim a propulsão de um tema de data não fica presa para sempre
-  function guarda() {
-    try { localStorage.setItem('xe.efeitos', JSON.stringify({ rastro: RASTROS[rastroAtual].id, propulsao: PROPULSOES[propAtual].id })); } catch (e) { /* tudo bem */ }
-  }
-  if (btRastro) btRastro.addEventListener('click', function () { rastroAtual = (rastroAtual + 1) % RASTROS.length; mostraEfeitos(); guarda(); interagiu(); });
-  if (btProp) btProp.addEventListener('click', function () { propAtual = (propAtual + 1) % PROPULSOES.length; fagulhas.length = 0; mostraEfeitos(); guarda(); interagiu(); });
 
   // ---------------------------------------------------------------- começa
   criaNaves();
   ajusta();
-  mostraEfeitos();
   // já entra com os rastros formados
   for (var w = 0; w < 60; w++) passo(1 / 30);
   fagulhas.length = 0;
@@ -652,7 +640,9 @@
   TIPOS.forEach(function (t) { if (t.id !== 'foguete') CORES_PECA[t.id[1]] = { rgb: rgb(t.cor), rgb2: rgb(t.cor2) }; });
   window.XE_RASTRO = {
     cores: CORES_PECA,
-    // rastro: { pts: [{x, y, r}], x, y, rgb, rgb2, fase }
+    // qual rastro a peça desse tipo ('k', 'q', 'r', 'b', 'n', 'p') está usando agora
+    estilo: function (peca) { for (var k = 0; k < TIPOS.length; k++) if (TIPOS[k].id[1] === peca && TIPOS[k].id !== 'foguete') return rastroDa(k); return 0; },
+    // rastro: { pts: [{x, y, r}], x, y, rgb, rgb2, fase, rastro }
     desenha: function (outroCtx, rastro, largura, tempo) {
       var meu = ctx; ctx = outroCtx;
       try { desenhaRastro(rastro, largura, tempo); } finally { ctx.globalAlpha = 1; ctx = meu; }
