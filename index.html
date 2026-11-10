@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Xadrez Express — aprenda xadrez em lições de 1 minuto</title>
+<meta name="description" content="Xadrez Express: vídeos de 30 segundos a 1 minuto que ensinam xadrez do zero, um passo por vez, sem enrolação. Resolva o puzzle do dia, assista à partida do dia e leia a frase do dia.">
+<meta name="theme-color" content="#0a0620">
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="Xadrez Express — aprenda xadrez em lições de 1 minuto">
+<meta property="og:description" content="Vídeos de 30 segundos a 1 minuto que ensinam xadrez do zero, sem enrolação. Resolva o puzzle do dia!">
+<meta property="og:url" content="https://xadrezcomz.github.io/express/">
+<meta property="og:image" content="https://xadrezcomz.github.io/express/img/compartilhar.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" type="image/svg+xml" href="img/logo.svg">
+<link rel="preload" href="fontes/chakrapetch-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fontes/exo2-500-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="fontes/fontes.css">
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+<header class="topo" id="topo">
+  <a class="marca" href="#inicio" aria-label="Xadrez Express, início">
+    <img src="img/logo.svg" alt="" width="36" height="36">
+    <span>Xadrez <b>Express</b></span>
+  </a>
+  <nav class="menu" aria-label="Seções">
+    <a href="#puzzle">Puzzle do dia</a>
+    <a href="#partida">Partida do dia</a>
+    <a href="#frase">Frase do dia</a>
+    <a href="#curso">O curso</a>
+  </nav>
+  <a class="botao botao-p" href="#curso" data-cta-topo>O curso</a>
+</header>
+
+<main>
+
+<!-- ============================================================ INÍCIO -->
+<section class="hero" id="inicio">
+  <canvas class="hero-estrelas" id="estrelas" aria-hidden="true"></canvas>
+  <canvas class="hero-voo" id="voo" aria-hidden="true"></canvas>
+
+  <div class="hero-texto">
+    <p class="selo">Método novo · por <b>@xadrezcomz</b></p>
+    <h1>Xadrez <span>Express</span></h1>
+    <p class="chamada">Aprenda xadrez em lições de <b>30 segundos a 1 minuto</b>. Do zero, um passo por vez, sem enrolação.</p>
+    <div class="acoes">
+      <a class="botao botao-ouro" href="#curso">Conhecer o curso</a>
+      <a class="botao botao-vidro" href="#puzzle">Resolver o puzzle de hoje</a>
+    </div>
+  </div>
+
+  <p class="hero-dica" id="heroDica" aria-hidden="true">
+    <span class="so-toque">👆 Arraste uma peça para pilotar</span>
+    <span class="so-mouse">Chegue o mouse perto de uma peça para pilotar · clique para o turbo</span>
+  </p>
+
+  <div class="efeitos" role="group" aria-label="Efeitos do voo">
+    <button type="button" class="efeito" id="btRastro"><small>Rastro</small><b>Liso</b></button>
+    <button type="button" class="efeito" id="btPropulsao"><small>Propulsão</small><b>Fogo</b></button>
+  </div>
+</section>
+
+<!-- ============================================================ COMO FUNCIONA -->
+<section class="secao como" id="como">
+  <div class="miolo">
+    <p class="olho">Como funciona</p>
+    <h2>Xadrez na velocidade do seu dia</h2>
+    <ul class="passos">
+      <li class="cartao revela">
+        <span class="passo-icone" aria-hidden="true">⚡</span>
+        <h3>30 segundos a 1 minuto</h3>
+        <p>Cada vídeo ensina uma coisa só, direto ao ponto. Dá para aprender na fila, no ônibus ou no intervalo.</p>
+      </li>
+      <li class="cartao revela">
+        <span class="passo-icone" aria-hidden="true">♟</span>
+        <h3>Do zero, de verdade</h3>
+        <p>Começa em como cada peça se move. Você não precisa saber nada de xadrez para dar o primeiro passo.</p>
+      </li>
+      <li class="cartao revela">
+        <span class="passo-icone" aria-hidden="true">🚀</span>
+        <h3>Um degrau por vez</h3>
+        <p>Cada lição se apoia na anterior. Quando você percebe, já está enxergando táticas e xeque-mates.</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ PUZZLE DO DIA -->
+<section class="secao puzzle" id="puzzle">
+  <div class="miolo">
+    <p class="olho">Puzzle do dia</p>
+    <h2>Um desafio novo todo dia</h2>
+    <p class="sub">Ache o melhor lance. Toque na peça e depois na casa, ou arraste.</p>
+
+    <div class="puzzle-area">
+      <div class="tab-moldura">
+        <div class="tabuleiro" id="tabuleiro" aria-label="Tabuleiro do puzzle do dia">
+          <div class="casas" id="casas"></div>
+          <div class="pecas" id="pecas"></div>
+        </div>
+      </div>
+
+      <aside class="puzzle-lado">
+        <div class="puzzle-info">
+          <span class="etiqueta" id="pzData">Hoje</span>
+          <span class="etiqueta" id="pzNivel">Nível</span>
+          <span class="etiqueta etiqueta-fogo" id="pzSequencia" hidden></span>
+        </div>
+        <p class="puzzle-vez" id="pzVez"><i class="bolinha"></i><span>Carregando o puzzle…</span></p>
+        <p class="puzzle-msg" id="pzMsg" role="status" aria-live="polite"></p>
+
+        <div class="puzzle-botoes">
+          <button type="button" class="botao botao-vidro" id="pzDica">💡 Dica</button>
+          <button type="button" class="botao botao-vidro" id="pzSolucao">Ver solução</button>
+          <button type="button" class="botao botao-vidro" id="pzDeNovo">↺ Recomeçar</button>
+        </div>
+
+        <div class="puzzle-vitoria" id="pzVitoria" hidden>
+          <p class="vitoria-titulo">Parabéns! 🎉</p>
+          <p class="vitoria-texto" id="pzVitoriaTexto"></p>
+          <p class="vitoria-proximo">Próximo puzzle em <b id="pzRelogio">--:--:--</b></p>
+          <div class="puzzle-botoes">
+            <button type="button" class="botao botao-ouro" id="pzCompartilhar">Desafiar um amigo</button>
+            <a class="botao botao-vidro" href="#curso">Quero aprender mais</a>
+          </div>
+        </div>
+        <p class="credito">Puzzle do banco aberto do <a id="pzLichess" href="https://lichess.org/training" target="_blank" rel="noopener">Lichess</a>.</p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ PARTIDA DO DIA -->
+<section class="secao partida" id="partida">
+  <div class="miolo">
+    <p class="olho">Partida do dia</p>
+    <h2>Uma partida clássica por dia</h2>
+    <p class="sub">As partidas mais famosas da história do xadrez, lance a lance. É só assistir.</p>
+
+    <div class="p3-area">
+      <div class="p3-palco" id="p3Palco">
+        <p class="p3-titulo" id="p3Titulo">Carregando a partida…</p>
+        <div class="p3-material" aria-hidden="true"><b id="p3MaterialNum">=</b><span><i id="p3Material"></i></span></div>
+        <div class="p3-cena" aria-hidden="true">
+          <div class="p3-plano" id="p3Plano">
+            <div class="p3-casas" id="p3Casas"></div>
+            <svg class="p3-setas" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <line id="p3Seta" x1="0" y1="0" x2="0" y2="0" pathLength="1"/>
+            </svg>
+            <div class="p3-pecas" id="p3Pecas"></div>
+            <div class="p3-coord p3-letras"><i>a</i><i>b</i><i>c</i><i>d</i><i>e</i><i>f</i><i>g</i><i>h</i></div>
+            <div class="p3-coord p3-numeros"><i>8</i><i>7</i><i>6</i><i>5</i><i>4</i><i>3</i><i>2</i><i>1</i></div>
+          </div>
+        </div>
+        <p class="p3-fim" id="p3Fim" hidden><span id="p3FimTexto"></span></p>
+      </div>
+
+      <div class="p3-lado">
+        <div class="p3-jogadores">
+          <p><i class="bolinha"></i><span id="p3Brancas">Brancas</span></p>
+          <p><i class="bolinha pretas"></i><span id="p3Pretas">Pretas</span></p>
+          <p class="p3-onde" id="p3Onde"></p>
+        </div>
+        <p class="p3-lance" id="p3Lance" aria-live="off">Posição inicial</p>
+        <input class="p3-barra" id="p3Barra" type="range" min="0" max="1" value="0" aria-label="Avançar ou voltar na partida">
+        <div class="p3-controles">
+          <button type="button" class="botao botao-vidro" id="p3Inicio" aria-label="Voltar ao início">⏮</button>
+          <button type="button" class="botao botao-vidro" id="p3Volta" aria-label="Lance anterior">◀</button>
+          <button type="button" class="botao botao-ouro" id="p3Toca" aria-label="Tocar">▶</button>
+          <button type="button" class="botao botao-vidro" id="p3Vai" aria-label="Próximo lance">▶</button>
+          <button type="button" class="botao botao-vidro" id="p3Vel" aria-label="Velocidade">1x</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ FRASE DO DIA -->
+<section class="secao frase" id="frase">
+  <div class="miolo">
+    <p class="olho">Frase do dia</p>
+    <figure class="frase-cartao revela">
+      <span class="frase-aspas" aria-hidden="true">“</span>
+      <blockquote id="fraseTexto">…</blockquote>
+      <figcaption>
+        <b id="fraseAutor"></b>
+        <span id="frasePapel"></span>
+      </figcaption>
+      <div class="frase-rodape">
+        <span class="etiqueta" id="fraseData"></span>
+        <button type="button" class="botao botao-vidro botao-p" id="fraseCompartilhar">Compartilhar</button>
+      </div>
+    </figure>
+    <p class="sub frase-volte">Amanhã tem outra. Volte todo dia. 😉</p>
+  </div>
+</section>
+
+<!-- ============================================================ O CURSO -->
+<!-- O cartão de venda. O link de compra e os preços ficam em js/config.js:
+     quando o link for preenchido, este cartão vira o botão de compra. -->
+<section class="secao curso" id="curso">
+  <div class="miolo">
+    <p class="olho">O curso</p>
+    <h2>Xadrez Express</h2>
+    <p class="sub">O jeito mais rápido de sair do zero no xadrez.</p>
+
+    <div class="curso-palco">
+      <article class="curso-cartao" id="cursoCartao">
+        <div class="curso-brilho" aria-hidden="true"></div>
+
+        <div class="curso-tela" aria-hidden="true">
+          <div class="tela-topo"><span class="tela-ponto"></span> Lição <b id="telaNumero">01</b></div>
+          <div class="tela-peca" id="telaPeca"></div>
+          <p class="tela-titulo" id="telaTitulo">Como o cavalo se move</p>
+          <div class="tela-barra"><i id="telaBarra"></i></div>
+          <div class="tela-tempo"><span>0:00</span><span id="telaTempo">0:45</span></div>
+        </div>
+
+        <div class="curso-corpo">
+          <span class="curso-selo" id="cursoSelo">Em breve</span>
+          <h3>Xadrez Express</h3>
+          <ul class="curso-lista">
+            <li>Vídeos de 30 segundos a 1 minuto</li>
+            <li>Começa do zero e evolui passo a passo</li>
+            <li>Assista no celular, quando e onde quiser</li>
+            <li>Direto ao ponto, sem enrolação</li>
+          </ul>
+
+          <div class="curso-preco" id="cursoPreco" hidden>
+            <s id="cursoPrecoDe"></s>
+            <b id="cursoPrecoPor"></b>
+            <small id="cursoParcelas"></small>
+          </div>
+
+          <a class="botao botao-ouro botao-g" id="cursoBotao" href="https://www.instagram.com/xadrezcomz/" target="_blank" rel="noopener">Quero ser avisado no Instagram</a>
+          <p class="curso-nota" id="cursoNota">As gravações estão a caminho. Siga <b>@xadrezcomz</b> para saber do lançamento em primeira mão.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="rodape">
+  <div class="miolo">
+    <a class="marca" href="#inicio">
+      <img src="img/logo.svg" alt="" width="36" height="36" loading="lazy">
+      <span>Xadrez <b>Express</b></span>
+    </a>
+    <p><a class="rodape-insta" href="https://www.instagram.com/xadrezcomz/" target="_blank" rel="noopener" data-instagram>Siga @xadrezcomz no Instagram</a></p>
+    <p class="credito">Peças: Cburnett, CC BY-SA 3.0 · Puzzles: banco aberto do Lichess (CC0) · Partidas: PGN Mentor</p>
+  </div>
+</footer>
+
+<!-- Barra fixa de compra no celular: só aparece quando houver link de compra. -->
+<div class="barra-compra" id="barraCompra" hidden>
+  <span><b>Xadrez Express</b><small id="barraPreco"></small></span>
+  <a class="botao botao-ouro" id="barraBotao" href="#curso">Quero começar</a>
+</div>
+
+<canvas class="festa" id="festa" aria-hidden="true"></canvas>
+
+<script src="js/config.js"></script>
+<script src="js/hero.js" defer></script>
+<script src="js/xadrez.js" defer></script>
+<script src="dados/puzzles.js" defer></script>
+<script src="js/frases.js" defer></script>
+<script src="js/puzzle.js" defer></script>
+<script src="js/partida.js" defer></script>
+<script src="js/site.js" defer></script>
+</body>
+</html>
