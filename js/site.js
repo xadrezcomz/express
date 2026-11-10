@@ -83,7 +83,7 @@
   var amostra = 0, tPeca = id('telaPeca'), tBarra = id('telaBarra'), vendoTela = false, inicioTela = 0;
   function poeAmostra() {
     var a = AMOSTRAS[amostra];
-    tPeca.style.backgroundImage = 'url(img/pecas/' + a[0] + '.svg)';
+    tPeca.style.backgroundImage = 'url(img/pecas-express/' + a[0] + '.svg)';
     id('telaTitulo').textContent = a[1]; id('telaTempo').textContent = a[2];
     id('telaNumero').textContent = (amostra + 1 < 10 ? '0' : '') + (amostra + 1);
   }

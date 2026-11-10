@@ -2,7 +2,7 @@
 """Desenha o conjunto de peças próprio do Xadrez Express em img/pecas-express/.
 
 Formas geométricas e arredondadas, com uma faixa dourada na base de todas as
-peças (a marca do conjunto). Brancas em lavanda claro, pretas em índigo com
+peças (a marca do conjunto). Brancas quase puras, pretas em índigo com
 contorno escuro. Uso: python3 ferramentas/gera-pecas-express.py
 """
 import os
@@ -23,7 +23,7 @@ FORMAS = {
 }
 BASE = '<path d="M28 72h44v8H28z" fill="url(#o)"/><rect x="20" y="80" width="60" height="12" rx="6"/>'
 CORES = {
-    'w': dict(a='#ffffff', b='#cfc5ff', traco='#1b1250', d='#5a45c9'),
+    'w': dict(a='#ffffff', b='#f3f0ff', traco='#1b1250', d='#5a45c9'),
     'b': dict(a='#5b4bd0', b='#1a1158', traco='#0d0730', d='#ffd36b'),
 }
 
