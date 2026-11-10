@@ -343,7 +343,7 @@ button{font:inherit;color:inherit}
   transform-origin:50% 100%;
   transform:rotateZ(calc(-1 * var(--gira))) rotateX(calc(-1 * var(--inclina)));
 }
-.p3-peca.branca span{filter:brightness(1.6) drop-shadow(0 0 1px #120b33) drop-shadow(0 0 5px rgba(255,255,255,.6))}
+.p3-peca.branca span{filter:drop-shadow(0 0 5px rgba(255,255,255,.6))}
 .p3-peca.preta span{filter:drop-shadow(0 0 1px #2ee6ff) drop-shadow(0 0 1px #2ee6ff) drop-shadow(0 0 4px rgba(46,230,255,.8))}
 .p3-peca.pula span{animation:p3-pula .45s ease-out}
 @keyframes p3-pula{40%{bottom:95%}}

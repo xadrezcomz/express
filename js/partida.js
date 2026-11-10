@@ -39,7 +39,7 @@
   function criaPeca(i, p) {
     var el = document.createElement('div'), branca = p === p.toUpperCase();
     el.className = 'p3-peca ' + (branca ? 'branca' : 'preta');
-    el.innerHTML = '<span style="background-image:url(img/pecas/' + (branca ? 'w' : 'b') + p.toLowerCase() + '.svg)"></span>';
+    el.innerHTML = '<span style="background-image:url(img/pecas-express/' + (branca ? 'w' : 'b') + p.toLowerCase() + '.svg)"></span>';
     poe(el, i);
     elPecas.appendChild(el); pecas[i] = el;
     return el;
@@ -115,7 +115,7 @@
       }
       if (l.promo) {
         var branca = antes.vez === 'w';
-        el.firstChild.style.backgroundImage = 'url(img/pecas/' + (branca ? 'w' : 'b') + l.promo + '.svg)';
+        el.firstChild.style.backgroundImage = 'url(img/pecas-express/' + (branca ? 'w' : 'b') + l.promo + '.svg)';
       }
       atual = n; destaca(n, true);
     } else if (n !== atual) {

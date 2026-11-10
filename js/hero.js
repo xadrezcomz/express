@@ -94,7 +94,7 @@
       if (t.id !== 'foguete') {
         n.img = new Image();
         n.img.onload = function () { n.carimbo = null; };
-        n.img.src = 'img/pecas/' + t.id + '.svg';
+        n.img.src = 'img/pecas-express/' + t.id + '.svg';
       }
       return n;
     });
@@ -467,9 +467,9 @@
   }
 
   // O gorro de Natal das peças (tema de data): assenta no topo de cada desenho.
-  var TOPO_PECA = { k: 6, q: 8, r: 9, b: 6, n: 7, p: 9 };   // onde a peça começa, no desenho de 45 de altura
+  var TOPO_PECA = { k: 0.06, q: 0.15, r: 0.16, b: 0.06, n: 0.11, p: 0.16 };   // onde a peça começa, em fração da altura do desenho
   function gorro(lado, peca) {
-    var y = (-0.42 + TOPO_PECA[peca] / 45 * 0.84) * lado + lado * 0.07, g = lado * 0.2;
+    var y = (-0.42 + TOPO_PECA[peca] * 0.84) * lado + lado * 0.07, g = lado * 0.2;
     ctx.fillStyle = '#e8283c';
     ctx.beginPath(); ctx.moveTo(-g, y); ctx.quadraticCurveTo(-g * 0.2, y - g * 2.1, g * 1.25, y - g * 1.25); ctx.quadraticCurveTo(g * 0.6, y - g * 0.9, g, y); ctx.closePath(); ctx.fill();
     ctx.fillStyle = '#fff';

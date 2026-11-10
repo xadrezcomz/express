@@ -61,8 +61,11 @@ arquivo `temas/<nome>.css` (cores, ícones e enfeites). O que é igual em todos 
 
 No histórico do git, o commit `61c0294` é o site como estava antes do primeiro tema.
 
-`img/pecas-express/` tem um conjunto de peças próprio (gerado por `ferramentas/gera-pecas-express.py`),
-ainda não usado pelo site.
+## Peças
+
+O site usa o conjunto próprio do Xadrez Express, em `img/pecas-express/`. Os desenhos saem de
+`ferramentas/gera-pecas-express.py` (formas e cores ficam no começo do arquivo). O conjunto
+anterior (Cburnett, CC BY-SA 3.0) continua guardado em `img/pecas/`, sem uso.
 
 ## Refazer os bancos
 
@@ -86,4 +89,4 @@ Para trocar ou acrescentar frases, edite `js/frases.js` (uma por linha).
 
 ## Créditos
 
-Peças: Cburnett (CC BY-SA 3.0). Puzzles: Lichess (CC0). Fontes: Chakra Petch e Exo 2 (OFL).
+Peças: desenho próprio do Xadrez Express. Puzzles: Lichess (CC0). Fontes: Chakra Petch e Exo 2 (OFL).

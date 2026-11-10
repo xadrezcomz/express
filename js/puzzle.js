@@ -46,7 +46,7 @@
   // ---------------------------------------------------------------- desenho
   function xy(i) { var x = i % 8, y = Math.floor(i / 8); return virado ? [7 - x, 7 - y] : [x, y]; }
   function poe(el, i) { var p = xy(i); el.style.transform = 'translate(' + p[0] * 100 + '%,' + p[1] * 100 + '%)'; }
-  function imagem(p) { return 'url(img/pecas/' + (p === p.toUpperCase() ? 'w' : 'b') + p.toLowerCase() + '.svg)'; }
+  function imagem(p) { return 'url(img/pecas-express/' + (p === p.toUpperCase() ? 'w' : 'b') + p.toLowerCase() + '.svg)'; }
 
   function montaCasas() {
     elCasas.innerHTML = ''; casas = [];
