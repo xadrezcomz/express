@@ -19,6 +19,6 @@ window.XE_CONFIG = {
   //   ''      ponto base: o visual normal, sem tema nenhum
   //   'natal' (ou outro nome) força esse tema; com `temaAte` ele vale até esse
   //           dia e depois o site volta ao automático
-  tema: 'natal',
-  temaAte: '2026-12-26'
+  tema: 'black-friday',
+  temaAte: '2026-11-30'
 };
