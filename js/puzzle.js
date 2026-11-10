@@ -158,6 +158,7 @@
   // ---------------------------------------------------------------- o jogo
   function comeca() {
     clearTimeout(espera);
+    if (erroPendente) { clearTimeout(erroPendente.relogio); erroPendente = null; }
     pos = X.deFEN(PZ.fen);
     minhaCor = pos.vez === 'w' ? 'b' : 'w';
     virado = minhaCor === 'b';
@@ -172,6 +173,32 @@
     }, 800);
   }
 
+  // Lance legal, mas que não é a solução: a peça vai até a casa escolhida (para ficar
+  // claro que o lance era possível), a casa fica vermelha e a peça volta sozinha.
+  var erroPendente = null;
+  function erra(l) {
+    erros++;
+    var el = pecas[l.de], vitima = pecas[l.enPassant ? l.para + (pos.vez === 'w' ? 8 : -8) : l.para];
+    estado = 'voltando';
+    escolhe(-1);
+    poe(el, l.para); rastreia(el);
+    el.classList.add('errada');
+    if (vitima) vitima.classList.add('coberta');
+    marca('errou', [l.para]);
+    diz(erros > 1 ? 'Ainda não. Que tal pedir uma dica?' : 'Não é esse. Tente outro lance!', 'ruim');
+    erroPendente = { el: el, de: l.de, vitima: vitima, relogio: setTimeout(desfazErro, 950) };
+  }
+  function desfazErro() {
+    if (!erroPendente) return;
+    var e = erroPendente; erroPendente = null;
+    clearTimeout(e.relogio);
+    poe(e.el, e.de); rastreia(e.el);
+    e.el.classList.remove('errada');
+    if (e.vitima) e.vitima.classList.remove('coberta');
+    marca('errou', []);
+    if (estado === 'voltando') estado = 'jogando';
+  }
+
   function tenta(de, para) {
     if (estado !== 'jogando') return false;
     var esperado = PZ.lances[passo];
@@ -184,16 +211,7 @@
       opcoes.forEach(function (o) { if (o.promo === quer) l = o; });
     }
     var certo = X.uci(l) === esperado || X.ehMate(X.joga(pos, l));
-    if (!certo) {
-      erros++;
-      marca('errou', [para]);
-      var el = pecas[de];
-      if (el) { poe(el, de); el.classList.remove('treme'); void el.offsetWidth; el.classList.add('treme'); }
-      diz(erros > 1 ? 'Ainda não. Que tal pedir uma dica?' : 'Não é esse. Tente outro lance!', 'ruim');
-      escolhe(-1);
-      setTimeout(function () { marca('errou', []); }, 700);
-      return true;
-    }
+    if (!certo) { erra(l); return true; }
     aplica(l); passo++;
     if (passo >= PZ.lances.length || X.ehMate(pos)) { vence(); return true; }
     estado = 'esperando';
@@ -249,6 +267,7 @@
   });
   btSolucao.addEventListener('click', function () {
     if (estado === 'resolvido') return;
+    desfazErro();
     clearTimeout(espera);
     usouAjuda = true; estado = 'mostrando';
     btDica.disabled = btSolucao.disabled = true;
