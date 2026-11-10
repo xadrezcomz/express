@@ -108,8 +108,6 @@
 
     <div class="desafio">
       <p class="puzzle-vez" id="pzVez"><i class="bolinha"></i><span>&nbsp;</span></p>
-      <p class="desafio-ajuda" id="pzAjuda" hidden>Travou? <button type="button" id="pzSolucao">Me mostra a jogada</button></p>
-
       <div class="tab-moldura" id="pzMoldura">
         <div class="tabuleiro" id="tabuleiro" aria-label="Tabuleiro do desafio">
           <div class="casas" id="casas"></div>
@@ -118,6 +116,9 @@
         </div>
         <!-- o recado do momento aparece por cima do tabuleiro, onde a pessoa está olhando -->
         <p class="desafio-recado" id="pzMsg" role="status" aria-live="polite"></p>
+
+        <!-- depois do primeiro erro, um botão de ajuda aparece preso na borda de baixo do tabuleiro -->
+        <button type="button" class="desafio-ajuda" id="pzAjuda" hidden>Travou? <b>Me mostra a jogada</b></button>
 
         <!-- o resultado toma o lugar do tabuleiro quando o desafio termina -->
         <div class="resultado" id="pzResultado" hidden>
@@ -135,6 +136,7 @@
           </p>
         </div>
       </div>
+      <a class="desce" href="#partida" aria-label="Ver a partida do dia"><span></span></a>
     </div>
   </div>
 </section>

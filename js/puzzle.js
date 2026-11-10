@@ -21,7 +21,7 @@
   var elCasas = document.getElementById('casas'), elPecas = document.getElementById('pecas');
   var elVez = document.getElementById('pzVez'), elMsg = document.getElementById('pzMsg');
   var elAjuda = document.getElementById('pzAjuda'), elResultado = document.getElementById('pzResultado');
-  var btSolucao = document.getElementById('pzSolucao'), btDeNovo = document.getElementById('pzDeNovo');
+  var btSolucao = document.getElementById('pzAjuda'), btDeNovo = document.getElementById('pzDeNovo');
   var moldura = elTab.parentNode;
 
   // ---------------------------------------------------------------- o puzzle de hoje
