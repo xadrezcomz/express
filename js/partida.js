@@ -1,5 +1,5 @@
 // A partida do dia: uma partida clássica por dia, passando sozinha num
-// tabuleiro escuro inclinado em 3D, com as peças em pé, as casas do lance
+// tabuleiro inclinado em 3D nas cores do site, com as peças em pé, as casas do lance
 // acesas e uma seta de luz da origem ao destino.
 //
 // O banco (dados/partidas.js) só é baixado quando a seção chega perto da tela.
