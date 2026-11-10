@@ -2,7 +2,7 @@
 // tabuleiro inclinado em 3D nas cores do site, com as peças em pé, as casas do lance
 // acesas e uma seta de luz da origem ao destino.
 //
-// O banco (dados/partidas.js) só é baixado quando a seção chega perto da tela.
+// A fatia do banco com a partida de hoje só é baixada quando a seção chega perto da tela.
 (function () {
   'use strict';
   var X = window.Xadrez, secao = document.getElementById('partida'), plano = document.getElementById('p3Plano');
@@ -90,7 +90,7 @@
     return s.replace(/[KQRN]/g, function (c) { return { K: 'R', Q: 'D', R: 'T', N: 'C' }[c]; });
   }
   function texto(n) {
-    if (n === 0) return 'Posição inicial';
+    if (n === 0) return 'Início';
     return Math.ceil(n / 2) + (n % 2 ? '. ' : '… ') + sanPT(sans[n - 1]);
   }
 
@@ -146,12 +146,29 @@
   btVai.addEventListener('click', function () { pausouNaMao = true; pausa(); vaiPara(atual + 1); });
   btInicio.addEventListener('click', function () { pausouNaMao = true; pausa(); vaiPara(0); });
   btVel.addEventListener('click', function () { vel = (vel + 1) % VELS.length; btVel.textContent = VELS[vel].nome; if (tocando) agenda(); });
-  elBarra.addEventListener('input', function () { pausouNaMao = true; pausa(); vaiPara(Number(elBarra.value)); });
+  // A barra de avanço: arrastar (ou tocar) em qualquer ponto dela leva a partida até ali.
+  // É feita com eventos de ponteiro, e não só com o controle do navegador, porque em
+  // alguns celulares o controle padrão exige acertar a bolinha em cheio.
+  var arrastando = false;
+  function daBarra(ev) {
+    var r = elBarra.getBoundingClientRect(), q = Math.max(0, Math.min(1, (ev.clientX - r.left - 12) / (r.width - 24)));
+    pausouNaMao = true; pausa(); vaiPara(Math.round(q * lances.length));
+  }
+  elBarra.addEventListener('pointerdown', function (ev) {
+    if (!G) return;
+    arrastando = true;
+    try { elBarra.setPointerCapture(ev.pointerId); } catch (e) { /* tudo bem */ }
+    daBarra(ev); ev.preventDefault();
+  });
+  elBarra.addEventListener('pointermove', function (ev) { if (arrastando) daBarra(ev); });
+  elBarra.addEventListener('pointerup', function () { arrastando = false; });
+  elBarra.addEventListener('pointercancel', function () { arrastando = false; });
+  // pelo teclado (setas) continua valendo o controle do navegador
+  elBarra.addEventListener('input', function () { if (!arrastando) { pausouNaMao = true; pausa(); vaiPara(Number(elBarra.value)); } });
 
   // ---------------------------------------------------------------- carregar
-  function prepara() {
-    var banco = window.XE_PARTIDAS, dia = numeroDoDia();
-    G = banco[((dia % banco.length) + banco.length) % banco.length];
+  function prepara(partida) {
+    G = partida;
     sans = G.m.split(' ');
     var pos = X.deFEN(X.INICIO); posicoes = [pos]; lances = [];
     for (var i = 0; i < sans.length; i++) {
@@ -159,7 +176,8 @@
       if (!l) { sans.length = i; break; }
       pos = X.joga(pos, l); lances.push(l); posicoes.push(pos);
     }
-    document.getElementById('p3Titulo').textContent = G.t || (G.b + ' x ' + G.p);
+    document.getElementById('p3Nome').textContent = G.t || (G.b + ' x ' + G.p);
+    document.getElementById('p3Curiosidade').textContent = G.c || '';
     document.getElementById('p3Brancas').textContent = G.b;
     document.getElementById('p3Pretas').textContent = G.p;
     document.getElementById('p3Onde').textContent = [G.l, G.a].filter(Boolean).join(', ');
@@ -171,12 +189,7 @@
     secao.classList.add('pronta');
     if (naTela && !CALMO) toca();
   }
-  function carrega() {
-    if (window.XE_PARTIDAS) { prepara(); return; }
-    var s = document.createElement('script');
-    s.src = 'dados/partidas.js'; s.onload = prepara;
-    document.body.appendChild(s);
-  }
+  function carrega() { window.XE_dados('partidas', numeroDoDia(), prepara); }
 
   montaCasas();
   btVel.textContent = VELS[vel].nome;

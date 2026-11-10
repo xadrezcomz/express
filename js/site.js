@@ -21,9 +21,7 @@
   };
 
   // ---------------------------------------------------------------- frase do dia
-  var FRASES = window.XE_FRASES || [];
-  if (FRASES.length && id('fraseTexto')) {
-    var dia = numeroDoDia(), f = FRASES[((dia % FRASES.length) + FRASES.length) % FRASES.length];
+  if (id('fraseTexto') && window.XE_dados) window.XE_dados('frases', numeroDoDia(), function (f) {
     id('fraseTexto').textContent = f.t;
     id('fraseAutor').textContent = f.a;
     id('frasePapel').textContent = f.p || '';
@@ -31,7 +29,7 @@
     id('fraseCompartilhar').addEventListener('click', function () {
       window.XE_compartilha('“' + f.t + '” — ' + f.a, location.origin + location.pathname + '#frase', this);
     });
-  }
+  });
 
   // ---------------------------------------------------------------- venda do curso
   var insta = CFG.instagram || 'https://www.instagram.com/xadrezcomz/';

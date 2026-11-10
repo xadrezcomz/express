@@ -17,7 +17,7 @@ preços), os botões de compra aparecem no topo, no cartão do curso e numa barr
 | Topo: foguete e peças voando com rastro e propulsão | `js/hero.js` | Rastros e propulsões do Rock Orbit, refeitos em canvas 2D |
 | Puzzle do dia | `js/puzzle.js`, `dados/puzzles.js` | Banco aberto do Lichess (CC0); peças e cores do tabuleiro do Slide Chess |
 | Partida do dia (tabuleiro 3D) | `js/partida.js`, `dados/partidas.js` | 400 partidas clássicas (PGN Mentor) |
-| Frase do dia | `js/site.js`, `js/frases.js` | 408 frases de figuras do xadrez e do esporte |
+| Frase do dia | `js/site.js`, `dados/frases.js` | 408 frases de figuras do xadrez e do esporte |
 | O curso (cartão de venda) | `index.html`, `js/site.js`, `js/config.js` | |
 
 `js/xadrez.js` tem as regras do xadrez usadas pelo puzzle, pela partida e pelas ferramentas.
@@ -79,12 +79,19 @@ python3 ferramentas/gera-puzzles.py lichess_db_puzzle.csv.zst
 node ferramentas/gera-partidas.js pasta-com-pgn/
 # e a avaliação de cada lance, que move a barra da partida do dia (precisa do stockfish)
 node ferramentas/avalia-partidas.js
+
+# por fim, corta os bancos nas fatias que o site baixa
+node ferramentas/fatia-dados.js
 ```
 
 A imagem que aparece ao compartilhar o link (`img/compartilhar-2.jpg`) sai de `ferramentas/gera-capa.js`.
 
 A lista de partidas famosas (com os apelidos) fica no começo de `ferramentas/gera-partidas.js`.
-Para trocar ou acrescentar frases, edite `js/frases.js` (uma por linha).
+Para trocar ou acrescentar frases, edite `dados/frases.js` (uma por linha). As frases de curiosidade
+das partidas famosas ficam em `CURIOSIDADES`, no mesmo arquivo da lista.
+
+**Depois de mexer em qualquer banco**, rode `node ferramentas/fatia-dados.js`. O site não baixa os
+bancos inteiros: ele baixa só a fatia do dia, de `dados/fatias/` (cerca de 5 KB em vez de 360 KB).
 
 ## Publicar
 

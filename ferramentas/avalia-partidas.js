@@ -74,7 +74,7 @@ async function main() {
   }));
   fs.writeFileSync(ARQUIVO,
     '// Partidas do dia. Gerado por ferramentas/gera-partidas.js e avaliado por ferramentas/avalia-partidas.js (não edite à mão).\n' +
-    '// b: brancas, p: pretas, a: ano, l: local, r: resultado, t: apelido da partida, m: lances,\n' +
+    '// b: brancas, p: pretas, a: ano, l: local, r: resultado, t: apelido da partida, c: curiosidade, m: lances,\n' +
     '// v: avaliação do Stockfish depois de cada lance (décimos de peão, do lado das brancas; ±1000 e além = mate).\n' +
     'window.XE_PARTIDAS = [\n' + partidas.map(o => JSON.stringify(o)).join(',\n') + '\n];\n');
   console.log('avaliadas', partidas.length, 'partidas na profundidade', PROFUNDIDADE);

@@ -19,7 +19,7 @@
 
 <link rel="icon" type="image/svg+xml" href="img/logo.svg">
 <link rel="preload" href="fontes/chakrapetch-700-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="fontes/exo2-500-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fontes/exo2-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="fontes/fontes.css">
 <link rel="stylesheet" href="css/estilo.css">
 <!-- a configuração e o tema de data entram aqui em cima para o tema não piscar ao abrir -->
@@ -68,18 +68,31 @@
     <p class="olho">Como funciona</p>
     <h2>Xadrez na velocidade do seu dia</h2>
     <ul class="passos">
-      <li class="cartao revela">
-        <span class="passo-icone" aria-hidden="true">⚡</span>
+      <li class="cartao passo revela">
+        <div class="passo-arte arte-tempo" aria-hidden="true">
+          <b>30<small>s</small></b>
+          <span class="arte-video"><i class="arte-play"></i><i class="arte-linha"><i></i></i><em>1:00</em></span>
+        </div>
+        <span class="passo-num" aria-hidden="true">01</span>
         <h3>30 segundos a 1 minuto</h3>
         <p>Cada vídeo ensina uma coisa só, direto ao ponto. Dá para aprender na fila, no ônibus ou no intervalo.</p>
       </li>
-      <li class="cartao revela">
-        <span class="passo-icone" aria-hidden="true">♟</span>
+      <li class="cartao passo revela">
+        <div class="passo-arte arte-zero" aria-hidden="true">
+          <i class="arte-anel"></i><i class="arte-anel"></i>
+          <img src="img/pecas-express/wp.svg" alt="" width="120" height="120" loading="lazy">
+        </div>
+        <span class="passo-num" aria-hidden="true">02</span>
         <h3>Do zero, de verdade</h3>
         <p>Começa em como cada peça se move. Você não precisa saber nada de xadrez para dar o primeiro passo.</p>
       </li>
-      <li class="cartao revela">
-        <span class="passo-icone" aria-hidden="true">🚀</span>
+      <li class="cartao passo revela">
+        <div class="passo-arte arte-degraus" aria-hidden="true">
+          <span><img src="img/pecas-express/wp.svg" alt="" width="60" height="60" loading="lazy"></span>
+          <span><img src="img/pecas-express/wn.svg" alt="" width="60" height="60" loading="lazy"></span>
+          <span><img src="img/pecas-express/wq.svg" alt="" width="60" height="60" loading="lazy"></span>
+        </div>
+        <span class="passo-num" aria-hidden="true">03</span>
         <h3>Um degrau por vez</h3>
         <p>Cada lição se apoia na anterior. Quando você percebe, já está enxergando táticas e xeque-mates.</p>
       </li>
@@ -138,12 +151,11 @@
 <section class="secao partida" id="partida">
   <div class="miolo">
     <p class="olho">Partida do dia</p>
-    <h2>Uma partida clássica por dia</h2>
-    <p class="sub">As partidas mais famosas da história do xadrez, lance a lance. É só assistir.</p>
+    <h2 class="p3-nome" id="p3Nome">&nbsp;</h2>
+    <p class="sub p3-curiosidade" id="p3Curiosidade">&nbsp;</p>
 
     <div class="p3-area">
       <div class="p3-palco" id="p3Palco">
-        <p class="p3-titulo" id="p3Titulo">Carregando a partida…</p>
         <div class="p3-material" aria-hidden="true"><b id="p3MaterialNum">0.0</b><span><i id="p3Material"></i></span></div>
         <div class="p3-cena" aria-hidden="true">
           <div class="p3-plano" id="p3Plano">
@@ -165,7 +177,7 @@
           <p><i class="bolinha pretas"></i><span id="p3Pretas">Pretas</span></p>
           <p class="p3-onde" id="p3Onde"></p>
         </div>
-        <p class="p3-lance" id="p3Lance" aria-live="off">Posição inicial</p>
+        <p class="p3-lance" id="p3Lance" aria-live="off">Início</p>
         <input class="p3-barra" id="p3Barra" type="range" min="0" max="1" value="0" aria-label="Avançar ou voltar na partida">
         <div class="p3-controles">
           <button type="button" class="botao botao-vidro" id="p3Inicio" aria-label="Voltar ao início">⏮</button>
@@ -267,8 +279,8 @@
 
 <script src="js/hero.js" defer></script>
 <script src="js/xadrez.js" defer></script>
-<script src="dados/puzzles.js" defer></script>
-<script src="js/frases.js" defer></script>
+<script src="dados/fatias/indice.js" defer></script>
+<script src="js/dados.js" defer></script>
 <script src="js/puzzle.js" defer></script>
 <script src="js/partida.js" defer></script>
 <script src="js/site.js" defer></script>

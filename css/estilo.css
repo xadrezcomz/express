@@ -171,15 +171,63 @@ button{font:inherit;color:inherit}
 
 /* ------------------------------------------------------------- como funciona */
 .como{background:linear-gradient(180deg,var(--fundo),var(--fundo2))}
-.passos{display:grid;gap:16px;margin-top:28px}
-.passos h3{font-size:1.375rem;margin:.5em 0 .35em;color:#fff}
-.passos p{color:var(--suave)}
-.passo-icone{
-  display:grid;place-items:center;width:56px;height:56px;border-radius:16px;font-size:1.75rem;
-  background:rgba(46,230,255,.14);border:1px solid rgba(46,230,255,.4);color:#fff;
+.passos{display:grid;gap:18px;margin-top:28px}
+/* Cada cartão tem a sua cor (--c) e um desenho animado em cima: o tempo do vídeo,
+   o peão do começo e a escada de peças. */
+.passo{
+  --c:var(--ciano);
+  position:relative;overflow:hidden;padding:0 22px 24px;border-radius:24px;
+  background:
+    radial-gradient(120% 70% at 100% 0%,color-mix(in srgb,var(--c) 34%,transparent),transparent 62%),
+    linear-gradient(165deg,#241a6e,#120b33 70%);
+  border:1px solid color-mix(in srgb,var(--c) 55%,transparent);
+  box-shadow:0 26px 60px -34px #000,0 0 50px -22px var(--c),inset 0 1px 0 rgba(255,255,255,.14);
+  transition:transform .25s ease,box-shadow .25s ease,opacity .6s ease;
 }
-.passos li:nth-child(2){transition-delay:.1s}
-.passos li:nth-child(3){transition-delay:.2s}
+.passo:nth-child(2){--c:var(--ouro);transition-delay:.1s}
+.passo:nth-child(3){--c:var(--rosa);transition-delay:.2s}
+@media (hover:hover){.passo:hover{transform:translateY(-6px);box-shadow:0 34px 70px -34px #000,0 0 70px -16px var(--c),inset 0 1px 0 rgba(255,255,255,.2)}}
+.passo h3{position:relative;font-size:1.5rem;margin:0 0 .4em;color:#fff}
+.passo p{position:relative;color:var(--suave)}
+.passo-num{
+  position:absolute;left:16px;top:12px;z-index:1;font-family:var(--titulo);font-weight:700;font-size:2.75rem;line-height:1;
+  color:transparent;-webkit-text-stroke:2px color-mix(in srgb,var(--c) 38%,transparent);pointer-events:none;
+}
+.passo-arte{position:relative;height:160px;margin:0 -22px 18px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--c) 14%,transparent),transparent)}
+
+/* 1: o tamanho da lição, com a linha do vídeo andando */
+.arte-tempo{flex-direction:column;gap:6px}
+.arte-tempo b{font-family:var(--titulo);font-weight:700;font-size:5rem;line-height:.9;font-style:italic;
+  background:linear-gradient(92deg,#fff,var(--c));-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 18px color-mix(in srgb,var(--c) 70%,transparent))}
+.arte-tempo small{font-size:.5em}
+.arte-video{display:flex;align-items:center;gap:10px;width:min(78%,260px);font-style:normal}
+.arte-play{flex:none;width:0;height:0;border:8px solid transparent;border-left:13px solid #fff;border-right:0}
+.arte-linha{flex:1;height:7px;border-radius:99px;background:rgba(255,255,255,.2);overflow:hidden}
+.arte-linha i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--c),#fff);animation:arte-anda 3.2s linear infinite}
+@keyframes arte-anda{from{width:0}85%,100%{width:100%}}
+.arte-video em{font-family:var(--titulo);font-weight:700;font-size:1rem;font-style:normal;color:#fff;font-variant-numeric:tabular-nums}
+
+/* 2: o peão do começo, com ondas saindo dele */
+.arte-zero img{position:relative;width:118px;height:118px;filter:drop-shadow(0 0 22px color-mix(in srgb,var(--c) 80%,transparent));animation:arte-flutua 3.4s ease-in-out infinite}
+@keyframes arte-flutua{50%{transform:translateY(-8px)}}
+.arte-anel{position:absolute;left:50%;top:50%;width:96px;height:96px;margin:-48px;border-radius:50%;border:2px solid var(--c);opacity:0;animation:arte-onda 2.8s ease-out infinite}
+.arte-anel + .arte-anel{animation-delay:1.4s}
+@keyframes arte-onda{from{transform:scale(.6);opacity:.8}to{transform:scale(2.3);opacity:0}}
+
+/* 3: a escada: peão, cavalo e dama, cada um num degrau mais alto */
+.arte-degraus{align-items:flex-end;gap:8px;padding:0 22px}
+.arte-degraus span{flex:1;max-width:92px;display:flex;justify-content:center;align-items:flex-end;border-radius:10px 10px 0 0;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--c) 70%,transparent),color-mix(in srgb,var(--c) 12%,transparent));
+  border-top:3px solid #fff;position:relative}
+.arte-degraus span:nth-child(1){height:34px}
+.arte-degraus span:nth-child(2){height:66px}
+.arte-degraus span:nth-child(3){height:98px}
+.arte-degraus img{position:absolute;bottom:100%;width:58px;height:58px;filter:drop-shadow(0 0 12px color-mix(in srgb,var(--c) 80%,transparent));animation:arte-pulo 2.7s ease-in-out infinite}
+.arte-degraus span:nth-child(2) img{animation-delay:.3s}
+.arte-degraus span:nth-child(3) img{animation-delay:.6s}
+@keyframes arte-pulo{0%,60%,100%{transform:none}30%{transform:translateY(-10px)}}
 @media (min-width:800px){.passos{grid-template-columns:repeat(3,1fr);gap:22px}}
 
 /* ------------------------------------------------------------- puzzle do dia */
@@ -288,13 +336,10 @@ button{font:inherit;color:inherit}
     linear-gradient(180deg,#0d0730,#07041a);
   border:1px solid var(--linha2);box-shadow:0 30px 70px -36px #000,0 0 60px -20px rgba(160,107,255,.5);
 }
-.p3-titulo{
-  position:relative;z-index:2;text-align:center;font-family:var(--titulo);font-weight:700;
-  font-size:clamp(1.25rem,5.2vw,1.625rem);line-height:1.2;letter-spacing:.04em;text-transform:uppercase;
-  color:var(--ouro);text-shadow:0 0 18px rgba(255,190,80,.55);min-height:2.4em;
-  display:flex;align-items:center;justify-content:center;padding:0 34px;text-wrap:balance;
-}
-.p3-cena{perspective:1100px;perspective-origin:50% 0%;padding:3% 4% 7%}
+/* o nome da partida e a curiosidade dela ficam acima do palco */
+.p3-nome{min-height:1.15em}
+.p3-curiosidade{min-height:3.1em}
+.p3-cena{perspective:1100px;perspective-origin:50% 0%;padding:9% 4% 7%}
 .p3-plano{
   position:relative;width:78%;margin:0 auto;aspect-ratio:1;left:2%;
   transform:rotateX(var(--inclina)) rotateZ(var(--gira));transform-style:preserve-3d;
@@ -367,7 +412,7 @@ button{font:inherit;color:inherit}
 .p3-jogadores .p3-onde{font-family:var(--corpo);font-weight:500;font-size:1.0625rem;color:var(--suave)}
 .p3-lance{font-family:var(--titulo);font-weight:700;font-size:1.75rem;color:var(--ouro);font-variant-numeric:tabular-nums;min-height:1.3em}
 .p3-barra{
-  --feito:0%;-webkit-appearance:none;appearance:none;width:100%;height:32px;background:none;margin:0;cursor:pointer;
+  --feito:0%;-webkit-appearance:none;appearance:none;width:100%;height:44px;background:none;margin:0;cursor:pointer;touch-action:pan-y;
 }
 .p3-barra::-webkit-slider-runnable-track{height:8px;border-radius:99px;background:linear-gradient(90deg,var(--ouro) var(--feito),rgba(255,255,255,.2) var(--feito))}
 .p3-barra::-moz-range-track{height:8px;border-radius:99px;background:linear-gradient(90deg,var(--ouro) var(--feito),rgba(255,255,255,.2) var(--feito))}
@@ -380,7 +425,7 @@ button{font:inherit;color:inherit}
   .p3-area{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:40px}
   .p3-palco{margin:0}
 }
-@media (prefers-reduced-motion:reduce){.p3-plano{animation:none}}
+@media (prefers-reduced-motion:reduce){.p3-plano,.arte-linha i,.arte-zero img,.arte-anel,.arte-degraus img{animation:none}.arte-linha i{width:60%}}
 
 /* ------------------------------------------------------------- frase do dia */
 .frase{background:linear-gradient(180deg,var(--fundo2),var(--fundo))}
