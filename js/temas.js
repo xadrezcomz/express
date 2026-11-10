@@ -22,8 +22,8 @@
   //  selo: a frase do topo            voto: a frase do rodapé
   //  chuva: o que cai do céu — 'neve', 'confete' (com `cores`) ou uma lista de símbolos
   //  festaCores / festaGlifos: o confete de quem resolve o puzzle
-  //  propulsao: uma propulsão a mais no topo, que já vem escolhida
-  //  propulsaoPadrao: qual das propulsões normais já vem escolhida
+  //  propulsao: uma propulsão a mais no rodízio do topo, que fica sempre no foguete
+  //  propulsaoPadrao: qual das propulsões normais fica sempre no foguete
   //  gorro: as peças do topo voam de gorro
   var TEMAS = {
     'natal': {

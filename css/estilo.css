@@ -123,44 +123,25 @@ button{font:inherit;color:inherit}
 .chamada{font-size:clamp(1.1875rem,4.9vw,1.5rem);line-height:1.4;color:#fff;max-width:30em;text-shadow:0 2px 12px rgba(7,4,26,.9)}
 .chamada b{color:var(--ouro)}
 .acoes{display:flex;flex-direction:column;gap:12px;width:100%;max-width:23rem;margin-top:6px}
-.hero-dica{
-  position:absolute;left:0;right:0;bottom:calc(84px + env(safe-area-inset-bottom));
-  text-align:center;font-size:1rem;font-weight:600;color:#fff;pointer-events:none;
-  text-shadow:0 2px 10px #07041a;transition:opacity .6s ease;padding:0 16px;
-  animation:pisca 2.4s ease-in-out infinite;
+/* a setinha no pé do topo, chamando para rolar a página */
+.hero-desce{
+  position:absolute;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));width:56px;height:56px;margin-left:-28px;
+  display:grid;place-items:center;-webkit-tap-highlight-color:transparent;
 }
-.hero-dica.some{opacity:0;animation:none}
+.hero-desce span{
+  width:18px;height:18px;border-right:3px solid #fff;border-bottom:3px solid #fff;border-radius:2px;
+  transform:rotate(45deg);animation:desce 1.8s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(160,107,255,.9));
+}
+@keyframes desce{0%,100%{translate:0 -6px;opacity:.55}50%{translate:0 4px;opacity:1}}
 @keyframes pisca{0%,100%{opacity:.6}50%{opacity:1}}
-.so-mouse{display:none}
-.efeitos{
-  position:absolute;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom));
-  display:flex;justify-content:center;gap:10px;padding:0 14px;
-}
-.efeito{
-  display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
-  min-height:54px;min-width:9.4rem;padding:6px 16px;border-radius:14px;cursor:pointer;
-  background:rgba(16,10,48,.78);border:1px solid var(--linha2);color:var(--texto);
-  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);line-height:1.2;text-align:left;
-  transition:border-color .2s,transform .15s;-webkit-tap-highlight-color:transparent;
-}
-.efeito:hover{border-color:var(--ciano)}
-.efeito:active{transform:scale(.96)}
-.efeito small{font-size:.8125rem;font-weight:600;color:var(--suave);text-transform:uppercase;letter-spacing:.08em}
-.efeito b{font-family:var(--titulo);font-size:1.0625rem;color:var(--ciano)}
-.efeito b::after{content:' ›';color:var(--ouro)}
-@media (hover:hover) and (pointer:fine){
-  .so-toque{display:none}
-  .so-mouse{display:inline}
-}
+/* no celular o texto fica no meio da tela, com o voo passando em volta */
+.hero{justify-content:center;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
 @media (min-width:800px){
-  .hero{justify-content:center;padding-bottom:90px}
+  .hero{padding-bottom:90px}
   .acoes{flex-direction:row;max-width:none;width:auto}
-  .efeitos{left:auto;right:22px;bottom:22px;flex-direction:column;padding:0}
-  .hero-dica{bottom:30px}
 }
 @media (max-height:640px) and (max-width:799px){
   .hero{padding-top:calc(var(--topo) + 16px)}
-  .hero-dica{display:none}
 }
 
 /* ------------------------------------------------------------- seções */
@@ -505,6 +486,6 @@ body.tem-barra .rodape{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   .revela{opacity:1;transform:none;transition:none}
-  .hero-dica,.tela-ponto,.casa.dica::after{animation:none}
+  .hero-desce span,.tela-ponto,.casa.dica::after{animation:none}
   .curso-cartao{transform:none !important}
 }
