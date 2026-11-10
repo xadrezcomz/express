@@ -30,8 +30,8 @@ html[data-tema] #puzzle .olho::before{content:var(--i-puzzle)}
 html[data-tema] #partida .olho::before{content:var(--i-partida)}
 html[data-tema] #frase .olho::before{content:var(--i-frase)}
 html[data-tema] #curso .olho::before{content:var(--i-curso)}
-html[data-tema] .passos li:nth-child(odd) .passo-icone{background:color-mix(in srgb,var(--t1) 16%,transparent);border-color:color-mix(in srgb,var(--t1) 55%,transparent)}
-html[data-tema] .passos li:nth-child(even) .passo-icone{background:color-mix(in srgb,var(--t2) 16%,transparent);border-color:color-mix(in srgb,var(--t2) 55%,transparent)}
+html[data-tema] .passo:nth-child(odd){--c:var(--t1)}
+html[data-tema] .passo:nth-child(even){--c:var(--t2)}
 html[data-tema] .tab-moldura{
   background:linear-gradient(145deg,color-mix(in srgb,var(--t1) 60%,#171042),#171042 45%,color-mix(in srgb,var(--t2) 45%,#171042));
   box-shadow:0 0 0 1px rgba(255,255,255,.3),inset 0 1px 0 rgba(255,255,255,.2),

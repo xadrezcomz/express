@@ -1,13 +1,20 @@
-// O puzzle do dia: um exercício por dia, tirado de dados/puzzles.js (banco do Lichess).
+// O puzzle do dia: um exercício por dia, tirado do banco do Lichess (dados/puzzles.js, em fatias).
 //
 // No banco, a posição (FEN) vem um lance ANTES do exercício: o primeiro lance da
 // lista é do adversário, e só então é a vez de quem resolve. Como no Lichess,
 // vale o lance previsto ou qualquer lance que dê xeque-mate.
 (function () {
   'use strict';
-  var X = window.Xadrez, BANCO = window.XE_PUZZLES;
-  var elTab = document.getElementById('tabuleiro');
-  if (!X || !BANCO || !BANCO.length || !elTab) return;
+  var X = window.Xadrez, elTab = document.getElementById('tabuleiro');
+  if (!X || !elTab || !window.XE_dados) return;
+  // Dia 0 = segunda-feira, 5 de janeiro de 2026 (a dificuldade do banco sobe de segunda a domingo).
+  function numeroDoDia(data) {
+    var d = data || new Date();
+    return Math.round((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(2026, 0, 5)) / 86400000);
+  }
+  var hoje = numeroDoDia();
+  // só a fatia do banco com o puzzle de hoje é baixada; o resto começa quando ela chega
+  window.XE_dados('puzzles', hoje, function (linha) {
 
   var elCasas = document.getElementById('casas'), elPecas = document.getElementById('pecas');
   var elVez = document.getElementById('pzVez'), elMsg = document.getElementById('pzMsg');
@@ -16,13 +23,7 @@
   var moldura = elTab.parentNode;
 
   // ---------------------------------------------------------------- o puzzle de hoje
-  // Dia 0 = segunda-feira, 5 de janeiro de 2026 (a dificuldade do banco sobe de segunda a domingo).
-  function numeroDoDia(data) {
-    var d = data || new Date();
-    return Math.round((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(2026, 0, 5)) / 86400000);
-  }
-  var hoje = numeroDoDia();
-  var campos = BANCO[((hoje % BANCO.length) + BANCO.length) % BANCO.length].split('|');
+  var campos = linha.split('|');
   var PZ = { id: campos[0], fen: campos[1], lances: campos[2].split(' '), rating: Number(campos[3]), temas: campos[4].split(' ') };
 
   var TEMAS = {
@@ -352,4 +353,5 @@
   comeca();
 
   window.XE_PUZZLE = { hoje: PZ, estado: function () { return estado; } };
+  });
 })();
