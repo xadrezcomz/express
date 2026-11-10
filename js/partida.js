@@ -19,7 +19,6 @@
   var atual = 0, tocando = false, relogio = null, naTela = false, pausouNaMao = false;
   var VELS = [{ nome: '1x', ms: 1100 }, { nome: '2x', ms: 600 }, { nome: '½x', ms: 2000 }], vel = 0;
   var casas = [], pecas = {};
-  var VALOR = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
 
   function numeroDoDia() {
     var d = new Date();
@@ -72,10 +71,18 @@
     }
   }
 
-  function material(pos) {
-    var s = 0;
-    for (var i = 0; i < 64; i++) { var p = pos.casas[i]; if (p) s += VALOR[p.toLowerCase()] * (p === p.toUpperCase() ? 1 : -1); }
-    return s;
+  // A barra de avaliação: quanto as brancas estão melhor (ou pior) depois de cada lance,
+  // pela conta do Stockfish que vem pronta no banco (campo "v", em décimos de peão;
+  // de ±1000 em diante é mate à vista). Devolve [altura da parte branca em %, texto].
+  function avaliacao(n) {
+    var v = n === 0 ? 2 : G.v[n - 1];
+    if (v >= 1000 || v <= -1000) {
+      var lances = Math.abs(v) - 1000;
+      return [v > 0 ? 100 : 0, lances ? 'M' + lances : (v > 0 ? '1-0' : '0-1')];
+    }
+    // a mesma curva dos sites de xadrez: um peão já mexe bem a barra, cinco quase a enchem
+    var altura = 50 + 50 * (2 / (1 + Math.exp(-0.0368 * v)) - 1);
+    return [Math.max(3, Math.min(97, altura)), (v > 0 ? '+' : (v < 0 ? '−' : '')) + (Math.abs(v) / 10).toFixed(1)];
   }
 
   // (a notação sai em português: R rei, D dama, T torre, B bispo, C cavalo)
@@ -88,12 +95,10 @@
   }
 
   function pinta(n) {
-    var m = material(posicoes[n]);
     elLance.textContent = texto(n);
     elBarra.max = lances.length; elBarra.value = n;
     elBarra.style.setProperty('--feito', (lances.length ? n / lances.length * 100 : 0) + '%');
-    elMat.style.height = Math.max(6, Math.min(94, 50 + m * 4.5)) + '%';
-    elMatNum.textContent = m === 0 ? '=' : (m > 0 ? '+' + m : '−' + (-m));
+    if (G.v) { var av = avaliacao(n); elMat.style.height = av[0] + '%'; elMatNum.textContent = av[1]; }
     var fim = n === lances.length;
     document.getElementById('p3Fim').hidden = !fim;
     btToca.textContent = tocando ? '⏸' : (fim ? '↺' : '▶');
@@ -161,6 +166,7 @@
     var mate = /#$/.test(sans[sans.length - 1] || '');
     document.getElementById('p3FimTexto').textContent =
       (G.r === '1-0' ? 'Vitória das brancas' : 'Vitória das pretas') + (mate ? ' por xeque-mate' : ' — o adversário abandonou') + '.';
+    if (!G.v || G.v.length < lances.length) { G.v = null; elMat.parentNode.parentNode.hidden = true; }   // sem avaliação no banco: a barra some
     montaPecas(posicoes[0]); destaca(0); pinta(0);
     secao.classList.add('pronta');
     if (naTela && !CALMO) toca();

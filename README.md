@@ -77,7 +77,11 @@ python3 ferramentas/gera-puzzles.py lichess_db_puzzle.csv.zst
 
 # partidas: uma pasta com os PGN por jogador de pgnmentor.com/files.html
 node ferramentas/gera-partidas.js pasta-com-pgn/
+# e a avaliação de cada lance, que move a barra da partida do dia (precisa do stockfish)
+node ferramentas/avalia-partidas.js
 ```
+
+A imagem que aparece ao compartilhar o link (`img/compartilhar-2.jpg`) sai de `ferramentas/gera-capa.js`.
 
 A lista de partidas famosas (com os apelidos) fica no começo de `ferramentas/gera-partidas.js`.
 Para trocar ou acrescentar frases, edite `js/frases.js` (uma por linha).

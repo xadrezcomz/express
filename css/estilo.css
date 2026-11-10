@@ -368,11 +368,11 @@ button{font:inherit;color:inherit}
 .p3-letras{left:0;right:0;top:101%;height:7%}
 .p3-numeros{top:0;bottom:0;right:101%;width:7%;flex-direction:column}
 .p3-numeros i{display:grid;place-items:center}
-/* a barra de material (quem tem mais peças), como a barra de avaliação dos vídeos */
-.p3-material{position:absolute;left:10px;top:30%;bottom:12%;z-index:2;display:flex;flex-direction:column;align-items:center;gap:6px;width:26px}
-.p3-material b{font-family:var(--titulo);font-size:.875rem;color:#fff}
+/* a barra de avaliação: a parte branca sobe quando as brancas estão melhor */
+.p3-material{position:absolute;left:6px;top:30%;bottom:12%;z-index:2;display:flex;flex-direction:column;align-items:center;gap:6px;width:40px}
+.p3-material b{font-family:var(--titulo);font-size:.875rem;color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap}
 .p3-material span{flex:1;width:9px;border-radius:99px;background:#120b33;border:1px solid var(--linha2);position:relative;overflow:hidden}
-.p3-material i{position:absolute;left:0;right:0;bottom:0;height:50%;background:#fff;transition:height .5s ease}
+.p3-material i{position:absolute;left:0;right:0;bottom:0;height:50%;background:#fff;transition:height .6s cubic-bezier(.3,.8,.3,1)}
 .p3-fim{
   position:relative;z-index:2;margin:6px auto 0;width:fit-content;max-width:92%;text-align:center;
   padding:.5em 1.1em;border-radius:16px;font-weight:700;font-size:1.0625rem;color:#241300;

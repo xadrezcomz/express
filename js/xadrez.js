@@ -205,10 +205,24 @@
     return achado;
   }
 
+  // A posição em texto FEN (os dois contadores do fim vão fixos: quem lê aqui não precisa deles).
+  function paraFEN(pos) {
+    var linhas = [];
+    for (var y = 0; y < 8; y++) {
+      var linha = '', vazias = 0;
+      for (var x = 0; x < 8; x++) {
+        var p = pos.casas[y * 8 + x];
+        if (p === '') vazias++; else { if (vazias) { linha += vazias; vazias = 0; } linha += p; }
+      }
+      linhas.push(linha + (vazias || ''));
+    }
+    return linhas.join('/') + ' ' + pos.vez + ' ' + (pos.roque || '-') + ' ' + (pos.ep >= 0 ? indiceParaCasa(pos.ep) : '-') + ' 0 1';
+  }
+
   var INICIO = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
   var api = {
-    deSAN: deSAN, INICIO: INICIO,
+    deSAN: deSAN, INICIO: INICIO, paraFEN: paraFEN,
     deFEN: deFEN, lances: lances, joga: joga, emXeque: emXeque, ehMate: ehMate,
     uci: uci, deUCI: deUCI, corDa: corDa, casaDoRei: casaDoRei,
     casaParaIndice: casaParaIndice, indiceParaCasa: indiceParaCasa
