@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Xadrez Express - O jeito mais rápido de evoluir no xadrez ♟️🚀</title>
-<meta name="description" content="Xadrez Express: vídeos de 30 segundos a 1 minuto que ensinam xadrez do zero, um passo por vez, sem enrolação. Resolva o puzzle do dia, assista à partida do dia e leia a frase do dia.">
+<meta name="description" content="Xadrez Express: vídeos de 30 segundos a 1 minuto que ensinam xadrez do zero, um passo por vez, sem enrolação. Aceite o desafio do dia, assista à partida do dia e leia a frase do dia.">
 <meta name="theme-color" content="#0a0620">
 
 <meta property="og:type" content="website">
 <meta property="og:locale" content="pt_BR">
 <meta property="og:title" content="Xadrez Express - O jeito mais rápido de evoluir no xadrez ♟️🚀">
-<meta property="og:description" content="Vídeos de 30 segundos a 1 minuto que ensinam xadrez do zero, sem enrolação. Resolva o puzzle do dia!">
+<meta property="og:description" content="Vídeos de 30 segundos a 1 minuto que ensinam xadrez do zero, sem enrolação. Aceite o desafio do dia!">
 <meta property="og:url" content="https://xadrezcomz.github.io/express/">
 <meta property="og:image" content="https://xadrezcomz.github.io/express/img/compartilhar-2.jpg">
 <meta property="og:image:width" content="1200">
@@ -34,7 +34,7 @@
     <span>Xadrez <b>Express</b></span>
   </a>
   <nav class="menu" aria-label="Seções">
-    <a href="#puzzle">Puzzle do dia</a>
+    <a href="#puzzle">Desafio</a>
     <a href="#partida">Partida do dia</a>
     <a href="#frase">Frase do dia</a>
     <a href="#curso">O curso</a>
@@ -55,7 +55,7 @@
     <p class="chamada">Aprenda xadrez em lições de <b>30 segundos a 1 minuto</b>. Do zero, um passo por vez, sem enrolação.</p>
     <div class="acoes">
       <a class="botao botao-ouro" href="#curso">Conhecer o curso</a>
-      <a class="botao botao-vidro" href="#puzzle">Resolver o puzzle de hoje</a>
+      <a class="botao botao-vidro" href="#puzzle">Aceitar o desafio de hoje</a>
     </div>
   </div>
 
@@ -103,46 +103,38 @@
 <!-- ============================================================ PUZZLE DO DIA -->
 <section class="secao puzzle" id="puzzle">
   <div class="miolo">
-    <p class="olho">Puzzle do dia</p>
-    <h2>Um desafio novo todo dia</h2>
-    <p class="sub">Ache o melhor lance. Toque na peça e depois na casa, ou arraste.</p>
+    <p class="olho">Desafio</p>
+    <h2>Você consegue achar a melhor jogada?</h2>
 
-    <p class="puzzle-vez" id="pzVez"><i class="bolinha"></i><span>Carregando o puzzle…</span></p>
+    <div class="desafio">
+      <p class="puzzle-vez" id="pzVez"><i class="bolinha"></i><span>&nbsp;</span></p>
+      <p class="desafio-ajuda" id="pzAjuda" hidden>Travou? <button type="button" id="pzSolucao">Me mostra a jogada</button></p>
 
-    <div class="puzzle-area">
-      <div class="tab-moldura">
-        <div class="tabuleiro" id="tabuleiro" aria-label="Tabuleiro do puzzle do dia">
+      <div class="tab-moldura" id="pzMoldura">
+        <div class="tabuleiro" id="tabuleiro" aria-label="Tabuleiro do desafio">
           <div class="casas" id="casas"></div>
           <canvas class="tab-rastro" id="tabRastro" aria-hidden="true"></canvas>
           <div class="pecas" id="pecas"></div>
         </div>
+        <!-- o recado do momento aparece por cima do tabuleiro, onde a pessoa está olhando -->
+        <p class="desafio-recado" id="pzMsg" role="status" aria-live="polite"></p>
+
+        <!-- o resultado toma o lugar do tabuleiro quando o desafio termina -->
+        <div class="resultado" id="pzResultado" hidden>
+          <p class="resultado-titulo" id="pzTitulo"></p>
+          <p class="resultado-golpe" id="pzGolpe" hidden></p>
+          <p class="resultado-texto" id="pzTexto"></p>
+          <a class="botao botao-ouro botao-g" id="pzBotao" href="#curso">Quero evoluir mais rápido</a>
+          <p class="resultado-pe">
+            <span id="pzSequencia" hidden></span>
+            <span>Amanhã tem outro desafio, em <b id="pzRelogio">--:--:--</b></span>
+          </p>
+          <p class="resultado-links">
+            <button type="button" id="pzCompartilhar">Desafiar um amigo</button>
+            <button type="button" id="pzDeNovo">Jogar de novo</button>
+          </p>
+        </div>
       </div>
-
-      <aside class="puzzle-lado">
-        <div class="puzzle-info">
-          <span class="etiqueta" id="pzData">Hoje</span>
-          <span class="etiqueta" id="pzNivel">Nível</span>
-          <span class="etiqueta etiqueta-fogo" id="pzSequencia" hidden></span>
-        </div>
-        <p class="puzzle-msg" id="pzMsg" role="status" aria-live="polite"></p>
-
-        <div class="puzzle-botoes">
-          <button type="button" class="botao botao-vidro" id="pzDica">💡 Dica</button>
-          <button type="button" class="botao botao-vidro" id="pzSolucao">Ver solução</button>
-          <button type="button" class="botao botao-vidro" id="pzDeNovo">↺ Recomeçar</button>
-        </div>
-
-        <div class="puzzle-vitoria" id="pzVitoria" hidden>
-          <p class="vitoria-titulo">Parabéns! 🎉</p>
-          <p class="vitoria-texto" id="pzVitoriaTexto"></p>
-          <p class="vitoria-proximo">Próximo puzzle em <b id="pzRelogio">--:--:--</b></p>
-          <div class="puzzle-botoes">
-            <button type="button" class="botao botao-ouro" id="pzCompartilhar">Desafiar um amigo</button>
-            <a class="botao botao-vidro" href="#curso">Quero aprender mais</a>
-          </div>
-        </div>
-        <p class="credito">Puzzle do banco aberto do <a id="pzLichess" href="https://lichess.org/training" target="_blank" rel="noopener">Lichess</a>.</p>
-      </aside>
     </div>
   </div>
 </section>
@@ -265,7 +257,7 @@
       <span>Xadrez <b>Express</b></span>
     </a>
     <p><a class="rodape-insta" href="https://www.instagram.com/xadrezcomz/" target="_blank" rel="noopener" data-instagram>Siga @xadrezcomz no Instagram</a></p>
-    <p class="credito">Puzzles: banco aberto do Lichess (CC0) · Partidas: PGN Mentor</p>
+    <p class="credito">Desafios: banco aberto do <a href="https://lichess.org/training" target="_blank" rel="noopener">Lichess</a> (CC0) · Partidas: PGN Mentor</p>
   </div>
 </footer>
 

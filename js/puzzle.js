@@ -1,4 +1,6 @@
-// O puzzle do dia: um exercício por dia, tirado do banco do Lichess (dados/puzzles.js, em fatias).
+// O desafio do dia: um exercício por dia, tirado do banco do Lichess (dados/puzzles.js, em fatias).
+// Quando termina, o tabuleiro dá lugar a um cartão que fala com a pessoa conforme ela se saiu
+// (de primeira, depois de errar, ou pedindo a jogada) e leva ao curso.
 //
 // No banco, a posição (FEN) vem um lance ANTES do exercício: o primeiro lance da
 // lista é do adversário, e só então é a vez de quem resolve. Como no Lichess,
@@ -18,22 +20,24 @@
 
   var elCasas = document.getElementById('casas'), elPecas = document.getElementById('pecas');
   var elVez = document.getElementById('pzVez'), elMsg = document.getElementById('pzMsg');
-  var elVitoria = document.getElementById('pzVitoria'), elVitoriaTexto = document.getElementById('pzVitoriaTexto');
-  var btDica = document.getElementById('pzDica'), btSolucao = document.getElementById('pzSolucao'), btDeNovo = document.getElementById('pzDeNovo');
+  var elAjuda = document.getElementById('pzAjuda'), elResultado = document.getElementById('pzResultado');
+  var btSolucao = document.getElementById('pzSolucao'), btDeNovo = document.getElementById('pzDeNovo');
   var moldura = elTab.parentNode;
 
   // ---------------------------------------------------------------- o puzzle de hoje
   var campos = linha.split('|');
   var PZ = { id: campos[0], fen: campos[1], lances: campos[2].split(' '), rating: Number(campos[3]), temas: campos[4].split(' ') };
 
-  var TEMAS = {
-    fork: 'garfo', pin: 'cravada', skewer: 'espeto', discoveredAttack: 'ataque descoberto', doubleCheck: 'xeque duplo',
-    hangingPiece: 'peça pendurada', backRankMate: 'mate do corredor', smotheredMate: 'mate abafado', sacrifice: 'sacrifício',
-    deflection: 'desvio', attraction: 'atração', trappedPiece: 'peça presa', promotion: 'promoção', capturingDefender: 'eliminar o defensor',
-    intermezzo: 'lance intermediário', xRayAttack: 'raio X', zugzwang: 'zugzwang', quietMove: 'lance silencioso', clearance: 'liberação',
-    interference: 'interferência', exposedKing: 'rei exposto', kingsideAttack: 'ataque na ala do rei', queensideAttack: 'ataque na ala da dama',
-    advancedPawn: 'peão avançado', attackingF2F7: 'ataque em f2/f7', defensiveMove: 'lance defensivo'
-  };
+  // O nome do golpe, quando o banco diz qual foi (vale o primeiro da lista que o desafio tiver).
+  var GOLPES = [
+    ['backRankMate', 'Esse é o mate do corredor.'], ['smotheredMate', 'Esse é o mate abafado.'],
+    ['doubleCheck', 'Esse golpe se chama xeque duplo.'], ['fork', 'Esse golpe se chama garfo: uma peça atacando duas.'],
+    ['pin', 'Esse golpe se chama cravada.'], ['skewer', 'Esse golpe se chama espeto.'],
+    ['discoveredAttack', 'Esse golpe se chama ataque descoberto.'], ['deflection', 'Esse golpe se chama desvio.'],
+    ['attraction', 'Esse golpe se chama atração.'], ['sacrifice', 'Isso foi um sacrifício: entregar para ganhar mais.'],
+    ['trappedPiece', 'A peça ficou presa, sem casa para fugir.'], ['hangingPiece', 'A peça estava solta, sem defesa.'],
+    ['promotion', 'O peão chegou lá e virou dama.']
+  ];
 
   // ---------------------------------------------------------------- estado
   var pos, passo, estado, escolhida = -1, alvos = [], erros = 0, usouAjuda = false, virado = false, minhaCor = 'w';
@@ -148,7 +152,13 @@
     else { ctxRastro.clearRect(0, 0, ladoTab, ladoTab); rastroLigado = false; }
   }
 
-  function diz(texto, tipo) { elMsg.textContent = texto; elMsg.className = 'puzzle-msg' + (tipo ? ' ' + tipo : ''); }
+  // O recado aparece por cima do tabuleiro (é para onde a pessoa está olhando) e some sozinho.
+  var somRecado = null;
+  function diz(texto, tipo) {
+    clearTimeout(somRecado);
+    elMsg.textContent = texto; elMsg.className = 'desafio-recado aparece' + (tipo ? ' ' + tipo : '');
+    somRecado = setTimeout(function () { elMsg.classList.remove('aparece'); }, 2400);
+  }
   function mostraVez() {
     var brancas = minhaCor === 'w', mate = null;
     PZ.temas.forEach(function (t) { var m = /^mateIn(\d)$/.exec(t); if (m) mate = Number(m[1]); });
@@ -165,12 +175,11 @@
     virado = minhaCor === 'b';
     passo = 0; erros = 0; usouAjuda = false; estado = 'esperando';
     montaCasas(); montaPecas(); mostraVez();
-    elVitoria.hidden = true; moldura.classList.remove('venceu');
-    btDica.disabled = btSolucao.disabled = false;
-    diz('O adversário acabou de jogar…');
+    elResultado.hidden = true; moldura.classList.remove('venceu', 'fim'); elAjuda.hidden = true;
+    clearTimeout(fimPendente);
     espera = setTimeout(function () {
       aplica(X.deUCI(pos, PZ.lances[0])); passo = 1; estado = 'jogando';
-      diz(memoria().ultimo === hoje ? 'Você já resolveu o de hoje ✓ Quer jogar de novo?' : 'Sua vez! Ache o melhor lance.', memoria().ultimo === hoje ? 'bom' : '');
+      diz('Sua vez!');
     }, 800);
   }
 
@@ -186,7 +195,8 @@
     el.classList.add('errada');
     if (vitima) vitima.classList.add('coberta');
     marca('errou', [l.para]);
-    diz(erros > 1 ? 'Ainda não. Que tal pedir uma dica?' : 'Não é esse. Tente outro lance!', 'ruim');
+    diz(erros > 1 ? 'Ainda não. Tenta outro.' : 'Não é esse. Tenta outro.', 'ruim');
+    elAjuda.hidden = false;
     erroPendente = { el: el, de: l.de, vitima: vitima, relogio: setTimeout(desfazErro, 950) };
   }
   function desfazErro() {
@@ -216,7 +226,7 @@
     aplica(l); passo++;
     if (passo >= PZ.lances.length || X.ehMate(pos)) { vence(); return true; }
     estado = 'esperando';
-    diz('Boa! Continue…', 'bom');
+    diz('Boa! Continua…', 'bom');
     espera = setTimeout(function () {
       aplica(X.deUCI(pos, PZ.lances[passo])); passo++; estado = 'jogando';
       diz('Isso! E agora?', 'bom');
@@ -224,55 +234,66 @@
     return true;
   }
 
+  var fimPendente = null;
   function vence() {
     estado = 'resolvido';
-    btDica.disabled = btSolucao.disabled = true;
+    elAjuda.hidden = true;
     moldura.classList.add('venceu');
     elTab.classList.remove('venceu'); void elTab.offsetWidth; elTab.classList.add('venceu');
-    var tema = null;
-    PZ.temas.forEach(function (t) { if (!tema && TEMAS[t]) tema = TEMAS[t]; });
+    if (!usouAjuda) {
+      var m = memoria();
+      if (m.ultimo !== hoje) {
+        m.sequencia = m.ultimo === hoje - 1 ? (m.sequencia || 0) + 1 : 1;
+        m.ultimo = hoje; m.total = (m.total || 0) + 1;
+        grava(m);
+      }
+      diz(X.ehMate(pos) ? 'Xeque-mate!' : 'É isso!', 'bom');
+      if (window.XE_festa) window.XE_festa(moldura);
+    }
+    // um instante para ver o lance final (e o confete), e então o resultado toma o lugar do tabuleiro
+    fimPendente = setTimeout(mostraResultado, usouAjuda ? 1300 : 1700);
+  }
+
+  // O cartão de resultado: fala conforme a pessoa se saiu e leva ao curso.
+  function mostraResultado() {
+    var titulo, texto, botao, ordinais = ['', 'segunda', 'terceira', 'quarta', 'quinta'];
     if (usouAjuda) {
-      diz('Essa foi a solução. Amanhã tem mais!', 'bom');
-      elVitoriaTexto.textContent = '';
-      return;
+      titulo = 'Essa era difícil mesmo.';
+      texto = 'Ninguém nasce sabendo esse lance. É um padrão, e padrão se aprende. No Xadrez Express, um por vídeo.';
+      botao = 'Quero aprender esses padrões';
+    } else if (erros === 0) {
+      // "mestre" fica para os dias em que o desafio é difícil de verdade
+      titulo = PZ.rating >= 1100 ? 'De primeira. Você jogou como um mestre.' : 'De primeira! Olho afiado.';
+      texto = 'Esse olho para a jogada certa dá para treinar. No Xadrez Express você aprende a enxergar lances assim em vídeos de 1 minuto.';
+      botao = 'Quero evoluir mais rápido';
+    } else {
+      titulo = 'Achou! ' + (ordinais[erros] ? 'Na ' + ordinais[erros] + ' tentativa.' : 'Depois de ' + (erros + 1) + ' tentativas.');
+      texto = 'Errar antes de acertar é como todo mundo aprende. No curso você conhece os padrões que fazem a jogada certa aparecer de primeira.';
+      botao = 'Quero acertar de primeira';
     }
-    var m = memoria();
-    if (m.ultimo !== hoje) {
-      m.sequencia = m.ultimo === hoje - 1 ? (m.sequencia || 0) + 1 : 1;
-      m.ultimo = hoje; m.total = (m.total || 0) + 1;
-      grava(m);
-    }
-    mostraSequencia();
-    diz(X.ehMate(pos) ? 'Xeque-mate!' : 'Puzzle resolvido!', 'bom');
-    elVitoriaTexto.textContent = (erros === 0 ? 'De primeira! ' : 'Você resolveu o puzzle de hoje. ') +
-      (tema ? 'O tema era: ' + tema + '. ' : '') +
-      (m.sequencia > 1 ? 'Já são ' + m.sequencia + ' dias seguidos!' : 'Volte amanhã para manter a sequência.');
-    elVitoria.hidden = false;
-    if (window.XE_festa) window.XE_festa(moldura);
+    var golpe = '';
+    GOLPES.forEach(function (g) { if (!golpe && PZ.temas.indexOf(g[0]) >= 0) golpe = g[1]; });
+    document.getElementById('pzTitulo').textContent = titulo;
+    document.getElementById('pzTexto').textContent = texto;
+    document.getElementById('pzBotao').textContent = botao;
+    var elGolpe = document.getElementById('pzGolpe');
+    elGolpe.hidden = !golpe; elGolpe.textContent = golpe;
+    var m = memoria(), elSeq = document.getElementById('pzSequencia');
+    elSeq.hidden = !(m.ultimo === hoje && m.sequencia > 1);
+    elSeq.textContent = '🔥 ' + m.sequencia + ' dias seguidos';
+    elMsg.classList.remove('aparece');
+    moldura.classList.add('fim');
+    elResultado.hidden = false;
   }
 
-  function mostraSequencia() {
-    var m = memoria(), el = document.getElementById('pzSequencia');
-    var viva = m.ultimo === hoje || m.ultimo === hoje - 1;
-    if (viva && m.sequencia > 0) { el.hidden = false; el.textContent = '🔥 ' + m.sequencia + (m.sequencia > 1 ? ' dias seguidos' : ' dia'); }
-    else el.hidden = true;
-  }
-
-  // ---------------------------------------------------------------- botões
-  btDica.addEventListener('click', function () {
-    if (estado !== 'jogando') return;
-    var l = X.deUCI(pos, PZ.lances[passo]);
-    var jaTem = casas[l.de].classList.contains('dica');
-    marca('dica', jaTem ? [l.de, l.para] : [l.de]);
-    diz(jaTem ? 'A peça vai para a casa marcada.' : 'Olhe bem para a peça marcada…');
-  });
+  // ---------------------------------------------------------------- "me mostra a jogada" e "jogar de novo"
   btSolucao.addEventListener('click', function () {
-    if (estado === 'resolvido') return;
+    if (estado === 'resolvido' || estado === 'mostrando') return;
     desfazErro();
     clearTimeout(espera);
     usouAjuda = true; estado = 'mostrando';
-    btDica.disabled = btSolucao.disabled = true;
-    diz('Veja a solução:');
+    elAjuda.hidden = true;
+    diz('Olha só:');
     (function proximo() {
       if (passo >= PZ.lances.length) { vence(); return; }
       aplica(X.deUCI(pos, PZ.lances[passo])); passo++;
@@ -328,12 +349,7 @@
   });
   // capturar: a peça do adversário não recebe o toque (pointer-events), então o clique cai na casa
 
-  // ---------------------------------------------------------------- cabeçalho e relógio
-  var nivel = PZ.rating < 950 ? 'Fácil' : (PZ.rating < 1250 ? 'Médio' : 'Difícil');
-  document.getElementById('pzNivel').textContent = 'Nível: ' + nivel;
-  document.getElementById('pzData').textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
-  document.getElementById('pzLichess').href = 'https://lichess.org/training/' + PZ.id;
-
+  // ---------------------------------------------------------------- relógio e compartilhar
   var elRelogio = document.getElementById('pzRelogio');
   function relogio() {
     var a = new Date(), fim = new Date(a.getFullYear(), a.getMonth(), a.getDate() + 1), s = Math.max(0, Math.floor((fim - a) / 1000));
@@ -345,11 +361,10 @@
   setInterval(relogio, 1000); relogio();
 
   document.getElementById('pzCompartilhar').addEventListener('click', function () {
-    var texto = 'Resolvi o puzzle do dia do Xadrez Express' + (erros === 0 ? ' de primeira' : '') + '! Será que você consegue?';
+    var texto = usouAjuda ? 'Olha o desafio de hoje do Xadrez Express. Será que você acha a jogada?' : 'Resolvi o desafio de hoje do Xadrez Express' + (erros === 0 ? ' de primeira' : '') + '! Será que você consegue?';
     if (window.XE_compartilha) window.XE_compartilha(texto, location.origin + location.pathname + '#puzzle', this);
   });
 
-  mostraSequencia();
   comeca();
 
   window.XE_PUZZLE = { hoje: PZ, estado: function () { return estado; } };

@@ -33,11 +33,9 @@ html[data-tema="natal"] .hero h1::before{
 html[data-tema="natal"] .selo{background:rgba(60,12,34,.75)}
 
 /* neve acumulada em cima dos cartões */
-html[data-tema="natal"] .cartao,
-html[data-tema="natal"] .puzzle-vitoria{position:relative}
+html[data-tema="natal"] .cartao{position:relative}
 html[data-tema="natal"] .cartao::before,
-html[data-tema="natal"] .frase-cartao::after,
-html[data-tema="natal"] .puzzle-vitoria::before{
+html[data-tema="natal"] .frase-cartao::after{
   content:'';position:absolute;left:16px;right:16px;top:-8px;height:20px;pointer-events:none;border-radius:10px 10px 0 0;
   background:
     radial-gradient(circle at 10px 10px,var(--natal-neve) 9.5px,transparent 10px) 0 0/20px 20px round,
