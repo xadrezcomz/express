@@ -35,7 +35,7 @@ altera os arquivos do base:
 - Para espiar sem publicar: abra o site com `?tema=natal` ou `?tema=base`.
 - Cada tema mora em `temas/<nome>.css` (cores e enfeites) e `temas/<nome>.js` (movimento, como a
   neve), mais uma linha na lista de `js/temas.js`. Para criar outro, copie os do Natal.
-- A tag `ponto-base` do git guarda o site como estava antes do primeiro tema.
+- No histórico do git, o commit `61c0294` é o site como estava antes do primeiro tema.
 
 `img/pecas-express/` tem um conjunto de peças próprio (gerado por `ferramentas/gera-pecas-express.py`),
 ainda não usado pelo site.
