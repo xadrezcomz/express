@@ -109,11 +109,15 @@ function leOrdem(texto, onde) {
   } else if (nome === 'texto') {                        // [texto Garfo!]
     if (!resto.length) throw new Error(onde + ': diga o texto (ex.: [texto Garfo!])');
     acoes.push({ tipo: 'texto', texto: resto.join(' ') });
+  } else if (nome === 'visao' || nome === '2d' || nome === '3d') {   // [visao 2d], [visao 3d], [2d], [3d]
+    const estilo = nome === 'visao' ? chave(resto[0] || '') : nome;
+    if (estilo !== '2d' && estilo !== '3d') throw new Error(onde + ': a visão é 2d ou 3d (ex.: [visao 2d])');
+    acoes.push({ tipo: 'visao', estilo: estilo });
   } else if (nome === 'tira') {
     semCor.forEach(p => { if (!ehCasa(p)) throw new Error(onde + ': "' + p + '" não é uma casa'); });
     acoes.push({ tipo: 'tira', casas: semCor.map(indice) });
   } else {
-    throw new Error(onde + ': não conheço a ordem [' + texto + ']. As ordens são: lance, seta, marca, limpa, posicao, poe, tira, mostra, esconde, texto.');
+    throw new Error(onde + ': não conheço a ordem [' + texto + ']. As ordens são: lance, seta, marca, limpa, posicao, poe, tira, mostra, esconde, texto, visao.');
   }
   acoes.forEach(a => { a.aos = aos; });
   return acoes;
@@ -258,7 +262,7 @@ function roteiro(licao, tempos, duracao) {
   const fimDaFala = tempos[n - 1].fim;
   let casas = licao.casas.slice();
   const inicial = casas.slice();
-  const eventos = [];
+  const eventos = [], visoes = [];
   let ultimo = 0;
   licao.ordens.forEach(a => {
     // a ordem acontece quando começa a palavra que vem depois dela
@@ -266,6 +270,8 @@ function roteiro(licao, tempos, duracao) {
     if (a.antesDe === 0 && a.aos == null) t = 0;
     t = Math.max(t + (a.atraso || 0), ultimo);
     const ev = { t: Math.round(t * 1000) / 1000, tipo: a.tipo };
+    // a troca de visão (2D/3D) não é desenhada pelo palco: o gerador emenda os dois vídeos
+    if (a.tipo === 'visao') { visoes.push({ t: ev.t, estilo: a.estilo }); return; }
     if (a.tipo === 'lance') {
       const r = aplicaLance(casas, a, 'lance aos ' + t.toFixed(1) + 's');
       ev.movem = r.movem; ev.capturada = r.capturada; ev.de = a.de; ev.para = a.para;
@@ -314,7 +320,7 @@ function roteiro(licao, tempos, duracao) {
   return {
     numero: licao.numero, titulo: licao.titulo, pretasEmbaixo: licao.pretasEmbaixo, estilo: licao.estilo,
     legenda: licao.legenda, inicial: inicial, eventos: eventos, legendas: legendas,
-    durLance: DUR_LANCE, duracao: fim
+    durLance: DUR_LANCE, duracao: fim, visoes: visoes
   };
 }
 

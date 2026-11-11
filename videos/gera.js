@@ -33,6 +33,7 @@ const PASTA = { licoes: path.join(BASE, 'licoes'), audios: path.join(BASE, 'audi
 const EXT_AUDIO = ['mp3', 'm4a', 'wav', 'ogg', 'opus', 'aac', 'mp4', 'webm', 'flac'];
 const QPS = 30, LARGURA = 1080, ALTURA = 1920;
 const SOBRA = 0.8;            // segundos de vídeo depois que a fala termina
+const FUSAO = 0.35;           // segundos da fusão na troca entre 2D e 3D ([visao 2d] / [visao 3d])
 
 function roda(cmd, args, opcoes) {
   const r = spawnSync(cmd, args, Object.assign({ encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }, opcoes));
@@ -141,19 +142,77 @@ async function geraVideo(arquivoLicao, op) {
   const roteiro = L.roteiro(licao, tempos, durAudio);
   if (op.estilo) roteiro.estilo = op.estilo;
   const duracao = roteiro.duracao + SOBRA;
-
-  const pagina = await abrePalco(roteiro.estilo);
-  await pagina.evaluate(r => window.XEV.prepara(r), roteiro);
   fs.mkdirSync(PASTA.prontos, { recursive: true });
 
+  // [visao 2d] / [visao 3d]: trechos em estilos diferentes. Sem --2d/--3d no comando, o vídeo
+  // é filmado nos dois estilos e emendado; numa foto, vale o estilo daquele segundo.
+  const base = roteiro.estilo === '3d' ? '3d' : '2d';
+  const trechos = [];
+  if (!op.estilo) {
+    let atual = base, desde = 0;
+    roteiro.visoes.forEach(v => {
+      if (v.estilo === atual) return;
+      if (v.t > desde + 0.05) trechos.push({ estilo: atual, de: desde, ate: v.t });
+      atual = v.estilo; desde = v.t;
+    });
+    trechos.push({ estilo: atual, de: desde, ate: duracao });
+  }
+
   if (op.foto != null) {
-    await pagina.evaluate(t => window.XEV.quadro(t), op.foto);
-    const png = path.join(PASTA.prontos, nome + '-' + String(op.foto).replace('.', '_') + 's.png');
+    const t = op.foto;
+    const naquele = trechos.length ? trechos.filter(x => x.de <= t).pop().estilo : roteiro.estilo;
+    const pagina = await abrePalco(naquele);
+    await pagina.evaluate(r => window.XEV.prepara(r), Object.assign({}, roteiro, { estilo: naquele }));
+    await pagina.evaluate(t => window.XEV.quadro(t), t);
+    const png = path.join(PASTA.prontos, nome + '-' + String(t).replace('.', '_') + 's.png');
     await pagina.screenshot({ path: png });
     await pagina.close();
     console.log('  foto: ' + path.relative(process.cwd(), png));
     return png;
   }
+
+  const estilos = [...new Set(trechos.map(x => x.estilo))];
+  if (estilos.length < 2) {
+    await filma(roteiro, trechos.length ? trechos[0].estilo : roteiro.estilo, duracao, audio, saida);
+    console.log('  ✔ ' + path.relative(process.cwd(), saida) + '  (' + duracao.toFixed(1) + 's)');
+    return saida;
+  }
+
+  // filma nos dois estilos (o mesmo roteiro, o mesmo tempo) e emenda os trechos com uma fusão curta
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'xe-mix-'));
+  const arq = {};
+  for (const e of estilos) {
+    arq[e] = path.join(tmp, e + '.mp4');
+    console.log('  filmando em ' + e.toUpperCase() + '...');
+    await filma(roteiro, e, duracao, audio, arq[e]);
+  }
+  const X = FUSAO;
+  const entradas = ['-i', arq['3d'], '-i', arq['2d']];
+  const indiceDe = { '3d': 0, '2d': 1 };
+  let filtro = '';
+  trechos.forEach((x, k) => {
+    const de = k === 0 ? 0 : x.de - X;
+    filtro += '[' + indiceDe[x.estilo] + ':v]trim=start=' + de.toFixed(3) + ':end=' + x.ate.toFixed(3) + ',setpts=PTS-STARTPTS[s' + k + '];';
+  });
+  let ant = 's0';
+  for (let k = 1; k < trechos.length; k++) {
+    const sai = k === trechos.length - 1 ? 'v' : 'x' + k;
+    filtro += '[' + ant + '][s' + k + ']xfade=transition=fade:duration=' + X + ':offset=' + (trechos[k].de - X).toFixed(3) + '[' + sai + '];';
+    ant = sai;
+  }
+  roda('ffmpeg', ['-y', '-v', 'error', ...entradas, '-filter_complex', filtro.replace(/;$/, ''),
+    '-map', '[v]', '-map', '0:a', '-c:v', 'libx264', '-preset', 'fast', '-crf', '18', '-pix_fmt', 'yuv420p',
+    '-r', String(QPS), '-c:a', 'copy', '-movflags', '+faststart', saida]);
+  fs.rmSync(tmp, { recursive: true, force: true });
+  console.log('  ✔ ' + path.relative(process.cwd(), saida) + '  (' + duracao.toFixed(1) + 's, ' +
+    trechos.map(x => x.estilo.toUpperCase() + ' ' + x.de.toFixed(1) + '-' + x.ate.toFixed(1) + 's').join(', ') + ')');
+  return saida;
+}
+
+// Filma o roteiro num estilo e monta o MP4 com o áudio.
+async function filma(roteiro, estilo, duracao, audio, saida) {
+  const pagina = await abrePalco(estilo);
+  await pagina.evaluate(r => window.XEV.prepara(r), Object.assign({}, roteiro, { estilo: estilo }));
 
   // fotografa só os quadros em que algo muda; cada foto vale por quantos quadros ficar igual
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'xe-video-'));
@@ -188,8 +247,6 @@ async function geraVideo(arquivoLicao, op) {
     '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', saida);
   roda('ffmpeg', args);
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('  ✔ ' + path.relative(process.cwd(), saida) + '  (' + duracao.toFixed(1) + 's, ' + fotos.length + ' fotos para ' + total + ' quadros)');
-  return saida;
 }
 
 // ---------------------------------------------------------------- rascunho a partir de um áudio

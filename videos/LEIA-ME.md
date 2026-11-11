@@ -102,6 +102,7 @@ que vem logo depois dela**:
 | `[mostra logo]` | o logo do Xadrez Express grande, para chamadas ("na próxima aula...") |
 | `[esconde]` | tira o cartaz da peça (`[limpa]` e um lance também tiram) |
 | `[texto Garfo!]` | uma faixa com o texto no meio do tabuleiro, por 1,6 segundo |
+| `[visao 2d]` / `[visao 3d]` | troca o tabuleiro para o 2D (visto de cima) ou o 3D no meio do vídeo, com uma fusão curta |
 | `[lance e2e4 @12.5]` | qualquer ordem pode ter o segundo exato, se precisar acertar na mão |
 
 Alguns efeitos são automáticos, sem ordem nenhuma:
@@ -121,6 +122,12 @@ Com `estilo: 3d` no cabeçalho (ou `--3d` no comando), o vídeo sai com o tabule
 em 3D, no desenho das peças do site, e uma câmera que vai até as casas de cada acontecimento
 (lance, seta, marca, peça nova) e volta a mostrar o tabuleiro inteiro quando a posição muda.
 As ordens e os efeitos são os mesmos do 2D. A legenda fica em caixinhas, logo abaixo do título.
+
+Para variar o visual, uma lição pode alternar os dois estilos com `[visao 2d]` e `[visao 3d]`
+(o cabeçalho diz com qual começa). O vídeo é filmado inteiro nos dois estilos e os trechos são
+emendados com uma fusão de 0,35 segundo; por isso leva o tempo do 3D mais o do 2D. Com `--2d` ou
+`--3d` no comando, as trocas são ignoradas (bom para conferir rápido); numa `--foto`, vale o
+estilo daquele segundo. Deixe pelo menos 1 segundo entre duas trocas.
 
 O 3D é desenhado pelo processador (sem placa de vídeo), então demora mais: uma lição de 30
 segundos leva cerca de 1 minuto e meio, contra uns 30 segundos no 2D. `--2d` força o 2D numa
