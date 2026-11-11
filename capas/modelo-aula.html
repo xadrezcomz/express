@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Capa de aula</title>
+<link rel="stylesheet" href="capa.css">
+<style>
+.brilho{background:
+    radial-gradient(700px 560px at 86% 78%,color-mix(in srgb,var(--cor) 26%,transparent),transparent 70%),
+    radial-gradient(900px 620px at 8% 0%,rgba(160,107,255,.3),transparent 70%)}
+.casas{left:1180px;top:330px;width:820px;height:820px;background-size:205px 205px}
+.marca{font-size:40px;gap:18px}
+/* a faixa da cor do módulo, na borda esquerda */
+.faixa{left:0;top:0;width:28px;height:1080px;background:linear-gradient(var(--cor),var(--cor2));box-shadow:0 0 60px var(--cor)}
+.texto{left:var(--margem);top:230px;width:1330px;height:750px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:38px}
+.selos{display:flex;gap:24px;align-items:center}
+.selo{font-family:"Chakra Petch";font-weight:700;font-size:84px;line-height:1;text-transform:uppercase;white-space:nowrap;
+  padding:.16em .42em .12em;border-radius:22px}
+.rotulo{color:#0d0730;background:linear-gradient(100deg,var(--cor),color-mix(in srgb,var(--cor) 55%,var(--cor2)));
+  box-shadow:0 0 50px color-mix(in srgb,var(--cor) 55%,transparent)}
+.tempo{color:#fff;border:4px solid var(--cor);background:rgba(13,7,48,.75);display:flex;align-items:center;gap:.25em}
+.tempo::before{content:'';border-left:.5em solid var(--cor);border-top:.32em solid transparent;border-bottom:.32em solid transparent}
+.tempo[hidden]{display:none}
+.titulo{width:100%}
+</style>
+</head>
+<body>
+<div class="capa">
+  <div class="brilho"></div>
+  <canvas id="estrelas"></canvas>
+  <div class="casas"></div>
+  <svg id="arte" viewBox="0 0 1920 1080"></svg>
+  <div class="peca" id="peca"></div>
+  <div class="faixa"></div>
+  <div class="marca"><img src="../img/logo.svg" width="68" height="68" alt=""><span>Xadrez <i>Express</i></span></div>
+  <div class="texto">
+    <div class="selos"><div class="selo rotulo" id="rotulo"></div><div class="selo tempo" id="tempo" hidden></div></div>
+    <div class="titulo" id="titulo"></div>
+  </div>
+</div>
+<script src="capa.js"></script>
+<script>
+// d = { rotulo, titulo, peca, cor, duracao, semente }
+function monta(d) {
+  var cores = pintaCor(d.cor), arte = document.getElementById('arte');
+  estrelas(document.getElementById('estrelas'), 'aula' + d.semente);
+  document.getElementById('rotulo').textContent = d.rotulo;
+  if (d.duracao) { var s = document.getElementById('tempo'); s.textContent = d.duracao; s.hidden = false; }
+  var t = document.getElementById('titulo');
+  t.textContent = d.titulo;
+  cabe(t, 150, 70, 480);
+  if (d.peca === 'foguete') {
+    rastro(arte, [1290, 1140], [1533, 980], [1655, 750], 100, cores, 'a' + d.semente);
+    poePeca(document.getElementById('peca'), 'foguete', 1675, 715, 300, -62);
+  } else {
+    rastro(arte, [1290, 1140], [1630, 1100], [1650, 860], 130, cores, 'a' + d.semente);
+    poePeca(document.getElementById('peca'), d.peca, 1640, 730, 360, 8);
+  }
+  return document.fonts.ready;
+}
+</script>
+</body>
+</html>

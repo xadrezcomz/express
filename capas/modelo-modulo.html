@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Capa de módulo</title>
+<link rel="stylesheet" href="capa.css">
+<style>
+.casas{left:930px;top:-10px}
+.marca{font-size:52px}
+.texto{left:var(--margem);top:250px;width:1020px;height:730px;display:flex;flex-direction:column;justify-content:center;gap:26px}
+.num{font-family:"Chakra Petch";font-weight:700;font-size:176px;line-height:.9;text-transform:uppercase;white-space:nowrap;
+  color:var(--cor);filter:drop-shadow(0 0 30px color-mix(in srgb,var(--cor) 60%,transparent)) drop-shadow(0 5px 0 rgba(0,0,0,.4))}
+.num b{color:#fff;margin-left:.12em}
+.titulo{width:100%}
+</style>
+</head>
+<body>
+<div class="capa">
+  <div class="brilho"></div>
+  <canvas id="estrelas"></canvas>
+  <div class="casas"></div>
+  <svg id="arte" viewBox="0 0 1920 1080"></svg>
+  <div class="peca" id="peca"></div>
+  <div class="marca"><img src="../img/logo.svg" width="88" height="88" alt=""><span>Xadrez <i>Express</i></span></div>
+  <div class="texto">
+    <div class="num">Módulo <b id="num"></b></div>
+    <div class="titulo" id="titulo"></div>
+  </div>
+</div>
+<script src="capa.js"></script>
+<script>
+// d = { numero, titulo, peca, cor }
+function monta(d) {
+  var cores = pintaCor(d.cor), arte = document.getElementById('arte');
+  estrelas(document.getElementById('estrelas'), 'modulo' + d.numero);
+  document.getElementById('num').textContent = d.numero;
+  var t = document.getElementById('titulo');
+  t.textContent = d.titulo;
+  cabe(t, 132, 70, 430);
+  if (d.peca === 'foguete') {
+    rastro(arte, [1020, 1170], [1262, 953], [1450, 600], 170, cores, 'm' + d.numero);
+    poePeca(document.getElementById('peca'), 'foguete', 1500, 500, 520, -62);
+  } else {
+    rastro(arte, [1000, 1150], [1480, 1120], [1500, 780], 230, cores, 'm' + d.numero);
+    poePeca(document.getElementById('peca'), d.peca, 1490, 520, 640, 8);
+  }
+  return document.fonts.ready;
+}
+</script>
+</body>
+</html>
