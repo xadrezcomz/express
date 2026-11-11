@@ -73,13 +73,16 @@ function ouve(audio) {
 }
 
 // ---------------------------------------------------------------- o vídeo de uma lição
-let navegador = null;
+const navegadores = {};   // um Chromium para o 2D e outro para o 3D
 const RAIZ = path.join(AQUI, '..');
 const TIPOS = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.png': 'image/png' };
 async function abrePalco(estilo) {
-  // o Chromium sem placa de vídeo desenha o 3D (WebGL) pelo SwiftShader
-  if (!navegador) navegador = await require('playwright').chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-  const pagina = await navegador.newPage({ viewport: { width: LARGURA, height: ALTURA }, deviceScaleFactor: 1 });
+  // Sem placa de vídeo, o 3D (WebGL) precisa do SwiftShader. O 2D não usa WebGL e sai cerca de
+  // 3 vezes mais rápido desenhado direto pelo processador (--disable-gpu), com a mesma imagem.
+  const tres = estilo === '3d';
+  if (!navegadores[tres]) navegadores[tres] = await require('playwright').chromium.launch({
+    args: tres ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] : ['--disable-gpu'] });
+  const pagina = await navegadores[tres].newPage({ viewport: { width: LARGURA, height: ALTURA }, deviceScaleFactor: 1 });
   pagina.on('pageerror', e => console.error('  ✘ erro no palco: ' + e.message));
   if (estilo === '3d') {
     // o palco 3D usa módulos JavaScript, que o navegador não abre direto do disco:
@@ -251,7 +254,7 @@ async function principal() {
       for (const n of nomes) await geraVideo(achaLicao(n), op);
     }
   } finally {
-    if (navegador) await navegador.close();
+    for (const n of Object.values(navegadores)) await n.close();
   }
   if (falhas) process.exitCode = 1;
 }
