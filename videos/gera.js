@@ -74,10 +74,26 @@ function ouve(audio) {
 
 // ---------------------------------------------------------------- o vídeo de uma lição
 let navegador = null;
-async function abrePalco() {
-  if (!navegador) navegador = await require('playwright').chromium.launch();
+const RAIZ = path.join(AQUI, '..');
+const TIPOS = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.png': 'image/png' };
+async function abrePalco(estilo) {
+  // o Chromium sem placa de vídeo desenha o 3D (WebGL) pelo SwiftShader
+  if (!navegador) navegador = await require('playwright').chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
   const pagina = await navegador.newPage({ viewport: { width: LARGURA, height: ALTURA }, deviceScaleFactor: 1 });
-  await pagina.goto('file://' + path.join(AQUI, 'palco.html'));
+  pagina.on('pageerror', e => console.error('  ✘ erro no palco: ' + e.message));
+  if (estilo === '3d') {
+    // o palco 3D usa módulos JavaScript, que o navegador não abre direto do disco:
+    // os arquivos do repositório são servidos num endereço de mentira
+    await pagina.route('http://palco.local/**', rota => {
+      const f = path.join(RAIZ, decodeURIComponent(new URL(rota.request().url()).pathname));
+      if (!f.startsWith(RAIZ) || !fs.existsSync(f)) return rota.fulfill({ status: 404, body: '' });
+      rota.fulfill({ status: 200, contentType: TIPOS[path.extname(f)] || 'application/octet-stream', body: fs.readFileSync(f) });
+    });
+    await pagina.goto('http://palco.local/videos/palco3d.html');
+    await pagina.waitForFunction(() => window.XEV_PRONTO, null, { timeout: 60000 });
+  } else {
+    await pagina.goto('file://' + path.join(AQUI, 'palco.html'));
+  }
   return pagina;
 }
 
@@ -120,9 +136,10 @@ async function geraVideo(arquivoLicao, op) {
     tempos = L.temposEstimados(licao.palavras, 0.3);
   }
   const roteiro = L.roteiro(licao, tempos, durAudio);
+  if (op.estilo) roteiro.estilo = op.estilo;
   const duracao = roteiro.duracao + SOBRA;
 
-  const pagina = await abrePalco();
+  const pagina = await abrePalco(roteiro.estilo);
   await pagina.evaluate(r => window.XEV.prepara(r), roteiro);
   fs.mkdirSync(PASTA.prontos, { recursive: true });
 
@@ -143,8 +160,8 @@ async function geraVideo(arquivoLicao, op) {
   for (let q = 0; q < total; q++) {
     const mudou = await pagina.evaluate(t => window.XEV.quadro(t), q / QPS);
     if (mudou || !fotos.length) {
-      const f = path.join(tmp, 'q' + String(fotos.length).padStart(5, '0') + '.png');
-      const foto = await cdp.send('Page.captureScreenshot', { format: 'png', optimizeForSpeed: true });
+      const f = path.join(tmp, 'q' + String(fotos.length).padStart(5, '0') + '.jpg');
+      const foto = await cdp.send('Page.captureScreenshot', { format: 'jpeg', quality: 94, optimizeForSpeed: true });
       fs.writeFileSync(f, Buffer.from(foto.data, 'base64'));
       fotos.push({ arquivo: f, quadros: 1 });
     } else fotos[fotos.length - 1].quadros++;
@@ -199,6 +216,8 @@ async function principal() {
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
     if (a === '--previa') op.previa = true;
+    else if (a === '--3d') op.estilo = '3d';
+    else if (a === '--2d') op.estilo = '2d';
     else if (a === '--refaz') op.refaz = true;
     else if (a === '--voz') op.voz = true;
     else if (a === '--vozes') op.vozes = true;

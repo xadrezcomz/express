@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Palco 3D dos vídeos do Xadrez Express</title>
+<!-- O palco 3D de um vídeo de lição (1080x1920): o tabuleiro e as peças em 3D (three.js), com a
+     câmera acompanhando os lances. Título, legenda, faixa e cartaz são HTML por cima.
+     Quem tira as fotos é o videos/gera.js, com "estilo: 3d" no cabeçalho da lição. -->
+<link rel="stylesheet" href="../fontes/fontes.css">
+<link rel="stylesheet" href="palco.css">
+<link rel="stylesheet" href="palco3d.css">
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+</head>
+<body>
+<div class="palco palco3d" id="palco">
+  <canvas id="cena3d" width="1080" height="1920"></canvas>
+
+  <!-- o tabuleiro some suave por baixo do título e do rodapé quando a câmera chega perto -->
+  <i class="sombra-topo"></i><i class="sombra-pe"></i>
+
+  <header class="cabeca">
+    <p class="numero" id="numero" hidden><i></i><span></span></p>
+    <h1 id="titulo"></h1>
+  </header>
+
+  <p class="legenda3d" id="legenda"></p>
+
+  <!-- a faixa e o cartaz ficam no meio da área do tabuleiro -->
+  <div class="area3d">
+    <p class="faixa" id="faixa" hidden></p>
+    <div class="cartaz" id="cartaz" hidden>
+      <i class="cartaz-raios" id="cartazRaios"></i>
+      <img id="cartazPeca" alt="">
+      <b id="cartazNome"></b>
+    </div>
+  </div>
+
+  <footer class="pe">
+    <img src="../img/logo.svg" alt="">
+    <span>Xadrez <b>Express</b></span>
+    <em>@xadrezcomz</em>
+  </footer>
+</div>
+<script type="module" src="palco3d.js"></script>
+</body>
+</html>
