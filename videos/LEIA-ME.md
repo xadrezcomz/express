@@ -97,7 +97,18 @@ que vem logo depois dela**:
 | `[poe torre preta g7]` | faz aparecer uma peça |
 | `[tira g7]` | faz sumir uma peça |
 | `[posicao inicial]` | troca a posição inteira (`inicial`, `vazio` ou FEN) |
+| `[mostra bispo]` | a peça bem grande, com o nome, por cima do tabuleiro (`[mostra cavalo preto]` para a preta) |
+| `[mostra logo]` | o logo do Xadrez Express grande, para chamadas ("na próxima aula...") |
+| `[esconde]` | tira o cartaz da peça (`[limpa]` e um lance também tiram) |
+| `[texto Garfo!]` | uma faixa com o texto no meio do tabuleiro, por 1,6 segundo |
 | `[lance e2e4 @12.5]` | qualquer ordem pode ter o segundo exato, se precisar acertar na mão |
+
+Alguns efeitos são automáticos, sem ordem nenhuma:
+
+- **Captura:** a peça capturada fica na casa até a outra chegar e explode (clarão, onda e faíscas).
+- **Xeque:** quando um lance deixa o rei em xeque, a casa do rei pisca em vermelho e aparece
+  a faixa **XEQUE!**. Se for mate, a casa fica dourada e a faixa é **XEQUE-MATE!**. Só funciona com
+  os dois reis no tabuleiro.
 
 Os lances não passam por conferência de regra: a peça vai de uma casa à outra. Isso permite
 posições de ensino (um cavalo sozinho no tabuleiro, sem reis). Linhas começadas por `#` são

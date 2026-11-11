@@ -9,6 +9,8 @@
   var elSetas = document.getElementById('setas'), elLegenda = document.getElementById('legenda');
   var casasEl = [];
   var DUR_SETA = 0.28, DUR_MARCA = 0.2, DUR_POE = 0.25;
+  var DUR_EXPLOSAO = 0.7, DUR_ATE_BATER = 0.8;   // a explosão começa quando a peça que captura está 80% do caminho
+  var elEfeitos = document.getElementById('efeitos'), elFaixa = document.getElementById('faixa'), elCartaz = document.getElementById('cartaz');
 
   function imagem(p) { return 'url(../img/pecas-express/' + (p === p.toUpperCase() ? 'w' : 'b') + p.toLowerCase() + '.svg)'; }
   function suave(p) { return 1 - Math.pow(1 - p, 3); }
@@ -36,23 +38,38 @@
       elCasas.appendChild(c);
       casasEl[y * 8 + x] = c;
     }
-    return document.fonts.ready.then(function () { return true; });
+    // as peças já carregadas antes do primeiro quadro (o cartaz troca a imagem na hora)
+    var imgs = 'kqrbnpKQRBNPL'.split('').map(function (p) {
+      var im = new Image(); im.src = p === 'L' ? '../img/logo.svg' : '../img/pecas-express/' + (p === p.toUpperCase() ? 'w' : 'b') + p.toLowerCase() + '.svg';
+      return im.decode().catch(function () {});
+    });
+    return Promise.all(imgs.concat(document.fonts.ready)).then(function () { return true; });
   }
 
   // Tudo o que aparece no segundo t, como dados. O texto disso é a "assinatura" do quadro.
   function estado(t) {
     var tab = R.inicial, veio = -1, foi = -1, setas = [], marcas = [], andando = null, novas = null;
+    var xeque = null, captura = null, faixa = null, cartaz = null, cartazSai = null;
     for (var k = 0; k < R.eventos.length; k++) {
       var ev = R.eventos[k];
       if (ev.t > t) break;
       tab = ev.tabuleiro;
       andando = null; novas = null;
+      var chega = ev.t + R.durLance;            // quando a peça do lance termina de andar
       if (ev.tipo === 'lance') {
         veio = ev.de; foi = ev.para; setas = []; marcas = [];
         if (t - ev.t < R.durLance) andando = { ev: ev, p: (t - ev.t) / R.durLance };
-      } else if (ev.tipo === 'posicao') { veio = foi = -1; setas = []; marcas = []; }
-      else if (ev.tipo === 'limpa') { setas = []; marcas = []; }
-      else if (ev.tipo === 'poe') { if (t - ev.t < DUR_POE) novas = { casas: ev.novas, p: (t - ev.t) / DUR_POE }; }
+        xeque = ev.xeque != null ? { casa: ev.xeque, mate: ev.mate, t0: chega } : null;
+        if (ev.capturada) captura = { casa: ev.capturada.casa, peca: ev.capturada.peca, t0: ev.t + R.durLance * DUR_ATE_BATER };
+        if (ev.xeque != null) faixa = { texto: ev.mate ? 'XEQUE-MATE!' : 'XEQUE!', classe: ev.mate ? 'mate' : 'xeque', t0: chega, dur: ev.mate ? 2.2 : 1.4 };
+        if (cartaz) { cartazSai = { c: cartaz, t0: ev.t }; cartaz = null; }
+      } else if (ev.tipo === 'posicao') { veio = foi = -1; setas = []; marcas = []; xeque = null; }
+      else if (ev.tipo === 'limpa') { setas = []; marcas = []; if (cartaz) { cartazSai = { c: cartaz, t0: ev.t }; cartaz = null; } }
+      else if (ev.tipo === 'esconde') { if (cartaz) { cartazSai = { c: cartaz, t0: ev.t }; cartaz = null; } }
+      else if (ev.tipo === 'mostra') cartaz = { peca: ev.peca, nome: ev.nome, t0: ev.t };
+      else if (ev.tipo === 'texto') faixa = { texto: ev.texto, classe: ev.texto.length > 16 ? 'longa' : '', t0: ev.t, dur: 1.6 };
+      else if (ev.tipo === 'poe') { xeque = null; if (t - ev.t < DUR_POE) novas = { casas: ev.novas, p: (t - ev.t) / DUR_POE }; }
+      else if (ev.tipo === 'tira') xeque = null;
       else if (ev.tipo === 'seta') ev.setas.forEach(function (s) { setas.push({ de: s[0], para: s[1], cor: ev.cor, t0: ev.t }); });
       else if (ev.tipo === 'marca') ev.casas.forEach(function (c) { marcas.push({ casa: c, cor: ev.cor, t0: ev.t }); });
     }
@@ -67,12 +84,42 @@
     }
     if (andando) {
       var p = suave(andando.p), cap = andando.ev.capturada;
-      if (cap && andando.p < 0.7) { var pc = xy(cap.casa); pecas.push({ p: cap.peca, x: pc[0], y: pc[1], e: 1, o: n3(1 - andando.p / 0.7) }); }
+      // a peça capturada fica na casa até a outra chegar nela; aí explode
+      if (cap && andando.p < DUR_ATE_BATER) { var pc = xy(cap.casa); pecas.push({ p: cap.peca, x: pc[0], y: pc[1], e: 1, o: 1 }); }
       andando.ev.movem.forEach(function (m) {
         var a = xy(m.de), b = xy(m.para);
         pecas.push({ p: m.peca, x: n3(a[0] + (b[0] - a[0]) * p), y: n3(a[1] + (b[1] - a[1]) * p),
           e: n3(1 + 0.16 * Math.sin(Math.PI * andando.p)), o: 1, anda: 1 });
       });
+    }
+
+    // efeitos que duram um pouco: explosão da captura, brilho do xeque, faixa, cartaz
+    var expl = null;
+    if (captura && t >= captura.t0 && t - captura.t0 < DUR_EXPLOSAO) {
+      var c = xy(captura.casa);
+      expl = { x: c[0], y: c[1], peca: captura.peca, semente: captura.casa, p: n3((t - captura.t0) / DUR_EXPLOSAO) };
+    }
+    var brilho = null;
+    if (xeque && t >= xeque.t0) {
+      var dx = t - xeque.t0;
+      // pisca forte três vezes e depois fica aceso, parado
+      brilho = { casa: xeque.casa, mate: xeque.mate ? 1 : 0, o: dx < 1.2 ? n3(0.55 + 0.45 * Math.cos(dx * Math.PI * 5)) : 1 };
+    }
+    var fx = null;
+    if (faixa && t >= faixa.t0 && t - faixa.t0 < faixa.dur) {
+      var df = t - faixa.t0, fim = faixa.dur - df;
+      fx = { texto: faixa.texto, classe: faixa.classe,
+        e: n3(df < 0.3 ? 0.4 + 0.6 * molinha(df / 0.3) : 1), o: n3(Math.min(1, df / 0.12, fim / 0.25)) };
+    }
+    var cz = null;
+    if (cartaz) {
+      var dc = t - cartaz.t0;
+      cz = { peca: cartaz.peca, nome: cartaz.nome, o: n3(Math.min(1, dc / 0.2)), e: n3(dc < 0.45 ? 0.3 + 0.7 * molinha(dc / 0.45) : 1),
+        giro: n3((dc * 14) % 360), nomeO: n3(Math.max(0, Math.min(1, (dc - 0.25) / 0.25))) };
+    } else if (cartazSai && t - cartazSai.t0 < 0.3) {
+      var ds = t - cartazSai.t0;
+      cz = { peca: cartazSai.c.peca, nome: cartazSai.c.nome, o: n3(1 - ds / 0.3), e: n3(1 + 0.15 * ds / 0.3),
+        giro: n3(((t - cartazSai.c.t0) * 14) % 360), nomeO: n3(1 - ds / 0.3) };
     }
 
     var leg = null;
@@ -85,10 +132,41 @@
       }
     }
     return {
-      pecas: pecas, veio: veio, foi: foi, leg: leg,
+      pecas: pecas, veio: veio, foi: foi, leg: leg, expl: expl, brilho: brilho, faixa: fx, cartaz: cz,
       setas: setas.map(function (s) { return { de: s.de, para: s.para, cor: s.cor, p: n3(suave(Math.min(1, (t - s.t0) / DUR_SETA))) }; }),
       marcas: marcas.map(function (m) { return { casa: m.casa, cor: m.cor, o: n3(Math.min(1, (t - m.t0) / DUR_MARCA)) }; })
     };
+  }
+
+  // passa um pouco do tamanho final e volta (o "pulo" de quando algo aparece)
+  function molinha(p) { var c = 1.9; p = p - 1; return 1 + (c + 1) * p * p * p + c * p * p; }
+  // números "aleatórios" que saem sempre iguais para a mesma casa (o vídeo sai igual toda vez)
+  function acaso(n) { var x = Math.sin(n * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); }
+
+  // A explosão da peça capturada: clarão, onda que abre e faíscas, em % do tabuleiro.
+  function explosao(e) {
+    var cx = (e.x + 0.5) * 12.5, cy = (e.y + 0.5) * 12.5, p = e.p, h = '';
+    if (p < 0.35) {        // a peça capturada incha, fica branca e some
+      var q = p / 0.35;
+      h += '<i class="peca-voa" style="left:' + cx + '%;top:' + cy + '%;width:12.5%;height:12.5%;background-image:' + imagem(e.peca) +
+        ';transform:translate(-50%,-50%) scale(' + n3(1 + 0.5 * q) + ');opacity:' + n3(1 - q) + ';filter:brightness(' + n3(1 + 3 * q) + ')"></i>';
+    }
+    if (p < 0.5) {
+      var c = 6 + 26 * suave(p / 0.5);
+      h += '<i class="clarao" style="left:' + cx + '%;top:' + cy + '%;width:' + n3(c) + '%;height:' + n3(c) + '%;opacity:' + n3(1 - p / 0.5) + '"></i>';
+    }
+    var o = 8 + 30 * suave(p);
+    h += '<i class="onda" style="left:' + cx + '%;top:' + cy + '%;width:' + n3(o) + '%;height:' + n3(o) + '%;opacity:' + n3(1 - p) + '"></i>';
+    var CORES = ['#fff6d8', '#ffd36b', '#ff9a3d', '#ff4f78', '#ffffff'];
+    for (var k = 0; k < 16; k++) {
+      var ang = (k / 16) * Math.PI * 2 + acaso(e.semente * 31 + k) * 0.5;
+      var dist = (7 + 13 * acaso(e.semente * 17 + k)) * suave(p);
+      var tam = (1.1 + 1.3 * acaso(e.semente * 7 + k)) * (1 - p);
+      if (tam < 0.08) continue;
+      h += '<i style="left:' + n3(cx + Math.cos(ang) * dist) + '%;top:' + n3(cy + Math.sin(ang) * dist + 6 * p * p) + '%;width:' + n3(tam) +
+        '%;height:' + n3(tam) + '%;background:' + CORES[k % CORES.length] + ';box-shadow:0 0 10px ' + CORES[k % CORES.length] + '"></i>';
+    }
+    return h;
   }
 
   // Os pontos de uma seta, em casas: reta, ou em "L" no pulo do cavalo (primeiro a perna comprida).
@@ -133,8 +211,31 @@
     for (k = 0; k < 64; k++) {
       casasEl[k].classList.toggle('veio', k === e.veio);
       casasEl[k].classList.toggle('foi', k === e.foi);
-      var velha = casasEl[k].querySelector('.marca');
-      if (velha) velha.remove();
+      casasEl[k].querySelectorAll('.marca,.xeque-brilho').forEach(function (v) { v.remove(); });
+    }
+    if (e.brilho) {
+      var br = document.createElement('i');
+      br.className = 'xeque-brilho' + (e.brilho.mate ? ' mate' : ''); br.style.opacity = e.brilho.o;
+      casasEl[e.brilho.casa].appendChild(br);
+    }
+    elEfeitos.innerHTML = e.expl ? explosao(e.expl) : '';
+    elFaixa.hidden = !e.faixa;
+    if (e.faixa) {
+      elFaixa.textContent = e.faixa.texto;
+      elFaixa.className = 'faixa ' + e.faixa.classe;
+      elFaixa.style.transform = 'translate(-50%,-50%) scale(' + e.faixa.e + ')';
+      elFaixa.style.opacity = e.faixa.o;
+    }
+    elCartaz.hidden = !e.cartaz;
+    if (e.cartaz) {
+      elCartaz.style.opacity = e.cartaz.o;
+      document.getElementById('cartazPeca').src = e.cartaz.peca === 'logo' ? '../img/logo.svg' :
+        '../img/pecas-express/' + (e.cartaz.peca === e.cartaz.peca.toUpperCase() ? 'w' : 'b') + e.cartaz.peca.toLowerCase() + '.svg';
+      elCartaz.classList.toggle('logo', e.cartaz.peca === 'logo');
+      document.getElementById('cartazPeca').style.transform = 'scale(' + e.cartaz.e + ')';
+      document.getElementById('cartazRaios').style.transform = 'rotate(' + e.cartaz.giro + 'deg)';
+      var nm = document.getElementById('cartazNome');
+      nm.textContent = e.cartaz.nome; nm.style.opacity = e.cartaz.nomeO;
     }
     e.marcas.forEach(function (m) {
       var el = document.createElement('i');
