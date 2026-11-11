@@ -14,17 +14,23 @@
 const fs = require('fs');
 const path = require('path');
 
+const { spawnSync } = require('child_process');
+
 const API = 'https://api.elevenlabs.io/v1/';
-function cabecalhos() {
-  return { 'xi-api-key': process.env.ELEVENLABS_API_KEY || 'chave-posta-pelo-ambiente', 'content-type': 'application/json' };
-}
-async function pede(caminho, opcoes) {
-  const r = await fetch(API + caminho, Object.assign({ headers: cabecalhos() }, opcoes));
-  if (!r.ok) {
-    const dica = r.status === 401 ? ' A chave da ElevenLabs está faltando ou é inválida.' : '';
-    throw new Error('A ElevenLabs recusou o pedido (' + r.status + ').' + dica + ' ' + (await r.text()).slice(0, 300));
+// O pedido sai pelo curl, que passa pelo proxy do ambiente (o fetch do node não passa, e é
+// no proxy que a chave é posta). Sem a variável, o cabeçalho da chave não é enviado.
+function pede(caminho, corpo) {
+  const args = ['-sS', '--max-time', '300', '-w', '\n%{http_code}', '-H', 'content-type: application/json'];
+  if (process.env.ELEVENLABS_API_KEY) args.push('-H', 'xi-api-key: ' + process.env.ELEVENLABS_API_KEY);
+  if (corpo) args.push('-X', 'POST', '--data-binary', '@-');
+  const r = spawnSync('curl', args.concat(API + caminho), { input: corpo ? JSON.stringify(corpo) : undefined, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 });
+  if (r.error || r.status !== 0) throw new Error('Não consegui falar com a ElevenLabs: ' + (r.error ? r.error.message : r.stderr.trim()));
+  const corte = r.stdout.lastIndexOf('\n'), codigo = Number(r.stdout.slice(corte + 1)), texto = r.stdout.slice(0, corte);
+  if (codigo < 200 || codigo >= 300) {
+    const dica = codigo === 401 ? ' A chave da ElevenLabs está faltando, é inválida ou não tem essa permissão.' : '';
+    throw new Error('A ElevenLabs recusou o pedido (' + codigo + ').' + dica + ' ' + texto.slice(0, 300));
   }
-  return r.json();
+  return JSON.parse(texto);
 }
 
 function config(pasta) {
@@ -35,15 +41,14 @@ function config(pasta) {
 }
 
 // As vozes da conta (as clonadas vêm com category "cloned" ou "professional").
-async function vozes() { return (await pede('voices')).voices; }
+async function vozes() { return pede('voices').voices; }
 
 // Grava `texto` em `arquivoMp3` e devolve as palavras com o segundo de cada uma.
 async function grava(texto, arquivoMp3, cfg) {
   if (!cfg || !cfg.voz) throw new Error('Falta dizer qual voz usar: crie voz.json na pasta das lições (veja videos/voz.js) ou rode --vozes para ver os códigos');
   const corpo = { text: texto, model_id: cfg.modelo || 'eleven_multilingual_v2' };
   if (cfg.ajustes) corpo.voice_settings = cfg.ajustes;
-  const j = await pede('text-to-speech/' + encodeURIComponent(cfg.voz) + '/with-timestamps?output_format=mp3_44100_128',
-    { method: 'POST', body: JSON.stringify(corpo) });
+  const j = pede('text-to-speech/' + encodeURIComponent(cfg.voz) + '/with-timestamps?output_format=mp3_44100_128', corpo);
   fs.writeFileSync(arquivoMp3, Buffer.from(j.audio_base64, 'base64'));
 
   // letras -> palavras (o texto enviado tem um espaço só entre as palavras)
