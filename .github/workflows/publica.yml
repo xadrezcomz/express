@@ -24,6 +24,8 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      # a oficina dos vídeos das lições não faz parte do site
+      - run: rm -rf videos
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

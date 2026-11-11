@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Palco dos vídeos do Xadrez Express</title>
+<!-- O palco de um vídeo de lição: 1080x1920, com o tabuleiro 2D do desafio do site.
+     Quem tira as fotos, quadro a quadro, é o videos/gera.js. -->
+<link rel="stylesheet" href="../fontes/fontes.css">
+<link rel="stylesheet" href="palco.css">
+</head>
+<body>
+<div class="palco" id="palco">
+  <header class="cabeca">
+    <p class="numero" id="numero" hidden><i></i><span></span></p>
+    <h1 id="titulo"></h1>
+  </header>
+
+  <div class="tab-moldura">
+    <div class="tabuleiro">
+      <div class="casas" id="casas"></div>
+      <div class="pecas" id="pecas"></div>
+      <svg class="setas" id="setas" viewBox="0 0 8 8"></svg>
+    </div>
+  </div>
+
+  <p class="legenda" id="legenda"></p>
+
+  <footer class="pe">
+    <img src="../img/logo.svg" alt="">
+    <span>Xadrez <b>Express</b></span>
+    <em>@xadrezcomz</em>
+  </footer>
+</div>
+<script src="palco.js"></script>
+</body>
+</html>
