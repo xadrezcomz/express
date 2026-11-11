@@ -1,0 +1,4 @@
+prontos/
+.cache/
+# as gravações das lições não vão para o repositório (ele é público)
+audios/

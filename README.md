@@ -61,6 +61,12 @@ arquivo `temas/<nome>.css` (cores, ícones e enfeites). O que é igual em todos 
 
 No histórico do git, o commit `61c0294` é o site como estava antes do primeiro tema.
 
+## Vídeos das lições
+
+Os vídeos curtos do curso saem de `videos/`: o áudio da fala e um arquivo de texto com os
+lances viram um MP4 vertical com o tabuleiro 2D do site. O passo a passo está em
+[`videos/LEIA-ME.md`](videos/LEIA-ME.md).
+
 ## Peças
 
 O site usa o conjunto próprio do Xadrez Express, em `img/pecas-express/`. Os desenhos saem de

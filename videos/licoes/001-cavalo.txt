@@ -1,0 +1,15 @@
+licao: 1
+titulo: Como o cavalo se move
+posicao: vazio
+pecas: cavalo branco d4
+---
+O cavalo é a peça mais diferente do xadrez.
+Ele anda em L: [seta d4 e6] duas casas para um lado e uma para o outro.
+[lance d4e6] Assim!
+E ele pode voltar pelo mesmo caminho. [lance e6d4]
+Do centro do tabuleiro, [marca c6 e6 f5 f3 e2 c2 b3 b5] o cavalo alcança oito casas.
+[limpa] [poe peao preto d5, peao preto e5, peao preto e4]
+E tem mais: o cavalo é a única peça que pula por cima das outras.
+[seta d4 f5] Olha só! [lance d4f5]
+[poe torre preta g7] Se tiver uma peça inimiga na casa de chegada, [seta f5 g7 vermelha] ele captura. [lance f5g7]
+Esse é o cavalo. Te vejo na próxima lição!
