@@ -88,3 +88,42 @@ h1.longo{font-size:62px}
 .pe b{color:var(--ouro)}
 .pe em{font-style:normal;font-family:var(--corpo);font-weight:600;font-size:32px;color:var(--suave);margin-left:14px;
   padding-left:26px;border-left:2px solid var(--linha2)}
+
+/* ------------------------------------------------------------- efeitos */
+/* rei em xeque: a casa dele acende em vermelho */
+.xeque-brilho{position:absolute;inset:3px;border-radius:14%;z-index:1;
+  background:radial-gradient(circle,rgba(255,60,90,.98) 0%,rgba(255,60,90,.6) 45%,rgba(255,60,90,0) 76%);
+  box-shadow:inset 0 0 0 6px #ff4f78,0 0 40px rgba(255,60,90,.9)}
+.xeque-brilho.mate{background:radial-gradient(circle,rgba(255,211,107,.98) 0%,rgba(255,120,60,.7) 45%,rgba(255,60,90,0) 78%);
+  box-shadow:inset 0 0 0 6px #ffb53d,0 0 50px rgba(255,190,80,1)}
+
+/* captura: um clarão, uma onda e faíscas saindo da casa */
+.efeitos{position:absolute;inset:0;z-index:4}
+.efeitos i{position:absolute;display:block;border-radius:50%;transform:translate(-50%,-50%)}
+.efeitos .clarao{background:radial-gradient(circle,#fff 0%,rgba(255,236,170,.95) 30%,rgba(255,154,61,.6) 55%,rgba(255,79,120,0) 72%)}
+.efeitos .onda{border:7px solid #ffd36b;box-shadow:0 0 20px #ff9a3d,inset 0 0 20px #ff9a3d}
+.efeitos .peca-voa{border-radius:0;background:center/88% no-repeat}
+
+/* faixa de texto no meio do tabuleiro */
+.faixa{position:absolute;left:50%;top:50%;z-index:6;white-space:nowrap;padding:22px 54px;border-radius:30px;
+  font-family:var(--titulo);font-weight:700;font-size:104px;line-height:1;letter-spacing:.02em;color:#fff;
+  background:linear-gradient(145deg,#3a2c9c,#171042);
+  box-shadow:0 0 0 4px var(--ouro),0 24px 60px -10px rgba(0,0,0,.9),0 0 90px rgba(255,211,107,.6);
+  text-shadow:0 4px 0 rgba(13,7,48,.8)}
+.faixa.xeque{background:linear-gradient(145deg,#ff4f78,#a3123c);box-shadow:0 0 0 4px #fff,0 24px 60px -10px rgba(0,0,0,.9),0 0 100px rgba(255,79,120,.9)}
+.faixa.mate{color:#241300;text-shadow:none;background:linear-gradient(145deg,#fff2c4,#ffc43d 50%,#ff7a2e);
+  box-shadow:0 0 0 4px #fff,0 24px 60px -10px rgba(0,0,0,.9),0 0 120px rgba(255,200,80,1)}
+.faixa.longa{font-size:76px;white-space:normal;width:900px;text-align:center;line-height:1.1}
+
+/* cartaz: a peça bem grande, com raios girando atrás e o nome embaixo */
+.cartaz{position:absolute;inset:0;z-index:7;border-radius:38px;overflow:hidden;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:10px;
+  background:radial-gradient(circle at 50% 45%,rgba(58,44,156,.97),rgba(10,6,32,.97) 70%)}
+.cartaz-raios{position:absolute;left:50%;top:45%;width:1500px;height:1500px;margin:-750px 0 0 -750px;border-radius:50%;
+  background:repeating-conic-gradient(rgba(255,211,107,.16) 0 9deg,rgba(255,211,107,0) 9deg 22.5deg);
+  -webkit-mask:radial-gradient(circle,#000 0 25%,transparent 62%);mask:radial-gradient(circle,#000 0 25%,transparent 62%)}
+.cartaz img{position:relative;width:620px;height:620px;filter:drop-shadow(0 0 40px rgba(255,211,107,.6)) drop-shadow(0 30px 30px rgba(0,0,0,.6))}
+.cartaz b{position:relative;font-family:var(--titulo);font-weight:700;font-size:120px;line-height:1;color:var(--ouro);
+  text-shadow:0 0 50px rgba(255,211,107,.7),0 6px 0 rgba(13,7,48,.9)}
+.cartaz.logo img{width:460px;height:460px;border-radius:90px;margin-bottom:30px}
+.cartaz.logo b{font-size:104px}

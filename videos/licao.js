@@ -5,7 +5,10 @@
 // da fala em que elas acontecem. O formato completo está em videos/LEIA-ME.md.
 'use strict';
 
+const Xadrez = require('../js/xadrez.js');   // as regras do site: só para reconhecer xeque e mate
+
 const COLUNAS = 'abcdefgh';
+const NOMES = { peao: 'Peão', rei: 'Rei', dama: 'Dama', rainha: 'Rainha', torre: 'Torre', bispo: 'Bispo', cavalo: 'Cavalo' };
 const INICIAL = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
 const PECAS = { rei: 'k', dama: 'q', rainha: 'q', torre: 'r', bispo: 'b', cavalo: 'n', peao: 'p' };
 const CORES = {
@@ -94,11 +97,23 @@ function leOrdem(texto, onde) {
     acoes.push({ tipo: 'posicao', casas: posicao(resto.join(' ')) });
   } else if (nome === 'poe') {
     acoes.push({ tipo: 'poe', pecas: listaDePecas(resto.join(' '), onde) });
+  } else if (nome === 'mostra' && chave(resto[0] || '') === 'logo') {   // [mostra logo]
+    acoes.push({ tipo: 'mostra', peca: 'logo', nome: 'Xadrez Express' });
+  } else if (nome === 'mostra') {                       // [mostra bispo] ou [mostra cavalo preto]
+    const tipo = PECAS[chave(resto[0] || '')];
+    if (!tipo) throw new Error(onde + ': diga qual peça mostrar (ex.: [mostra bispo])');
+    const preta = resto.slice(1).some(p => /^pret/.test(chave(p)));
+    acoes.push({ tipo: 'mostra', peca: preta ? tipo : tipo.toUpperCase(), nome: NOMES[chave(resto[0])] });
+  } else if (nome === 'esconde') {
+    acoes.push({ tipo: 'esconde' });
+  } else if (nome === 'texto') {                        // [texto Garfo!]
+    if (!resto.length) throw new Error(onde + ': diga o texto (ex.: [texto Garfo!])');
+    acoes.push({ tipo: 'texto', texto: resto.join(' ') });
   } else if (nome === 'tira') {
     semCor.forEach(p => { if (!ehCasa(p)) throw new Error(onde + ': "' + p + '" não é uma casa'); });
     acoes.push({ tipo: 'tira', casas: semCor.map(indice) });
   } else {
-    throw new Error(onde + ': não conheço a ordem [' + texto + ']. As ordens são: lance, seta, marca, limpa, posicao, poe, tira.');
+    throw new Error(onde + ': não conheço a ordem [' + texto + ']. As ordens são: lance, seta, marca, limpa, posicao, poe, tira, mostra, esconde, texto.');
   }
   acoes.forEach(a => { a.aos = aos; });
   return acoes;
@@ -226,6 +241,16 @@ function aplicaLance(casas, a, onde) {
   return { depois: depois, movem: movem, capturada: capturada };
 }
 
+// Depois de um lance: o rei do outro lado ficou em xeque? É mate? (Só com os dois reis no tabuleiro.)
+function xequeDepois(casas, peca) {
+  const cor = peca === peca.toUpperCase() ? 'w' : 'b', outro = cor === 'w' ? 'b' : 'w';
+  const rei = casas.indexOf(outro === 'w' ? 'K' : 'k');
+  if (rei < 0 || casas.indexOf(cor === 'w' ? 'K' : 'k') < 0) return {};
+  const pos = { casas: casas, vez: outro, roque: '', ep: -1 };
+  if (!Xadrez.emXeque(pos, outro)) return {};
+  return { xeque: rei, mate: Xadrez.ehMate(pos) };
+}
+
 // Junta lição + segundos das palavras no roteiro que o palco (videos/palco.js) desenha.
 function roteiro(licao, tempos, duracao) {
   const n = licao.palavras.length;
@@ -244,9 +269,12 @@ function roteiro(licao, tempos, duracao) {
       const r = aplicaLance(casas, a, 'lance aos ' + t.toFixed(1) + 's');
       ev.movem = r.movem; ev.capturada = r.capturada; ev.de = a.de; ev.para = a.para;
       casas = r.depois;
+      Object.assign(ev, xequeDepois(casas, r.movem[0].peca));
       ultimo = ev.t + DUR_LANCE;
     } else if (a.tipo === 'posicao') { casas = a.casas.slice(); ultimo = ev.t; }
     else if (a.tipo === 'poe') { casas = casas.slice(); a.pecas.forEach(p => { casas[p.casa] = p.peca; }); ev.novas = a.pecas.map(p => p.casa); ultimo = ev.t; }
+    else if (a.tipo === 'mostra') { ev.peca = a.peca; ev.nome = a.nome; ultimo = ev.t; }
+    else if (a.tipo === 'texto') { ev.texto = a.texto; ultimo = ev.t; }
     else if (a.tipo === 'tira') { casas = casas.slice(); a.casas.forEach(c => { casas[c] = ''; }); ultimo = ev.t; }
     else if (a.tipo === 'seta') { ev.setas = a.setas; ev.cor = a.cor; ultimo = ev.t; }
     else if (a.tipo === 'marca') { ev.casas = a.casas; ev.cor = a.cor; ultimo = ev.t; }
@@ -273,7 +301,15 @@ function roteiro(licao, tempos, duracao) {
     b.some = prox ? Math.min(prox.ini, b.fim + 1.2) : b.fim + 1.2;
   });
 
-  const fim = Math.max(fimDaFala, ultimo, duracao || 0);
+  // um efeito que começa perto do fim precisa de tempo para aparecer inteiro
+  let efeitos = 0;
+  eventos.forEach(ev => {
+    if (ev.tipo === 'texto') efeitos = Math.max(efeitos, ev.t + 1.6);
+    if (ev.xeque != null) efeitos = Math.max(efeitos, ev.t + DUR_LANCE + 1.4);
+    if (ev.capturada) efeitos = Math.max(efeitos, ev.t + DUR_LANCE + 0.6);
+    if (ev.tipo === 'mostra') efeitos = Math.max(efeitos, ev.t + 1.2);
+  });
+  const fim = Math.max(fimDaFala, ultimo, efeitos, duracao || 0);
   return {
     numero: licao.numero, titulo: licao.titulo, pretasEmbaixo: licao.pretasEmbaixo,
     legenda: licao.legenda, inicial: inicial, eventos: eventos, legendas: legendas,
