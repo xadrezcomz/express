@@ -1,0 +1,31 @@
+/* O palco 3D: usa o visual do palco 2D (palco.css) e muda só a arrumação da tela. */
+.palco3d{
+  background:
+    radial-gradient(1000px 760px at 50% 58%,rgba(160,107,255,.42),transparent 70%),
+    radial-gradient(800px 500px at 50% 100%,rgba(46,230,255,.12),transparent 70%),
+    linear-gradient(180deg,#1b1150,#0e0830 45%,#070417);
+}
+#cena3d{position:absolute;inset:0;width:1080px;height:1920px}
+
+/* título mais compacto no alto, para sobrar tela para o tabuleiro */
+.palco3d .cabeca{top:70px;height:230px;gap:20px}
+.palco3d h1{font-size:72px}
+.palco3d h1.longo{font-size:58px}
+
+/* legenda em caixinhas, logo abaixo do título: a palavra falada fica dourada */
+.legenda3d{position:absolute;left:40px;right:40px;top:318px;height:200px;display:flex;flex-wrap:wrap;
+  align-content:flex-start;justify-content:center;gap:10px 10px;text-align:center;
+  font-family:var(--corpo);font-weight:800;font-size:60px;line-height:1.15;color:#fff}
+.legenda3d span{padding:2px 16px 6px;border-radius:10px;background:rgba(13,7,48,.92);
+  box-shadow:0 8px 20px -8px rgba(0,0,0,.8)}
+.legenda3d span.dita{background:var(--ouro);color:#241300}
+.legenda3d span.falta{color:rgba(244,241,255,.55);background:rgba(13,7,48,.7)}
+
+/* a área do tabuleiro na tela: é onde a faixa e o cartaz aparecem */
+.area3d{position:absolute;left:20px;top:560px;width:1040px;height:1040px}
+
+.palco3d .pe{top:1790px}
+
+.sombra-topo,.sombra-pe{position:absolute;left:0;right:0;pointer-events:none}
+.sombra-topo{top:0;height:600px;background:linear-gradient(180deg,#120b33 0%,rgba(18,11,51,.92) 62%,rgba(18,11,51,0) 100%)}
+.sombra-pe{bottom:0;height:330px;background:linear-gradient(0deg,#070417 0%,rgba(7,4,23,.94) 45%,rgba(7,4,23,0) 100%)}

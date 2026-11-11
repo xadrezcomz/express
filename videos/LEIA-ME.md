@@ -81,6 +81,7 @@ Cabeçalho (tudo opcional):
 | `lado: pretas` | vira o tabuleiro (pretas embaixo) |
 | `legenda: nao` | tira a legenda |
 | `voz: CODIGO` | a voz da ElevenLabs para esta lição |
+| `estilo: 3d` | tabuleiro e peças em 3D, com a câmera acompanhando os lances (sem esta linha, sai o 2D) |
 
 Depois do `---` vem a fala. Cada ordem entre colchetes acontece **quando começa a palavra
 que vem logo depois dela**:
@@ -114,6 +115,17 @@ Os lances não passam por conferência de regra: a peça vai de uma casa à outr
 posições de ensino (um cavalo sozinho no tabuleiro, sem reis). Linhas começadas por `#` são
 anotações e não entram na fala.
 
+## O estilo 3D
+
+Com `estilo: 3d` no cabeçalho (ou `--3d` no comando), o vídeo sai com o tabuleiro e as peças
+em 3D, no desenho das peças do site, e uma câmera que vai até as casas de cada acontecimento
+(lance, seta, marca, peça nova) e volta a mostrar o tabuleiro inteiro quando a posição muda.
+As ordens e os efeitos são os mesmos do 2D. A legenda fica em caixinhas, logo abaixo do título.
+
+O 3D é desenhado pelo processador (sem placa de vídeo), então demora mais: uma lição de 30
+segundos leva cerca de 1 minuto e meio, contra uns 30 segundos no 2D. `--2d` força o 2D numa
+lição que tem `estilo: 3d`.
+
 ## Para rodar
 
 Precisa de `node`, `ffmpeg`, `playwright` (Chromium) e, para áudio gravado,
@@ -123,7 +135,9 @@ Precisa de `node`, `ffmpeg`, `playwright` (Chromium) e, para áudio gravado,
 |---|---|
 | `gera.js` | a linha de comando: fotografa os quadros e monta o MP4 |
 | `licao.js` | lê a lição e calcula o segundo de cada lance, seta e legenda |
-| `palco.html`, `palco.css`, `palco.js` | o quadro do vídeo: visual, tabuleiro e animações |
+| `palco.html`, `palco.css`, `palco.js` | o quadro do vídeo 2D: visual, tabuleiro e animações |
+| `palco3d.html`, `palco3d.css`, `palco3d.js` | o quadro do vídeo 3D (three.js): cena, peças, câmera e animações |
+| `vendor/` | o three.js (licença MIT), guardado aqui porque o site não tem etapa de build |
 | `alinha.py` | ouve o áudio e anota o segundo de cada palavra |
 | `voz.js` | grava a fala na ElevenLabs |
 

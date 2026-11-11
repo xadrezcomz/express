@@ -129,7 +129,7 @@ function le(texto, nomeArquivo) {
     if (l === '' && !Object.keys(cab).length) continue;
     if (/^-{3,}$/.test(l)) { i++; break; }
     const m = l.match(/^([A-Za-zÀ-ÿ]+)\s*:\s*(.*)$/);
-    if (!m || !/^(licao|titulo|posicao|pecas|lado|legenda|voz)$/.test(chave(m[1]))) break;
+    if (!m || !/^(licao|titulo|posicao|pecas|lado|legenda|voz|estilo)$/.test(chave(m[1]))) break;
     cab[chave(m[1])] = m[2].trim();
   }
   const onde = nomeArquivo || 'lição';
@@ -157,6 +157,7 @@ function le(texto, nomeArquivo) {
   return {
     numero: cab.licao || '', titulo: cab.titulo || '', voz: cab.voz || '',
     pretasEmbaixo: /^pret/.test(chave(cab.lado || '')),
+    estilo: chave(cab.estilo || '') === '3d' ? '3d' : '2d',
     legenda: !/^(nao|n|off|0)$/.test(chave(cab.legenda || 'sim')),
     casas: casas, palavras: palavras, ordens: ordens,
     fala: palavras.map(p => p.texto).join(' ')
@@ -311,7 +312,7 @@ function roteiro(licao, tempos, duracao) {
   });
   const fim = Math.max(fimDaFala, ultimo, efeitos, duracao || 0);
   return {
-    numero: licao.numero, titulo: licao.titulo, pretasEmbaixo: licao.pretasEmbaixo,
+    numero: licao.numero, titulo: licao.titulo, pretasEmbaixo: licao.pretasEmbaixo, estilo: licao.estilo,
     legenda: licao.legenda, inicial: inicial, eventos: eventos, legendas: legendas,
     durLance: DUR_LANCE, duracao: fim
   };
