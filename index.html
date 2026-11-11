@@ -34,7 +34,7 @@
     <span>Xadrez <b>Express</b></span>
   </a>
   <nav class="menu" aria-label="Seções">
-    <a href="#puzzle">Desafio</a>
+    <a href="#puzzle">Desafio do dia</a>
     <a href="#partida">Partida do dia</a>
     <a href="#frase">Frase do dia</a>
     <a href="#curso">O curso</a>
@@ -87,10 +87,34 @@
         <p>Começa em como cada peça se move. Você não precisa saber nada de xadrez para dar o primeiro passo.</p>
       </li>
       <li class="cartao passo revela">
-        <div class="passo-arte arte-degraus" aria-hidden="true">
-          <span><img src="img/pecas-express/wp.svg" alt="" width="60" height="60" loading="lazy"></span>
-          <span><img src="img/pecas-express/wn.svg" alt="" width="60" height="60" loading="lazy"></span>
-          <span><img src="img/pecas-express/wq.svg" alt="" width="60" height="60" loading="lazy"></span>
+        <div class="passo-arte arte-subida" aria-hidden="true">
+          <!-- um gráfico subindo, com o foguete na ponta deixando o rastro -->
+          <svg viewBox="0 0 300 160" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <linearGradient id="subidaRastro" x1="0" y1="1" x2="1" y2="0">
+                <stop offset="0" stop-color="#ff4fd8" stop-opacity="0"/><stop offset=".45" stop-color="#ff4fd8"/><stop offset="1" stop-color="#ffd36b"/>
+              </linearGradient>
+              <linearGradient id="subidaChao" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#ff4fd8" stop-opacity=".34"/><stop offset="1" stop-color="#ff4fd8" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <g stroke="#fff" stroke-opacity=".12" stroke-width="1">
+              <path d="M14 40H290M14 74H290M14 108H290M14 142H290"/><path d="M83 12V142M152 12V142M221 12V142"/>
+            </g>
+            <path d="M14 140C90 136 150 120 200 78S262 30 284 16V142H14Z" fill="url(#subidaChao)"/>
+            <path class="subida-linha" pathLength="1" d="M14 140C90 136 150 120 200 78S262 30 284 16" fill="none" stroke="url(#subidaRastro)" stroke-width="7" stroke-linecap="round"/>
+            <g fill="#fff"><circle cx="83" cy="134" r="4"/><circle cx="152" cy="113" r="4"/><circle cx="221" cy="60" r="4"/></g>
+            <g>
+              <animateMotion dur="3.6s" repeatCount="indefinite" rotate="auto" keyPoints="0;1;1" keyTimes="0;.72;1" calcMode="linear" path="M14 140C90 136 150 120 200 78S262 30 284 16"/>
+              <g transform="scale(.82)">
+                <path d="M-22 0c-12-5-22-3-34 0 12 3 22 5 34 0z" fill="#ffd36b"/><path d="M-22 0c-7-3-13-2-20 0 7 2 13 3 20 0z" fill="#fff"/>
+                <path d="M-14-8-28-23-25-5zM-14 8-28 23-25 5z" fill="#e02a2a"/>
+                <path d="M-22-8.5Q5-13.5 15-7V7Q5 13.5-22 8.5Z" fill="#f4f5fb" stroke="#1b1250" stroke-width="2"/>
+                <path d="M14-7.5Q25-5 31 0 25 5 14 7.5Z" fill="#e02a2a" stroke="#1b1250" stroke-width="2"/>
+                <circle cx="3" cy="0" r="4.6" fill="#35c8ff" stroke="#1b1250" stroke-width="2"/>
+              </g>
+            </g>
+          </svg>
         </div>
         <span class="passo-num" aria-hidden="true">03</span>
         <h3>Um degrau por vez</h3>
@@ -103,7 +127,7 @@
 <!-- ============================================================ PUZZLE DO DIA -->
 <section class="secao puzzle" id="puzzle">
   <div class="miolo">
-    <p class="olho">Desafio</p>
+    <p class="olho">Desafio do dia</p>
     <h2>Você consegue achar a melhor jogada?</h2>
 
     <div class="desafio">
