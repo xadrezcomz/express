@@ -1,4 +1,8 @@
 prontos/
 .cache/
-# as gravações das lições não vão para o repositório (ele é público)
+# as lições do curso (textos e áudios) são vendidas: ficam numa pasta privada, fora deste
+# repositório público. Aqui entra só a lição de exemplo.
 audios/
+licoes/*
+!licoes/exemplo-cavalo.txt
+voz.json

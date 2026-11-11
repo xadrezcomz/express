@@ -1,30 +1,49 @@
-// Grava a fala de uma lição com a sua voz clonada na ElevenLabs, a partir do texto.
+// Grava a fala de uma lição com a voz clonada na ElevenLabs, a partir do texto.
 // A ElevenLabs devolve, junto com o áudio, o segundo exato de cada letra: os lances e as
 // setas ficam no ponto sem precisar de reconhecimento de fala.
 //
-// Precisa de duas variáveis de ambiente (nunca escreva a chave num arquivo do site):
-//   ELEVENLABS_API_KEY   a chave da sua conta
-//   ELEVENLABS_VOICE_ID  o código da sua voz clonada (ou "voz: CODIGO" no cabeçalho da lição)
-// Opcional: ELEVENLABS_MODEL (padrão: eleven_multilingual_v2, que fala português).
+// A chave da conta nunca fica em arquivo. Nas sessões do Claude na nuvem ela é um "segredo
+// de rede" do ambiente (posto no cabeçalho xi-api-key a caminho de api.elevenlabs.io); em
+// outro computador, vem da variável de ambiente ELEVENLABS_API_KEY.
+//
+// Qual voz e como ela fala ficam em voz.json, na pasta das lições:
+//   { "voz": "CODIGO_DA_VOZ", "modelo": "eleven_multilingual_v2",
+//     "ajustes": { "stability": 0.5, "similarity_boost": 0.8, "speed": 1.0 } }
+// ("voz: CODIGO" no cabeçalho de uma lição troca a voz só nela.)
 'use strict';
 const fs = require('fs');
+const path = require('path');
 
-function configurada() { return !!process.env.ELEVENLABS_API_KEY; }
+const API = 'https://api.elevenlabs.io/v1/';
+function cabecalhos() {
+  return { 'xi-api-key': process.env.ELEVENLABS_API_KEY || 'chave-posta-pelo-ambiente', 'content-type': 'application/json' };
+}
+async function pede(caminho, opcoes) {
+  const r = await fetch(API + caminho, Object.assign({ headers: cabecalhos() }, opcoes));
+  if (!r.ok) {
+    const dica = r.status === 401 ? ' A chave da ElevenLabs está faltando ou é inválida.' : '';
+    throw new Error('A ElevenLabs recusou o pedido (' + r.status + ').' + dica + ' ' + (await r.text()).slice(0, 300));
+  }
+  return r.json();
+}
+
+function config(pasta) {
+  const f = path.join(pasta, 'voz.json');
+  const c = fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : {};
+  if (process.env.ELEVENLABS_VOICE_ID && !c.voz) c.voz = process.env.ELEVENLABS_VOICE_ID;
+  return c;
+}
+
+// As vozes da conta (as clonadas vêm com category "cloned" ou "professional").
+async function vozes() { return (await pede('voices')).voices; }
 
 // Grava `texto` em `arquivoMp3` e devolve as palavras com o segundo de cada uma.
-async function grava(texto, arquivoMp3, voz) {
-  const chave = process.env.ELEVENLABS_API_KEY;
-  voz = voz || process.env.ELEVENLABS_VOICE_ID;
-  if (!chave) throw new Error('Falta a variável ELEVENLABS_API_KEY');
-  if (!voz) throw new Error('Falta dizer qual voz usar: variável ELEVENLABS_VOICE_ID ou "voz:" no cabeçalho da lição');
-
-  const r = await fetch('https://api.elevenlabs.io/v1/text-to-speech/' + encodeURIComponent(voz) + '/with-timestamps?output_format=mp3_44100_128', {
-    method: 'POST',
-    headers: { 'xi-api-key': chave, 'content-type': 'application/json' },
-    body: JSON.stringify({ text: texto, model_id: process.env.ELEVENLABS_MODEL || 'eleven_multilingual_v2' })
-  });
-  if (!r.ok) throw new Error('A ElevenLabs recusou o pedido (' + r.status + '): ' + (await r.text()).slice(0, 300));
-  const j = await r.json();
+async function grava(texto, arquivoMp3, cfg) {
+  if (!cfg || !cfg.voz) throw new Error('Falta dizer qual voz usar: crie voz.json na pasta das lições (veja videos/voz.js) ou rode --vozes para ver os códigos');
+  const corpo = { text: texto, model_id: cfg.modelo || 'eleven_multilingual_v2' };
+  if (cfg.ajustes) corpo.voice_settings = cfg.ajustes;
+  const j = await pede('text-to-speech/' + encodeURIComponent(cfg.voz) + '/with-timestamps?output_format=mp3_44100_128',
+    { method: 'POST', body: JSON.stringify(corpo) });
   fs.writeFileSync(arquivoMp3, Buffer.from(j.audio_base64, 'base64'));
 
   // letras -> palavras (o texto enviado tem um espaço só entre as palavras)
@@ -39,4 +58,4 @@ async function grava(texto, arquivoMp3, voz) {
   return { fonte: 'elevenlabs', palavras: palavras };
 }
 
-module.exports = { configurada, grava };
+module.exports = { config, vozes, grava };

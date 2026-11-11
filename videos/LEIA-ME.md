@@ -26,11 +26,20 @@ grave lendo o texto e salve em `videos/audios/002-bispo.m4a` (serve mp3, ogg, wa
 node videos/gera.js 002-bispo
 ```
 
-**3. Só o texto, com a minha voz clonada (ElevenLabs).** Com as variáveis `ELEVENLABS_API_KEY` e
-`ELEVENLABS_VOICE_ID` definidas, o áudio é gravado e o vídeo sai direto do texto:
+**3. Só o texto, com a minha voz clonada (ElevenLabs).** O áudio é gravado pela ElevenLabs e o
+vídeo sai direto do texto:
 
 ```sh
 node videos/gera.js 002-bispo --voz
+```
+
+A chave da conta nunca fica em arquivo: nas sessões do Claude na nuvem ela é um segredo de
+rede do ambiente; em outro computador, é a variável `ELEVENLABS_API_KEY`. A voz fica em
+`voz.json`, na pasta das lições (`node videos/gera.js --vozes` lista os códigos da conta):
+
+```json
+{ "voz": "CODIGO_DA_VOZ", "modelo": "eleven_multilingual_v2",
+  "ajustes": { "stability": 0.5, "similarity_boost": 0.8, "speed": 1.0 } }
 ```
 
 Em quantidade: `node videos/gera.js todas` (com `--voz`, se for o caso) faz todas as lições
@@ -39,6 +48,15 @@ que têm áudio e ainda não têm vídeo em dia. Os vídeos ficam em `videos/pro
 Os lances ficam no ponto da fala porque o áudio é ouvido por reconhecimento de fala, que anota
 o segundo de cada palavra (na ElevenLabs, os segundos já vêm junto com o áudio). Por isso o
 texto da lição precisa ser o que foi dito; pequenas diferenças não atrapalham.
+
+## Onde ficam as lições
+
+As lições do curso são vendidas, e este repositório é público. Por isso os textos e os áudios
+ficam numa **pasta privada**, fora daqui, com `licoes/`, `audios/` e `voz.json`. O gerador
+usa a pasta da variável `XE_LICOES` ou, se existir, a pasta `express-licoes` ao lado deste
+repositório (um repositório privado clonado ali). Sem nenhuma das duas, ele usa `videos/`,
+onde só entra a lição de exemplo (`licoes/exemplo-cavalo.txt`). Os vídeos prontos saem sempre
+em `videos/prontos/`, que não vai para o repositório.
 
 ## O arquivo da lição
 
@@ -101,4 +119,3 @@ Precisa de `node`, `ffmpeg`, `playwright` (Chromium) e, para áudio gravado,
 O visual (cores, tamanho do título, legenda) fica em `palco.css`. Como o vídeo é refeito a
 partir do texto e do áudio, mudar o visual e rodar `todas --refaz` atualiza o curso inteiro.
 
-As gravações (`audios/`) e os vídeos (`prontos/`) não vão para o repositório, que é público.

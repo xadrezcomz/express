@@ -8,8 +8,10 @@
 //   node videos/gera.js 001-cavalo --foto 12  só uma foto do segundo 12 (PNG)
 //   node videos/gera.js --rascunho audio.m4a  ouve um áudio gravado e escreve o rascunho da lição
 //
-// Outras opções: --audio ARQUIVO, --refaz (refaz mesmo que o vídeo esteja em dia),
-// --voz (grava a fala na ElevenLabs quando não houver áudio; veja videos/voz.js).
+//   node videos/gera.js 001-cavalo --voz      sem áudio: grava a fala com a voz clonada (ElevenLabs)
+//   node videos/gera.js --vozes               lista as vozes da conta da ElevenLabs
+//
+// Outras opções: --audio ARQUIVO, --refaz (refaz mesmo que o vídeo esteja em dia).
 // O formato do arquivo da lição e o passo a passo estão em videos/LEIA-ME.md.
 // Precisa de: node, playwright (chromium), ffmpeg e, para áudio gravado, faster-whisper.
 'use strict';
@@ -21,7 +23,13 @@ const L = require('./licao.js');
 const voz = require('./voz.js');
 
 const AQUI = __dirname;
-const PASTA = { licoes: path.join(AQUI, 'licoes'), audios: path.join(AQUI, 'audios'), prontos: path.join(AQUI, 'prontos'), cache: path.join(AQUI, '.cache') };
+// As lições do curso (textos e áudios) são vendidas, então moram fora deste repositório, que é
+// público: numa pasta privada com licoes/, audios/ e voz.json. Ela é a da variável XE_LICOES ou,
+// se existir, a pasta "express-licoes" ao lado deste repositório. Sem nenhuma das duas, vale
+// videos/ (onde fica só a lição de exemplo). Os vídeos prontos saem sempre em videos/prontos/.
+const VIZINHA = path.join(AQUI, '..', '..', 'express-licoes');
+const BASE = process.env.XE_LICOES ? path.resolve(process.env.XE_LICOES) : (fs.existsSync(VIZINHA) ? VIZINHA : AQUI);
+const PASTA = { licoes: path.join(BASE, 'licoes'), audios: path.join(BASE, 'audios'), prontos: path.join(AQUI, 'prontos'), cache: path.join(AQUI, '.cache') };
 const EXT_AUDIO = ['mp3', 'm4a', 'wav', 'ogg', 'opus', 'aac', 'mp4', 'webm', 'flac'];
 const QPS = 30, LARGURA = 1080, ALTURA = 1920;
 const SOBRA = 0.8;            // segundos de vídeo depois que a fala termina
@@ -40,7 +48,8 @@ function achaAudio(nome) {
   return null;
 }
 function achaLicao(arg) {
-  const tentativas = [arg, arg + '.txt', path.join(PASTA.licoes, arg), path.join(PASTA.licoes, arg + '.txt')];
+  const tentativas = [arg, arg + '.txt', path.join(PASTA.licoes, arg), path.join(PASTA.licoes, arg + '.txt'),
+    path.join(AQUI, 'licoes', arg), path.join(AQUI, 'licoes', arg + '.txt')];
   const f = tentativas.find(t => fs.existsSync(t) && fs.statSync(t).isFile());
   if (!f) throw new Error('Não achei a lição "' + arg + '" (procurei em videos/licoes/)');
   return f;
@@ -79,7 +88,7 @@ async function geraVideo(arquivoLicao, op) {
   let audio = op.previa ? null : (op.audio || achaAudio(nome));
 
   if (!audio && !op.previa && op.foto == null) {
-    if (!(op.voz && voz.configurada())) {
+    if (!op.voz) {
       if (op.lote) return null;
       throw new Error('A lição "' + nome + '" ainda não tem áudio. Ponha a gravação em videos/audios/' + nome +
         '.m4a (ou .mp3, .ogg, .wav...), ou use --voz com a ElevenLabs, ou --previa para ver sem áudio.');
@@ -87,7 +96,7 @@ async function geraVideo(arquivoLicao, op) {
     console.log('  gravando a fala na ElevenLabs...');
     fs.mkdirSync(PASTA.audios, { recursive: true });
     audio = path.join(PASTA.audios, nome + '.mp3');
-    const gravado = await voz.grava(licao.fala, audio, licao.voz);
+    const gravado = await voz.grava(licao.fala, audio, Object.assign({}, voz.config(BASE), licao.voz ? { voz: licao.voz } : {}));
     fs.writeFileSync(audio.replace(/\.mp3$/, '.palavras.json'), JSON.stringify(gravado));
   }
   if (op.lote && !op.refaz && audio && fs.existsSync(saida)) {
@@ -192,6 +201,7 @@ async function principal() {
     if (a === '--previa') op.previa = true;
     else if (a === '--refaz') op.refaz = true;
     else if (a === '--voz') op.voz = true;
+    else if (a === '--vozes') op.vozes = true;
     else if (a === '--audio') op.audio = args[++i];
     else if (a === '--foto') op.foto = Number(String(args[++i]).replace(',', '.'));
     else if (a === '--rascunho') op.rascunho = args[++i];
@@ -200,8 +210,12 @@ async function principal() {
     else nomes.push(a);
   }
   if (op.rascunho) { rascunho(op.rascunho, op.nome); return; }
+  if (op.vozes) {
+    (await voz.vozes()).forEach(v => console.log(v.voice_id + '  ' + (v.category || '').padEnd(13) + v.name));
+    return;
+  }
   if (!nomes.length) {
-    console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 14).map(l => l.replace(/^\/\/ ?/, '')).join('\n'));
+    console.log(fs.readFileSync(__filename, 'utf8').split('\n').slice(1, 16).map(l => l.replace(/^\/\/ ?/, '')).join('\n'));
     return;
   }
   let feitos = 0, falhas = 0;
