@@ -7,6 +7,7 @@
 // toda vez, e um quadro idêntico ao anterior não é desenhado de novo.
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from './vendor/RoundedBoxGeometry.js';
+import { FBXLoader } from './vendor/jsm/loaders/FBXLoader.js';
 
 let R = null;                                   // o roteiro
 const TOPO = 0.1;                               // altura da face de cima das casas
@@ -192,6 +193,53 @@ function pecaDaFila(p, k) {
 const ALTURA_PINCA = 0.82, TAM_MAO = 2.5, DUR_MAO_VEM = 0.4, DUR_MAO_VAI = 0.35, MAO_SOZINHA = 6;
 const mao = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthTest: false, depthWrite: false, toneMapped: false }));
 mao.center.set(70 / 400, 1 - 70 / 400); mao.renderOrder = 999; mao.visible = false; cena.add(mao);
+// Se a pasta privada das lições tem modelos/mao.fbx (uma mão com ossos nos dedos), a mão é esse
+// modelo 3D, que chega aberta e fecha em pinça na peça. Sem o arquivo, fica o desenho.
+// Os ossos do modelo: 002-004 polegar, 005-008 indicador, 009-012 médio, 013-016 anelar, 017-020 mínimo.
+const MAO3D = { tam: 1.9 / 260, pinca: new THREE.Vector3(161, 83, 55), inclina: 0.6,
+  aberta: { ind: 0.35, resto: 0.55, tY: 0, tX: 0, tZ: 0, tY2: 0 },
+  fechada: { ind: 0.9, resto: 1, tY: 0.2, tX: 0.6, tZ: 0, tY2: 0.4 } };
+let mao3d = null;
+async function carregaMao3d() {
+  let obj;
+  try { obj = await new FBXLoader().loadAsync('/privado/modelos/mao.fbx'); } catch (e) { return; }
+  const pele = new THREE.MeshStandardMaterial({ color: 0xe8b48f, roughness: 0.62, transparent: true });
+  const ossos = {};
+  obj.traverse(o => { if (o.isMesh) { o.material = pele; o.frustumCulled = false; } if (o.isBone) ossos[o.name] = o; });
+  const base = {}; for (const k in ossos) base[k] = ossos[k].quaternion.clone();
+  // a pinça fica no ponto (0,0,0) do grupo; o grupo é que vai até a peça
+  obj.scale.setScalar(MAO3D.tam); obj.position.copy(MAO3D.pinca).multiplyScalar(-MAO3D.tam);
+  const giro = new THREE.Group(); giro.add(obj);
+  const g = new THREE.Group(); g.add(giro); g.visible = false; cena.add(g);
+  mao3d = { g, giro, obj, ossos, base, pele, aperto: -1 };
+}
+const qA = new THREE.Quaternion(), qB = new THREE.Quaternion();
+function dobra(osso, eixo, ang) {
+  osso.parent.getWorldQuaternion(qB);
+  const mundo = qB.clone().multiply(osso.quaternion);
+  qA.setFromAxisAngle(eixo, ang);
+  osso.quaternion.copy(qB.invert().multiply(qA.multiply(mundo)));
+  osso.updateMatrixWorld(true);
+}
+// a pose da mão entre aberta (0) e fechada em pinça (1), dobrando os ossos no espaço do modelo
+function poseMao(aperto) {
+  if (aperto === mao3d.aperto) return;
+  mao3d.aperto = aperto;
+  const A = MAO3D.aberta, F = MAO3D.fechada, v = k => A[k] + (F[k] - A[k]) * aperto, B = mao3d.ossos;
+  for (const k in B) B[k].quaternion.copy(mao3d.base[k]);
+  // as dobras são feitas com o modelo parado na origem, sem o giro da cena
+  const pai = mao3d.obj.parent; pai.remove(mao3d.obj);
+  const p0 = mao3d.obj.position.clone(), s0 = mao3d.obj.scale.clone();
+  mao3d.obj.position.set(0, 0, 0); mao3d.obj.scale.setScalar(1); mao3d.obj.updateMatrixWorld(true);
+  const X = new THREE.Vector3(1, 0, 0), Yv = new THREE.Vector3(0, 1, 0), Z = new THREE.Vector3(0, 0, 1);
+  ['Bone006', 'Bone007', 'Bone008'].forEach((n, i) => dobra(B[n], Z, -v('ind') * [0.6, 1, 0.8][i]));
+  ['Bone010', 'Bone011', 'Bone012', 'Bone014', 'Bone015', 'Bone016', 'Bone018', 'Bone019', 'Bone020']
+    .forEach((n, i) => dobra(B[n], Z, -v('resto') * [0.7, 1.2, 1][i % 3]));
+  dobra(B.Bone003, Yv, v('tY')); dobra(B.Bone003, X, v('tX'));
+  ['Bone003', 'Bone004'].forEach(n => dobra(B[n], Z, -v('tZ')));
+  dobra(B.Bone004, Yv, v('tY2'));
+  mao3d.obj.position.copy(p0); mao3d.obj.scale.copy(s0); pai.add(mao3d.obj);
+}
 async function carregaMao() {
   const im = new Image(); im.src = 'mao.svg'; await im.decode();
   const cv = document.createElement('canvas'); cv.width = cv.height = 512;
@@ -446,7 +494,9 @@ function estado(t) {
       const sobe = 2.4 * (1 - suave(vem)) + 2.4 * suave(vai);
       const aperta = dv > DUR_MAO_VEM && dv < DUR_MAO_VEM + 0.25 ? 0.07 * Math.sin(Math.PI * (dv - DUR_MAO_VEM) / 0.25) : 0;
       const alto = mao.peca.toLowerCase() === 'k' ? 0.95 : mao.peca.toLowerCase() === 'p' ? 0.72 : ALTURA_PINCA;
-      maoAgora = { c: n3(c), l: n3(l), h: n3(h + alto + sobe), o: n3(Math.min(vem * 1.5, 1 - vai)), e: n3(1 - aperta) };
+      // a mão 3D chega aberta, fecha em pinça na peça e abre de novo ao soltar
+      const fecha = Math.max(0, Math.min(1, (dv - DUR_MAO_VEM * 0.8) / 0.25)) * (1 - Math.min(1, vai * 3));
+      maoAgora = { c: n3(c), l: n3(l), h: n3(h + alto + sobe), o: n3(Math.min(vem * 1.5, 1 - vai)), e: n3(1 - aperta), f: n3(suave(fecha)) };
     }
   }
   let expl = null;
@@ -552,7 +602,20 @@ function desenha3d(e) {
     });
   }
 
-  mao.visible = !!e.mao && e.mao.o > 0.01;
+  const temMao = !!e.mao && e.mao.o > 0.01;
+  if (mao3d) {
+    mao.visible = false; mao3d.g.visible = temMao;
+    if (temMao) {
+      poseMao(e.mao.f);
+      // a mão vem pela esquerda, de perfil para a câmera (o polegar e o indicador à vista),
+      // com os dedos inclinados para baixo
+      mao3d.g.position.set(mundoX(e.mao.c), TOPO + e.mao.h, mundoZ(e.mao.l));
+      mao3d.giro.rotation.set(0, R.pretasEmbaixo ? Math.PI : 0, 0);
+      mao3d.giro.rotateZ(-MAO3D.inclina);
+      mao3d.pele.opacity = e.mao.o; mao3d.pele.depthWrite = e.mao.o > 0.98;
+    }
+  }
+  mao.visible = !mao3d && temMao;
   if (mao.visible) {
     mao.position.set(mundoX(e.mao.c), TOPO + e.mao.h, mundoZ(e.mao.l));
     mao.scale.setScalar(TAM_MAO * e.mao.e); mao.material.opacity = e.mao.o;
@@ -599,6 +662,7 @@ async function prepara(roteiro) {
   }));
   poeEtiquetas();
   await carregaMao();
+  await carregaMao3d();
   planejaCamera();
   render.compile(cena, camera);
   return true;

@@ -88,9 +88,12 @@ async function abrePalco(estilo) {
   if (estilo === '3d') {
     // o palco 3D usa módulos JavaScript, que o navegador não abre direto do disco:
     // os arquivos do repositório são servidos num endereço de mentira
+    // /privado/... vem da pasta privada das lições (ex.: /privado/modelos/mao.fbx, a mão 3D do [mao])
     await pagina.route('http://palco.local/**', rota => {
-      const f = path.join(RAIZ, decodeURIComponent(new URL(rota.request().url()).pathname));
-      if (!f.startsWith(RAIZ) || !fs.existsSync(f)) return rota.fulfill({ status: 404, body: '' });
+      const caminho = decodeURIComponent(new URL(rota.request().url()).pathname);
+      const raiz = caminho.startsWith('/privado/') ? BASE : RAIZ;
+      const f = path.join(raiz, caminho.replace(/^\/privado\//, '/'));
+      if (!f.startsWith(raiz) || !fs.existsSync(f)) return rota.fulfill({ status: 404, body: '' });
       rota.fulfill({ status: 200, contentType: TIPOS[path.extname(f)] || 'application/octet-stream', body: fs.readFileSync(f) });
     });
     await pagina.goto('http://palco.local/videos/palco3d.html');
