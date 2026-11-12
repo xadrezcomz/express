@@ -64,13 +64,14 @@ const fatia = t => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').repl
 
   // a folha de miniaturas
   if (!amostra) {
-    const todas = fs.readdirSync(SAIDA).filter(a => /^modulo-.*\.jpg$/.test(a)).sort();
+    const feitas = fila.map(c => c.arquivo);     // na ordem do curso: o módulo e, depois, as aulas dele
+    const todas = feitas.filter(a => fs.existsSync(path.join(SAIDA, a)));
     await pag.setContent('<style>body{margin:0;padding:24px;background:#07041a;color:#f4f1ff;font:600 15px sans-serif;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;width:1600px;box-sizing:border-box}' +
       'img{width:100%;border-radius:10px;display:block;margin-bottom:6px}</style>' +
       todas.map(a => '<div><img src="' + url + 'saida/' + a + '">' + a + '</div>').join(''));
     await pag.setViewportSize({ width: 1600, height: 900 });
     await pag.waitForLoadState('networkidle');
-    await pag.screenshot({ path: path.join(SAIDA, 'folha-miniaturas.jpg'), type: 'jpeg', quality: 85, fullPage: true });
+    await pag.locator('body').screenshot({ path: path.join(SAIDA, 'folha-miniaturas.jpg'), type: 'jpeg', quality: 85 });
     console.log('folha-miniaturas.jpg (' + todas.length + ' capas)');
   }
   await nav.close(); srv.close();
