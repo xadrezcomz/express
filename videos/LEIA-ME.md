@@ -102,6 +102,7 @@ que vem logo depois dela**:
 | `[mostra logo]` | o logo do Xadrez Express grande, para chamadas ("na próxima aula...") |
 | `[esconde]` | tira o cartaz da peça (`[limpa]` e um lance também tiram) |
 | `[texto Garfo!]` | uma faixa com o texto no meio do tabuleiro, por 1,6 segundo |
+| `[mao f3]` | uma mão desce e segura a peça de f3 (só no 3D); se o lance seguinte sair dessa casa, a mão leva a peça junto e solta |
 | `[visao 2d]` / `[visao 3d]` | troca o tabuleiro para o 2D (visto de cima) ou o 3D no meio do vídeo, com uma fusão curta |
 | `[lance e2e4 @12.5]` | qualquer ordem pode ter o segundo exato, se precisar acertar na mão |
 

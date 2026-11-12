@@ -113,11 +113,14 @@ function leOrdem(texto, onde) {
     const estilo = nome === 'visao' ? chave(resto[0] || '') : nome;
     if (estilo !== '2d' && estilo !== '3d') throw new Error(onde + ': a visão é 2d ou 3d (ex.: [visao 2d])');
     acoes.push({ tipo: 'visao', estilo: estilo });
+  } else if (nome === 'mao') {                          // [mao f3]: a mão pega a peça (só no 3D)
+    if (semCor.length !== 1 || !ehCasa(semCor[0])) throw new Error(onde + ': diga a casa da peça (ex.: [mao f3])');
+    acoes.push({ tipo: 'mao', casa: indice(semCor[0]) });
   } else if (nome === 'tira') {
     semCor.forEach(p => { if (!ehCasa(p)) throw new Error(onde + ': "' + p + '" não é uma casa'); });
     acoes.push({ tipo: 'tira', casas: semCor.map(indice) });
   } else {
-    throw new Error(onde + ': não conheço a ordem [' + texto + ']. As ordens são: lance, seta, marca, limpa, posicao, poe, tira, mostra, esconde, texto, visao.');
+    throw new Error(onde + ': não conheço a ordem [' + texto + ']. As ordens são: lance, seta, marca, limpa, posicao, poe, tira, mostra, esconde, texto, visao, mao.');
   }
   acoes.forEach(a => { a.aos = aos; });
   return acoes;
@@ -285,6 +288,7 @@ function roteiro(licao, tempos, duracao) {
     else if (a.tipo === 'tira') { casas = casas.slice(); a.casas.forEach(c => { casas[c] = ''; }); ultimo = ev.t; }
     else if (a.tipo === 'seta') { ev.setas = a.setas; ev.cor = a.cor; ultimo = ev.t; }
     else if (a.tipo === 'marca') { ev.casas = a.casas; ev.cor = a.cor; ultimo = ev.t; }
+    else if (a.tipo === 'mao') { ev.casa = a.casa; ultimo = ev.t; }
     else ultimo = ev.t;
     ev.tabuleiro = casas.slice();
     eventos.push(ev);

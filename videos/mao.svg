@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- A mão do [mao casa]: vem de baixo à direita e pega a peça entre o polegar e o indicador.
+       O ponto da pinça (onde a peça é segurada) fica em (70, 70). -->
+  <g stroke-linecap="round" stroke-linejoin="round">
+    <!-- pulso -->
+    <path d="M235 235 L300 300" stroke="#7a4a2a" stroke-width="104"/>
+    <path d="M235 235 L300 300" stroke="#efbb94" stroke-width="84"/>
+    <!-- manga -->
+    <path d="M250 330 L330 250 L430 350 L350 430 Z" fill="#5b3fd6" stroke="#2a1f7a" stroke-width="10"/>
+    <path d="M250 330 L330 250" stroke="#ffd36b" stroke-width="18"/>
+    <!-- dedos dobrados (atrás) -->
+    <path d="M205 150 Q175 110 150 112" fill="none" stroke="#7a4a2a" stroke-width="46"/>
+    <path d="M205 150 Q175 110 150 112" fill="none" stroke="#f1c19c" stroke-width="34"/>
+    <path d="M232 172 Q210 128 182 128" fill="none" stroke="#7a4a2a" stroke-width="44"/>
+    <path d="M232 172 Q210 128 182 128" fill="none" stroke="#efbb94" stroke-width="32"/>
+    <!-- palma -->
+    <ellipse cx="215" cy="215" rx="88" ry="70" transform="rotate(45 215 215)" fill="#f1c19c" stroke="#7a4a2a" stroke-width="10"/>
+    <!-- indicador -->
+    <path d="M175 140 Q120 92 78 66" fill="none" stroke="#7a4a2a" stroke-width="44"/>
+    <path d="M175 140 Q120 92 78 66" fill="none" stroke="#f6cba8" stroke-width="32"/>
+    <!-- polegar -->
+    <path d="M150 230 Q92 170 70 84" fill="none" stroke="#7a4a2a" stroke-width="48"/>
+    <path d="M150 230 Q92 170 70 84" fill="none" stroke="#f6cba8" stroke-width="36"/>
+    <!-- unhas -->
+    <ellipse cx="82" cy="70" rx="9" ry="6" transform="rotate(35 82 70)" fill="#ffe7d6"/>
+    <ellipse cx="72" cy="92" rx="9" ry="6" transform="rotate(75 72 92)" fill="#ffe7d6"/>
+  </g>
+</svg>

@@ -186,6 +186,20 @@ function pecaDaFila(p, k) {
   return f[k];
 }
 
+// ---------------------------------------------------------------- a mão ([mao casa])
+// Um desenho (videos/mao.svg) sempre de frente para a câmera, por cima de tudo. O ponto da pinça,
+// em (70, 70) do desenho de 400x400, fica no alto da peça segurada.
+const ALTURA_PINCA = 0.82, TAM_MAO = 2.5, DUR_MAO_VEM = 0.4, DUR_MAO_VAI = 0.35, MAO_SOZINHA = 6;
+const mao = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthTest: false, depthWrite: false, toneMapped: false }));
+mao.center.set(70 / 400, 1 - 70 / 400); mao.renderOrder = 999; mao.visible = false; cena.add(mao);
+async function carregaMao() {
+  const im = new Image(); im.src = 'mao.svg'; await im.decode();
+  const cv = document.createElement('canvas'); cv.width = cv.height = 512;
+  cv.getContext('2d').drawImage(im, 0, 0, 512, 512);
+  const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace;
+  mao.material.map = tx; mao.material.needsUpdate = true;
+}
+
 // ---------------------------------------------------------------- placas (marcas, último lance, xeque)
 const gPlaca = new RoundedBoxGeometry(0.92, 0.03, 0.92, 2, 0.012);
 const filaPlacas = [];
@@ -317,6 +331,7 @@ function planejaCamera() {
     else if (ev.tipo === 'seta') casas = [].concat(...ev.setas);
     else if (ev.tipo === 'marca') casas = ev.casas;
     else if (ev.tipo === 'poe') casas = ev.novas;
+    else if (ev.tipo === 'mao') casas = [ev.casa];
     else if (ev.tipo === 'posicao') casas = ocupadas(ev.tabuleiro);
     if (!casas) return;
     const nova = enquadra(casas, ev.t, tomadas.length), ult = tomadas[tomadas.length - 1];
@@ -370,7 +385,8 @@ function poeCamera(c) {
 // ---------------------------------------------------------------- o estado num instante
 function estado(t) {
   let tab = R.inicial, veio = -1, foi = -1, setas = [], marcas = [], andando = null, novas = null;
-  let xeque = null, captura = null, faixa = null, cartaz = null, cartazSai = null;
+  let xeque = null, captura = null, faixa = null, cartaz = null, cartazSai = null, mao = null;
+  const maoSai = (q) => { if (mao && mao.sai == null) mao.sai = q; };
   for (const ev of R.eventos) {
     if (ev.t > t) break;
     tab = ev.tabuleiro; andando = null; novas = null;
@@ -382,8 +398,12 @@ function estado(t) {
       if (ev.capturada) captura = { casa: ev.capturada.casa, peca: ev.capturada.peca, t0: ev.t + R.durLance * DUR_ATE_BATER };
       if (ev.xeque != null) faixa = { texto: ev.mate ? 'XEQUE-MATE!' : 'XEQUE!', classe: ev.mate ? 'mate' : 'xeque', t0: chega, dur: ev.mate ? 2.2 : 1.4 };
       if (cartaz) { cartazSai = { c: cartaz, t0: ev.t }; cartaz = null; }
-    } else if (ev.tipo === 'posicao') { veio = foi = -1; setas = []; marcas = []; xeque = null; }
-    else if (ev.tipo === 'limpa') { setas = []; marcas = []; if (cartaz) { cartazSai = { c: cartaz, t0: ev.t }; cartaz = null; } }
+      // a mão que segura a peça do lance vai junto com ela e solta logo depois; outra mão sai
+      if (mao && mao.sai == null && ev.de === mao.casa) { mao.segue = ev; mao.sai = chega + 0.3; }
+      else maoSai(ev.t);
+    } else if (ev.tipo === 'posicao') { veio = foi = -1; setas = []; marcas = []; xeque = null; maoSai(ev.t); }
+    else if (ev.tipo === 'mao') mao = { casa: ev.casa, t0: ev.t, peca: ev.tabuleiro[ev.casa] || '' };
+    else if (ev.tipo === 'limpa') { setas = []; marcas = []; maoSai(ev.t); if (cartaz) { cartazSai = { c: cartaz, t0: ev.t }; cartaz = null; } }
     else if (ev.tipo === 'esconde') { if (cartaz) { cartazSai = { c: cartaz, t0: ev.t }; cartaz = null; } }
     else if (ev.tipo === 'mostra') cartaz = { peca: ev.peca, nome: ev.nome, t0: ev.t };
     else if (ev.tipo === 'texto') faixa = { texto: ev.texto, classe: ev.texto.length > 16 ? 'longa' : '', t0: ev.t, dur: 1.6 };
@@ -410,6 +430,24 @@ function estado(t) {
       pecas.push({ p: m.peca, c: n3(col(m.de) + (col(m.para) - col(m.de)) * p), l: n3(lin(m.de) + (lin(m.para) - lin(m.de)) * p),
         h: n3(alto * Math.sin(Math.PI * andando.p)), e: 1 });
     });
+  }
+  let maoAgora = null;
+  if (mao) {
+    const fim = mao.sai != null ? mao.sai : mao.t0 + MAO_SOZINHA;
+    if (t < fim + DUR_MAO_VAI) {
+      let c = col(mao.casa), l = lin(mao.casa), h = 0;
+      if (mao.segue && t >= mao.segue.t) {
+        const ev = mao.segue, q = Math.min(1, (t - ev.t) / R.durLance), p = vaiVem(q);
+        c = col(ev.de) + (col(ev.para) - col(ev.de)) * p; l = lin(ev.de) + (lin(ev.para) - lin(ev.de)) * p;
+        h = (mao.peca.toLowerCase() === 'n' ? 0.75 : 0.35) * Math.sin(Math.PI * q);
+      }
+      const dv = t - mao.t0, vem = Math.min(1, dv / DUR_MAO_VEM), vai = Math.max(0, (t - fim) / DUR_MAO_VAI);
+      // desce de cima, aperta a peça (a mão encolhe um pouco) e sobe de novo ao soltar
+      const sobe = 2.4 * (1 - suave(vem)) + 2.4 * suave(vai);
+      const aperta = dv > DUR_MAO_VEM && dv < DUR_MAO_VEM + 0.25 ? 0.07 * Math.sin(Math.PI * (dv - DUR_MAO_VEM) / 0.25) : 0;
+      const alto = mao.peca.toLowerCase() === 'k' ? 0.95 : mao.peca.toLowerCase() === 'p' ? 0.72 : ALTURA_PINCA;
+      maoAgora = { c: n3(c), l: n3(l), h: n3(h + alto + sobe), o: n3(Math.min(vem * 1.5, 1 - vai)), e: n3(1 - aperta) };
+    }
   }
   let expl = null;
   if (captura && t >= captura.t0 && t - captura.t0 < DUR_EXPLOSAO)
@@ -443,7 +481,7 @@ function estado(t) {
     }
   });
   return {
-    cam: cameraEm(t), pecas, veio, foi, expl, brilho, faixa: fx, cartaz: cz, leg,
+    cam: cameraEm(t), pecas, veio, foi, expl, brilho, faixa: fx, cartaz: cz, leg, mao: maoAgora,
     setas: setas.map(s => ({ de: s.de, para: s.para, cor: s.cor, p: n3(suave(Math.min(1, (t - s.t0) / DUR_SETA))) })),
     marcas: marcas.map(m => ({ casa: m.casa, cor: m.cor, o: n3(Math.min(1, (t - m.t0) / DUR_MARCA)) }))
   };
@@ -514,6 +552,12 @@ function desenha3d(e) {
     });
   }
 
+  mao.visible = !!e.mao && e.mao.o > 0.01;
+  if (mao.visible) {
+    mao.position.set(mundoX(e.mao.c), TOPO + e.mao.h, mundoZ(e.mao.l));
+    mao.scale.setScalar(TAM_MAO * e.mao.e); mao.material.opacity = e.mao.o;
+  }
+
   render.render(cena, camera);
 }
 
@@ -554,6 +598,7 @@ async function prepara(roteiro) {
     const im = new Image(); im.src = imagemDaPeca(p === 'L' ? 'logo' : p); return im.decode().catch(() => {});
   }));
   poeEtiquetas();
+  await carregaMao();
   planejaCamera();
   render.compile(cena, camera);
   return true;
@@ -563,7 +608,7 @@ async function prepara(roteiro) {
 let ultima3d = null, ultimaHtml = null;
 function quadro(t) {
   const e = estado(t);
-  const a3d = JSON.stringify([e.cam, e.pecas, e.veio, e.foi, e.marcas, e.setas, e.brilho, e.expl]);
+  const a3d = JSON.stringify([e.cam, e.pecas, e.veio, e.foi, e.marcas, e.setas, e.brilho, e.expl, e.mao]);
   const aHtml = JSON.stringify([e.leg, e.faixa, e.cartaz]);
   const muda3d = a3d !== ultima3d && !(e.cartaz && e.cartaz.o >= 1);
   if (!muda3d && aHtml === ultimaHtml) return false;
