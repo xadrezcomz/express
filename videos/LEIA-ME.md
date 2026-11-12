@@ -102,6 +102,7 @@ que vem logo depois dela**:
 | `[mostra logo]` | o logo do Xadrez Express grande, para chamadas ("na próxima aula...") |
 | `[esconde]` | tira o cartaz da peça (`[limpa]` e um lance também tiram) |
 | `[texto Garfo!]` | uma faixa com o texto no meio do tabuleiro, por 1,6 segundo |
+| `[mao f3]` | uma mão desce e segura a peça de f3 (só no 3D); se o lance seguinte sair dessa casa, a mão leva a peça junto e solta. Se a pasta privada das lições tem `modelos/mao.fbx` (uma mão com ossos nos dedos), é esse modelo 3D que aparece, fechando em pinça; sem ele, um desenho |
 | `[visao 2d]` / `[visao 3d]` | troca o tabuleiro para o 2D (visto de cima) ou o 3D no meio do vídeo, com uma fusão curta |
 | `[lance e2e4 @12.5]` | qualquer ordem pode ter o segundo exato, se precisar acertar na mão |
 
@@ -115,6 +116,35 @@ Alguns efeitos são automáticos, sem ordem nenhuma:
 Os lances não passam por conferência de regra: a peça vai de uma casa à outra. Isso permite
 posições de ensino (um cavalo sozinho no tabuleiro, sem reis). Linhas começadas por `#` são
 anotações e não entram na fala.
+
+## A edição "show"
+
+Com `edicao: show` no cabeçalho (e `estilo: 3d`), o vídeo ganha uma edição mais intensa:
+
+- **texto animado** no alto no lugar da legenda: a frase entra palavra por palavra; as palavras
+  escritas entre asteriscos na fala (`um lance *ousado:*`) vêm grandes e douradas (os asteriscos
+  não vão para a voz);
+- **barra fixa** com o nome da aula e o contador de lances (conta as ordens `[nota]`);
+- câmera mais perto e mais baixa; o mate pisca e treme a tela, a captura treme;
+- **efeitos sonoros**, se a pasta das lições tiver `sons/` (`peca`, `impacto`, `mate`, `whoosh`,
+  `pop`, `alerta`, em mp3): cada lance, captura, mate, tela e etiqueta toca o seu som.
+
+E estas ordens (só no 3D):
+
+| Ordem | O que faz |
+|---|---|
+| `[nota 7... Cd3#]` | o lance escrito, grande, embaixo do tabuleiro |
+| `[etiqueta d3 Livre! vermelha]` | um adesivo com texto em cima da casa (`amarela`, `verde`, `vermelha`, `azul`); some num `[limpa]` ou depois de 4,5 s |
+| `[flash vermelha]` | a tela pisca na cor |
+| `[treme]` | a tela treme |
+| `[tela numero 7 \| lances]` | número gigante (com bolinhas, se for até 12) |
+| `[tela alerta Armadilha! \| subtítulo]` | alerta com fundo listrado |
+| `[tela carimbo Texto do papel \| CARIMBO \| cabeçalho]` | um papel que recebe um carimbo |
+| `[tela medidor 95 \| Confiança]` | um medidor que sobe até o valor (%) |
+| `[tela lista Item ✓ \| Item ✗ \| Item ?]` | lista que entra item por item |
+| `[tela frase linha pequena \| LINHA GRANDE]` | uma frase de impacto em tela cheia |
+
+A tela gráfica cobre o tabuleiro até um `[esconde]`, `[limpa]`, lance, `[posicao]` ou outra tela.
 
 ## O estilo 3D
 

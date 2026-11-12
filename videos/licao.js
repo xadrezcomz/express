@@ -113,11 +113,31 @@ function leOrdem(texto, onde) {
     const estilo = nome === 'visao' ? chave(resto[0] || '') : nome;
     if (estilo !== '2d' && estilo !== '3d') throw new Error(onde + ': a visão é 2d ou 3d (ex.: [visao 2d])');
     acoes.push({ tipo: 'visao', estilo: estilo });
+  } else if (nome === 'mao') {                          // [mao f3]: a mão pega a peça (só no 3D)
+    if (semCor.length !== 1 || !ehCasa(semCor[0])) throw new Error(onde + ': diga a casa da peça (ex.: [mao f3])');
+    acoes.push({ tipo: 'mao', casa: indice(semCor[0]) });
+  } else if (nome === 'nota') {                         // [nota 7... Cd3#]: o lance escrito, embaixo
+    acoes.push({ tipo: 'nota', texto: partes.slice(1).join(' ') });
+  } else if (nome === 'etiqueta') {                     // [etiqueta d3 LIVRE! vermelha]
+    const orig = partes.slice(1);
+    if (!orig.length || !ehCasa(orig[0].toLowerCase())) throw new Error(onde + ': diga a casa da etiqueta (ex.: [etiqueta d3 LIVRE!])');
+    let txt = orig.slice(1);
+    if (txt.length > 1 && CORES[chave(txt[txt.length - 1])]) txt = txt.slice(0, -1);
+    acoes.push({ tipo: 'etiqueta', casa: indice(orig[0].toLowerCase()), texto: txt.join(' '), cor: cor || 'amarela' });
+  } else if (nome === 'flash') {                        // [flash vermelha]: a tela pisca numa cor
+    acoes.push({ tipo: 'flash', cor: cor || 'amarela' });
+  } else if (nome === 'treme') {                        // [treme]: a tela treme
+    acoes.push({ tipo: 'treme' });
+  } else if (nome === 'tela') {                         // [tela numero 7 | lances]: uma tela gráfica inteira
+    const resto2 = partes.slice(2).join(' ').split('|').map(x => x.trim());
+    const modelo = chave(partes[1] || '');
+    if (!/^(numero|alerta|carimbo|medidor|lista|frase)$/.test(modelo)) throw new Error(onde + ': as telas são numero, alerta, carimbo, medidor, lista e frase');
+    acoes.push({ tipo: 'tela', modelo: modelo, partes: resto2 });
   } else if (nome === 'tira') {
     semCor.forEach(p => { if (!ehCasa(p)) throw new Error(onde + ': "' + p + '" não é uma casa'); });
     acoes.push({ tipo: 'tira', casas: semCor.map(indice) });
   } else {
-    throw new Error(onde + ': não conheço a ordem [' + texto + ']. As ordens são: lance, seta, marca, limpa, posicao, poe, tira, mostra, esconde, texto, visao.');
+    throw new Error(onde + ': não conheço a ordem [' + texto + ']. As ordens são: lance, seta, marca, limpa, posicao, poe, tira, mostra, esconde, texto, visao, mao, nota, etiqueta, flash, treme, tela.');
   }
   acoes.forEach(a => { a.aos = aos; });
   return acoes;
@@ -133,7 +153,7 @@ function le(texto, nomeArquivo) {
     if (l === '' && !Object.keys(cab).length) continue;
     if (/^-{3,}$/.test(l)) { i++; break; }
     const m = l.match(/^([A-Za-zÀ-ÿ]+)\s*:\s*(.*)$/);
-    if (!m || !/^(licao|titulo|posicao|pecas|lado|legenda|voz|estilo)$/.test(chave(m[1]))) break;
+    if (!m || !/^(licao|titulo|posicao|pecas|lado|legenda|voz|estilo|edicao)$/.test(chave(m[1]))) break;
     cab[chave(m[1])] = m[2].trim();
   }
   const onde = nomeArquivo || 'lição';
@@ -151,7 +171,8 @@ function le(texto, nomeArquivo) {
         if (n > 0 && palavras.length) palavras[palavras.length - 1].fimDeLinha = true;
         linha.split(/\s+/).filter(Boolean).forEach(p => {
           if (chave(p) === '' && palavras.length) palavras[palavras.length - 1].texto += ' ' + p;   // um travessão solto
-          else if (chave(p) !== '') palavras.push({ texto: p });
+          // *palavra*: a palavra em destaque no texto animado (os asteriscos não vão para a voz)
+          else if (chave(p) !== '') palavras.push(p.includes('*') ? { texto: p.replace(/\*/g, ''), destaque: true } : { texto: p });
         });
       });
     }
@@ -163,6 +184,7 @@ function le(texto, nomeArquivo) {
     pretasEmbaixo: /^pret/.test(chave(cab.lado || '')),
     estilo: chave(cab.estilo || '') === '3d' ? '3d' : '2d',
     legenda: !/^(nao|n|off|0)$/.test(chave(cab.legenda || 'sim')),
+    edicao: chave(cab.edicao || ''),
     casas: casas, palavras: palavras, ordens: ordens,
     fala: palavras.map(p => p.texto).join(' ')
   };
@@ -285,6 +307,11 @@ function roteiro(licao, tempos, duracao) {
     else if (a.tipo === 'tira') { casas = casas.slice(); a.casas.forEach(c => { casas[c] = ''; }); ultimo = ev.t; }
     else if (a.tipo === 'seta') { ev.setas = a.setas; ev.cor = a.cor; ultimo = ev.t; }
     else if (a.tipo === 'marca') { ev.casas = a.casas; ev.cor = a.cor; ultimo = ev.t; }
+    else if (a.tipo === 'mao') { ev.casa = a.casa; ultimo = ev.t; }
+    else if (/^(nota|etiqueta|flash|treme|tela)$/.test(a.tipo)) {
+      ['texto', 'casa', 'cor', 'modelo', 'partes'].forEach(k => { if (a[k] != null) ev[k] = a[k]; });
+      ultimo = ev.t;
+    }
     else ultimo = ev.t;
     ev.tabuleiro = casas.slice();
     eventos.push(ev);
@@ -295,12 +322,14 @@ function roteiro(licao, tempos, duracao) {
   let bloco = null;
   licao.palavras.forEach((p, k) => {
     if (!bloco) { bloco = { ini: tempos[k].ini, palavras: [], letras: 0 }; legendas.push(bloco); }
-    bloco.palavras.push({ texto: p.texto, ini: tempos[k].ini, fim: tempos[k].fim });
+    bloco.palavras.push({ texto: p.texto, ini: tempos[k].ini, fim: tempos[k].fim, destaque: !!p.destaque });
     bloco.letras += p.texto.length + 1;
     bloco.fim = tempos[k].fim;
     const prox = licao.palavras[k + 1];
-    const cheia = prox && bloco.letras + prox.texto.length > 34;
-    if (p.fimDeLinha || /[.!?…]$/.test(p.texto) || cheia || (/[,;:]$/.test(p.texto) && bloco.letras > 12)) bloco = null;
+    // na edição "show" o texto animado mostra a frase inteira (até uns 50 caracteres)
+    const show = licao.edicao === 'show';
+    const cheia = prox && bloco.letras + prox.texto.length > (show ? 50 : 34);
+    if (p.fimDeLinha || /[.!?…]$/.test(p.texto) || cheia || (/[,;:]$/.test(p.texto) && bloco.letras > (show ? 30 : 12))) bloco = null;
   });
   // cada legenda fica na tela até a próxima começar (ou um pouco depois do fim, numa pausa longa)
   legendas.forEach((b, k) => {
@@ -319,7 +348,7 @@ function roteiro(licao, tempos, duracao) {
   const fim = Math.max(fimDaFala, ultimo, efeitos, duracao || 0);
   return {
     numero: licao.numero, titulo: licao.titulo, pretasEmbaixo: licao.pretasEmbaixo, estilo: licao.estilo,
-    legenda: licao.legenda, inicial: inicial, eventos: eventos, legendas: legendas,
+    legenda: licao.legenda, edicao: licao.edicao, inicial: inicial, eventos: eventos, legendas: legendas,
     durLance: DUR_LANCE, duracao: fim, visoes: visoes
   };
 }
