@@ -24,7 +24,7 @@ const fatia = t => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').repl
   // a fila de capas
   const fila = [];
   lista.forEach((m, i) => {
-    const cor = m.cor || ORDEM[i % ORDEM.length], base = 'modulo-' + m.numero;
+    const cor = m.cor || ORDEM[i % ORDEM.length], base = 'modulo-' + String(m.numero).padStart(2, '0');   // o arquivo sempre com dois dígitos, para ficar em ordem
     if (so && so !== m.numero) return;
     fila.push({ tipo: 'modulo', arquivo: base + '.jpg', dados: { numero: m.numero, titulo: m.titulo, peca: m.peca, cor } });
     (m.aulas || []).forEach(a => fila.push({ tipo: 'aula', arquivo: base + '-' + fatia(a.rotulo) + '.jpg',
