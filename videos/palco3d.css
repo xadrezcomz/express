@@ -29,3 +29,65 @@
 .sombra-topo,.sombra-pe{position:absolute;left:0;right:0;pointer-events:none}
 .sombra-topo{top:0;height:600px;background:linear-gradient(180deg,#120b33 0%,rgba(18,11,51,.92) 62%,rgba(18,11,51,0) 100%)}
 .sombra-pe{bottom:0;height:330px;background:linear-gradient(0deg,#070417 0%,rgba(7,4,23,.94) 45%,rgba(7,4,23,0) 100%)}
+
+/* ------------------------------------------------------------- edição "show" */
+.palco3d.show .cabeca,.palco3d.show .legenda3d{display:none}
+.palco3d.show .sombra-topo{height:720px;background:linear-gradient(180deg,#0b0624 0%,rgba(11,6,36,.93) 64%,rgba(11,6,36,0) 100%)}
+.palco3d.show{background:
+  radial-gradient(1000px 800px at 50% 62%,rgba(160,107,255,.36),transparent 70%),
+  radial-gradient(900px 600px at 50% 110%,rgba(255,211,107,.12),transparent 70%),
+  linear-gradient(180deg,#120a3a,#0a0626 45%,#05030f)}
+
+/* a barra fixa no alto: a marca e o nome da aula à esquerda, o contador de lances à direita */
+.hud{position:absolute;left:48px;right:48px;top:54px;z-index:9;display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--titulo);font-weight:700;font-size:26px;letter-spacing:.16em;text-transform:uppercase;color:rgba(244,241,255,.72);
+  padding-bottom:16px;border-bottom:2px solid rgba(255,211,107,.35)}
+.hud span::before{content:'';display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--ouro);
+  box-shadow:0 0 12px var(--ouro);margin-right:14px;vertical-align:2px}
+.hud b{color:var(--ouro)}
+
+/* o texto animado: entra palavra por palavra; as palavras em destaque vêm grandes e douradas */
+.manchete{position:absolute;left:52px;right:52px;top:128px;z-index:9;display:flex;flex-wrap:wrap;align-items:baseline;
+  align-content:flex-start;gap:4px 18px;line-height:1.02;font-family:var(--corpo);font-style:italic;font-weight:300;
+  font-size:66px;color:#f4f1ff;text-shadow:0 6px 30px rgba(0,0,0,.7)}
+.manchete span{display:inline-block;transform-origin:0 80%}
+.manchete span.forte{font-family:var(--titulo);font-style:normal;font-weight:700;font-size:96px;text-transform:uppercase;
+  color:var(--ouro);letter-spacing:-.01em;text-shadow:0 0 40px rgba(255,190,80,.55),0 8px 24px rgba(0,0,0,.8)}
+
+/* o lance escrito, embaixo do tabuleiro */
+.nota{position:absolute;left:50%;top:1640px;z-index:9;transform:translateX(-50%);white-space:nowrap;
+  padding:14px 44px 18px;border-radius:22px;font-family:var(--titulo);font-weight:700;font-size:76px;color:#fff;
+  background:rgba(13,7,48,.88);box-shadow:inset 0 0 0 3px rgba(255,211,107,.7),0 0 60px rgba(255,190,80,.35),0 20px 40px -10px #000}
+
+/* a piscada de cor */
+.flash{position:absolute;inset:0;z-index:8;pointer-events:none;mix-blend-mode:screen}
+
+/* as telas gráficas: cobrem o tabuleiro, por baixo do texto animado e da barra */
+.tela{position:absolute;inset:0;z-index:7;overflow:hidden;font-family:var(--titulo);color:#fff}
+.tela .t-fundo{position:absolute;inset:0}
+.tela .t-meio{position:absolute;left:60px;right:60px;top:620px;bottom:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.tela .t-numero{font-weight:700;font-size:620px;line-height:.85;color:var(--ouro);text-shadow:0 0 120px rgba(255,190,80,.7)}
+.tela .t-legenda{font-family:var(--corpo);font-weight:800;font-size:64px;letter-spacing:.14em;text-transform:uppercase;margin-top:30px}
+.tela .t-pontos{display:flex;gap:22px;margin-top:40px}
+.tela .t-pontos i{width:30px;height:30px;border-radius:50%;background:var(--ouro);box-shadow:0 0 16px var(--ouro)}
+.tela .t-alerta{font-weight:700;font-size:150px;line-height:1;text-transform:uppercase;padding:30px 50px;background:#0b0624;
+  border-radius:24px;box-shadow:0 0 0 8px #ff4f78,0 30px 80px rgba(0,0,0,.7)}
+.tela .t-sub{font-family:var(--corpo);font-weight:800;font-size:58px;margin-top:44px;padding:10px 30px;background:rgba(11,6,36,.9);border-radius:14px}
+.tela .t-papel{position:relative;width:840px;padding:60px 60px 80px;background:#f3f0ff;color:#1b1150;border-radius:18px;text-align:left;
+  box-shadow:0 40px 90px rgba(0,0,0,.6)}
+.tela .t-papel h2{margin:0 0 10px;font-size:40px;letter-spacing:.2em;color:#7462e6}
+.tela .t-papel h3{margin:0 0 40px;font-family:var(--corpo);font-weight:800;font-size:72px;line-height:1.05}
+.tela .t-papel p{margin:0;height:22px;border-radius:11px;background:#d9d2ff;margin-bottom:22px}
+.tela .t-carimbo{position:absolute;right:30px;bottom:50px;white-space:nowrap;padding:12px 30px;font-size:66px;font-weight:700;color:#e8264f;
+  border:10px solid #e8264f;border-radius:20px;text-transform:uppercase;letter-spacing:.06em;background:rgba(243,240,255,.6)}
+.tela .t-medidor{position:relative;width:820px;height:440px}
+.tela .t-valor{font-weight:700;font-size:150px;margin-top:-170px;color:#fff}
+.tela .t-lista{display:flex;flex-direction:column;gap:30px;align-items:stretch;width:880px}
+.tela .t-item{display:flex;align-items:center;gap:30px;font-family:var(--corpo);font-weight:800;font-size:64px;text-align:left;
+  padding:24px 34px;background:rgba(13,7,48,.85);border-radius:22px;box-shadow:inset 0 0 0 3px rgba(170,150,255,.4)}
+.tela .t-item b{flex:none;width:84px;height:84px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:62px;
+  background:#58e23a;color:#0b0624}
+.tela .t-item b.nao{background:#ff4f78;color:#fff}
+.tela .t-item b.duvida{background:var(--ouro)}
+.tela .t-frase{font-weight:700;font-size:130px;line-height:1;text-transform:uppercase;text-shadow:0 10px 40px rgba(0,0,0,.5)}
+.tela .t-frase em{display:block;font-family:var(--corpo);font-style:italic;font-weight:300;font-size:80px;text-transform:none;margin-bottom:20px}

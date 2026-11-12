@@ -248,6 +248,34 @@ async function carregaMao() {
   mao.material.map = tx; mao.material.needsUpdate = true;
 }
 
+// ---------------------------------------------------------------- etiquetas ([etiqueta d3 LIVRE!])
+// Um adesivo com texto, de frente para a câmera, um pouco acima da casa.
+const COR_ETIQUETA = { amarela: ['#ffd36b', '#241300'], verde: ['#58e23a', '#0b0624'], vermelha: ['#ff4f78', '#ffffff'], azul: ['#2ee6ff', '#0b0624'] };
+const texEtiqueta = {}, filaEtiquetas = [];
+function texturaEtiqueta(texto, cor) {
+  const k = cor + '|' + texto;
+  if (texEtiqueta[k]) return texEtiqueta[k];
+  const cv = document.createElement('canvas'), g = cv.getContext('2d');
+  g.font = '700 92px "Chakra Petch"';
+  const larg = Math.ceil(g.measureText(texto.toUpperCase()).width) + 90;
+  cv.width = larg + 40; cv.height = 190;
+  const [fundo, letra] = COR_ETIQUETA[cor] || COR_ETIQUETA.amarela;
+  g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.roundRect(26, 30, larg, 140, 28); g.fill();
+  g.fillStyle = fundo; g.beginPath(); g.roundRect(18, 16, larg, 140, 28); g.fill();
+  g.lineWidth = 8; g.strokeStyle = '#0b0624'; g.stroke();
+  g.font = '700 92px "Chakra Petch"'; g.fillStyle = letra; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(texto.toUpperCase(), 18 + larg / 2, 90);
+  const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace;
+  return (texEtiqueta[k] = { tx, prop: cv.width / cv.height });
+}
+function etiquetaDaFila(k) {
+  if (!filaEtiquetas[k]) {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthTest: false, depthWrite: false, toneMapped: false }));
+    sp.renderOrder = 998; sp.center.set(0.5, 0); cena.add(sp); filaEtiquetas[k] = sp;
+  }
+  return filaEtiquetas[k];
+}
+
 // ---------------------------------------------------------------- placas (marcas, último lance, xeque)
 const gPlaca = new RoundedBoxGeometry(0.92, 0.03, 0.92, 2, 0.012);
 const filaPlacas = [];
@@ -361,12 +389,14 @@ function enquadra(casas, t, k) {
   if (!casas.length) return null;
   let x0 = 9, x1 = -9, z0 = 9, z1 = -9;
   casas.forEach(i => { const x = mundoX(col(i)), z = mundoZ(lin(i)); x0 = Math.min(x0, x); x1 = Math.max(x1, x); z0 = Math.min(z0, z); z1 = Math.max(z1, z); });
-  const larg = Math.min(9.2, Math.max(6, x1 - x0 + 2.6)), prof = Math.min(9.2, Math.max(4.6, z1 - z0 + 2.4));
+  // na edição "show" a câmera chega mais perto e mais baixa, para um ar mais dramático
+  const show = R.edicao === 'show';
+  const larg = Math.min(9.2, Math.max(show ? 4.8 : 6, x1 - x0 + (show ? 2 : 2.6))), prof = Math.min(9.2, Math.max(show ? 3.8 : 4.6, z1 - z0 + (show ? 1.9 : 2.4)));
   let cx = (x0 + x1) / 2, cz = (z0 + z1) / 2;
   const sobra = Math.max(0, 4.6 - larg / 2);
   cx = Math.max(-sobra, Math.min(sobra, cx)); cz = Math.max(-sobra - 0.4, Math.min(sobra + 0.4, cz));
   const giro = [0, 0.13, -0.11, 0.08, -0.15, 0.1][k % 6];
-  return { t, cx, cz, larg, prof, az: (R.pretasEmbaixo ? Math.PI : 0) + giro, el: 0.8 + 0.14 * (Math.max(larg, prof) - 5.6) / 4.2 };
+  return { t, cx, cz, larg, prof, az: (R.pretasEmbaixo ? Math.PI : 0) + giro * (show ? 1.8 : 1), el: (show ? 0.66 : 0.8) + 0.14 * (Math.max(larg, prof) - 5.6) / 4.2 };
 }
 function planejaCamera() {
   const ocupadas = tab => tab.map((p, i) => p ? i : -1).filter(i => i >= 0);
@@ -434,6 +464,9 @@ function poeCamera(c) {
 function estado(t) {
   let tab = R.inicial, veio = -1, foi = -1, setas = [], marcas = [], andando = null, novas = null;
   let xeque = null, captura = null, faixa = null, cartaz = null, cartazSai = null, mao = null;
+  let nota = null, nNota = 0, etiquetas = [], flash = null, treme = null, tela = null, telaSai = null;
+  const show = R.edicao === 'show';
+  const fechaTela = q => { if (tela) { telaSai = { tl: tela, t0: q }; tela = null; } };
   const maoSai = (q) => { if (mao && mao.sai == null) mao.sai = q; };
   for (const ev of R.eventos) {
     if (ev.t > t) break;
@@ -446,13 +479,22 @@ function estado(t) {
       if (ev.capturada) captura = { casa: ev.capturada.casa, peca: ev.capturada.peca, t0: ev.t + R.durLance * DUR_ATE_BATER };
       if (ev.xeque != null) faixa = { texto: ev.mate ? 'XEQUE-MATE!' : 'XEQUE!', classe: ev.mate ? 'mate' : 'xeque', t0: chega, dur: ev.mate ? 2.2 : 1.4 };
       if (cartaz) { cartazSai = { c: cartaz, t0: ev.t }; cartaz = null; }
+      fechaTela(ev.t);
+      // na edição "show", o mate e a captura pedem piscada e tremor
+      if (show && ev.mate) { flash = { cor: 'amarela', t0: chega, forte: 1 }; treme = { t0: chega, forca: 1 }; }
+      else if (show && ev.capturada) treme = { t0: ev.t + R.durLance * DUR_ATE_BATER, forca: 0.5 };
       // a mão que segura a peça do lance vai junto com ela e solta logo depois; outra mão sai
       if (mao && mao.sai == null && ev.de === mao.casa) { mao.segue = ev; mao.sai = chega + 0.3; }
       else maoSai(ev.t);
-    } else if (ev.tipo === 'posicao') { veio = foi = -1; setas = []; marcas = []; xeque = null; maoSai(ev.t); }
+    } else if (ev.tipo === 'posicao') { veio = foi = -1; setas = []; marcas = []; xeque = null; etiquetas = []; maoSai(ev.t); fechaTela(ev.t); }
+    else if (ev.tipo === 'nota') { nNota++; nota = { texto: ev.texto, t0: ev.t, k: nNota }; }
+    else if (ev.tipo === 'etiqueta') etiquetas.push({ casa: ev.casa, texto: ev.texto, cor: ev.cor, t0: ev.t });
+    else if (ev.tipo === 'flash') flash = { cor: ev.cor, t0: ev.t, forte: 0.7 };
+    else if (ev.tipo === 'treme') treme = { t0: ev.t, forca: 1 };
+    else if (ev.tipo === 'tela') { fechaTela(ev.t); tela = { modelo: ev.modelo, partes: ev.partes, t0: ev.t }; }
     else if (ev.tipo === 'mao') mao = { casa: ev.casa, t0: ev.t, peca: ev.tabuleiro[ev.casa] || '' };
-    else if (ev.tipo === 'limpa') { setas = []; marcas = []; maoSai(ev.t); if (cartaz) { cartazSai = { c: cartaz, t0: ev.t }; cartaz = null; } }
-    else if (ev.tipo === 'esconde') { if (cartaz) { cartazSai = { c: cartaz, t0: ev.t }; cartaz = null; } }
+    else if (ev.tipo === 'limpa') { setas = []; marcas = []; etiquetas = []; fechaTela(ev.t); maoSai(ev.t); if (cartaz) { cartazSai = { c: cartaz, t0: ev.t }; cartaz = null; } }
+    else if (ev.tipo === 'esconde') { fechaTela(ev.t); if (cartaz) { cartazSai = { c: cartaz, t0: ev.t }; cartaz = null; } }
     else if (ev.tipo === 'mostra') cartaz = { peca: ev.peca, nome: ev.nome, t0: ev.t };
     else if (ev.tipo === 'texto') faixa = { texto: ev.texto, classe: ev.texto.length > 16 ? 'longa' : '', t0: ev.t, dur: 1.6 };
     else if (ev.tipo === 'poe') { xeque = null; if (t - ev.t < DUR_POE) novas = { casas: ev.novas, p: (t - ev.t) / DUR_POE }; }
@@ -530,7 +572,25 @@ function estado(t) {
       leg = { b, w: atual };
     }
   });
+  // edição "show": texto animado, lance escrito, etiquetas, piscada, tremor e telas
+  let man = null, nt = null, fl = null, tr = null, tl = null;
+  const etq = [];
+  if (show) {
+    if (leg) man = { b: leg.b, ws: R.legendas[leg.b].palavras.map((w, k) => Math.max(0, Math.min(1, (t - w.ini + 0.04) / 0.22)))
+      .map(p => n3(p)).filter((p, k) => t >= R.legendas[leg.b].palavras[k].ini - 0.04) };
+    if (nota) { const d = t - nota.t0; nt = { texto: nota.texto, k: nota.k, e: n3(d < 0.3 ? 0.6 + 0.4 * molinha(d / 0.3) : 1) }; }
+    etiquetas.forEach(q => { const d = t - q.t0; if (d < 4.5) etq.push({ casa: q.casa, texto: q.texto, cor: q.cor,
+      e: n3(d < 0.35 ? molinha(d / 0.35) : 1), o: n3(Math.min(1, (4.5 - d) / 0.3)) }); });
+    if (flash && t >= flash.t0 && t - flash.t0 < 0.55) fl = { cor: flash.cor, o: n3(flash.forte * Math.pow(1 - (t - flash.t0) / 0.55, 2)) };
+    if (treme && t >= treme.t0 && t - treme.t0 < 0.45) {
+      const d = t - treme.t0, a = 26 * treme.forca * (1 - d / 0.45);
+      tr = { x: n3(a * Math.sin(d * 97)), y: n3(a * Math.cos(d * 73)) };
+    }
+    if (tela) tl = { modelo: tela.modelo, partes: tela.partes, t0: tela.t0, d: n3(Math.min(2.4, t - tela.t0)), o: n3(Math.min(1, (t - tela.t0) / 0.18)) };
+    else if (telaSai && t - telaSai.t0 < 0.22) tl = { modelo: telaSai.tl.modelo, partes: telaSai.tl.partes, t0: telaSai.tl.t0, d: 2.4, o: n3(1 - (t - telaSai.t0) / 0.22), sai: 1 };
+  }
   return {
+    man, nota: nt, etq, flash: fl, treme: tr, tela: tl,
     cam: cameraEm(t), pecas, veio, foi, expl, brilho, faixa: fx, cartaz: cz, leg, mao: maoAgora,
     setas: setas.map(s => ({ de: s.de, para: s.para, cor: s.cor, p: n3(suave(Math.min(1, (t - s.t0) / DUR_SETA))) })),
     marcas: marcas.map(m => ({ casa: m.casa, cor: m.cor, o: n3(Math.min(1, (t - m.t0) / DUR_MARCA)) }))
@@ -602,6 +662,15 @@ function desenha3d(e) {
     });
   }
 
+  filaEtiquetas.forEach(sp => { sp.visible = false; });
+  e.etq.forEach((q, k) => {
+    const sp = etiquetaDaFila(k), tx = texturaEtiqueta(q.texto, q.cor);
+    if (sp.material.map !== tx.tx) { sp.material.map = tx.tx; sp.material.needsUpdate = true; }
+    sp.visible = q.e > 0.01; sp.material.opacity = q.o;
+    const alto = 0.78 * q.e;
+    sp.scale.set(alto * tx.prop, alto, 1);
+    sp.position.set(mundoX(col(q.casa)), TOPO + 1.4, mundoZ(lin(q.casa)));
+  });
   const temMao = !!e.mao && e.mao.o > 0.01;
   if (mao3d) {
     mao.visible = false; mao3d.g.visible = temMao;
@@ -648,12 +717,89 @@ function desenhaHtml(e) {
   }
 }
 
+// ---------------------------------------------------------------- edição "show" (HTML por cima do 3D)
+const elMan = document.getElementById('manchete'), elNota = document.getElementById('nota'), elFlash = document.getElementById('flash');
+const elTela = document.getElementById('tela'), elHud = document.getElementById('hud');
+const COR_FLASH = { amarela: '255,190,80', verde: '88,226,58', vermelha: '255,60,100', azul: '46,200,255' };
+const FUNDO_TELA = { numero: 'radial-gradient(900px 900px at 50% 55%,#4a2cc0,#140a45 70%,#07041a)',
+  alerta: 'repeating-linear-gradient(135deg,#ff4f78 0 70px,#c2133f 70px 140px)',
+  carimbo: 'radial-gradient(900px 900px at 50% 55%,#2a1f7a,#0b0624)', medidor: 'radial-gradient(900px 900px at 50% 60%,#1f1566,#07041a)',
+  lista: 'radial-gradient(900px 900px at 50% 55%,#2a1f7a,#0b0624)', frase: 'linear-gradient(160deg,#ffb53d,#ff7a2e 55%,#d9431f)' };
+let telaFeita = null;
+const esc = x => String(x).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+function montaTela(tl) {
+  const [a = '', b = '', c = ''] = tl.partes;
+  let meio = '';
+  if (tl.modelo === 'numero') meio = '<div class="t-numero">' + esc(a) + '</div><div class="t-legenda">' + esc(b) + '</div>' +
+    (/^\d+$/.test(a) && +a <= 12 ? '<div class="t-pontos">' + '<i></i>'.repeat(+a) + '</div>' : '');
+  else if (tl.modelo === 'alerta') meio = '<div class="t-alerta">' + esc(a) + '</div>' + (b ? '<div class="t-sub">' + esc(b) + '</div>' : '');
+  else if (tl.modelo === 'carimbo') meio = '<div class="t-papel"><h2>' + esc(c || 'XADREZ EXPRESS') + '</h2><h3>' + esc(a) + '</h3>' +
+    '<p style="width:92%"></p><p style="width:78%"></p><p style="width:85%"></p><p style="width:60%"></p><div class="t-carimbo">' + esc(b) + '</div></div>';
+  else if (tl.modelo === 'medidor') meio = '<svg class="t-medidor" viewBox="0 0 820 440"><path d="M70 410 A340 340 0 0 1 750 410" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="56" stroke-linecap="round"/>' +
+    '<path class="t-arco" d="M70 410 A340 340 0 0 1 750 410" fill="none" stroke="url(#gm)" stroke-width="56" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100"/>' +
+    '<defs><linearGradient id="gm"><stop offset="0" stop-color="#58e23a"/><stop offset=".55" stop-color="#ffd36b"/><stop offset="1" stop-color="#ff4f78"/></linearGradient></defs>' +
+    '<g class="t-agulha" transform="rotate(-90 410 410)"><path d="M402 410 L410 110 L418 410 Z" fill="#fff"/></g><circle cx="410" cy="410" r="30" fill="#fff"/></svg>' +
+    '<div class="t-valor">0%</div><div class="t-legenda">' + esc(b) + '</div>';
+  else if (tl.modelo === 'lista') meio = '<div class="t-lista">' + tl.partes.map(x => {
+    const m = x.match(/^(.*?)\s*(✓|✗|\?)$/), txt = m ? m[1] : x, k = m ? m[2] : '✓';
+    return '<div class="t-item"><b class="' + (k === '✗' ? 'nao' : k === '?' ? 'duvida' : '') + '">' + k + '</b><span>' + esc(txt) + '</span></div>';
+  }).join('') + '</div>';
+  else if (tl.modelo === 'frase') meio = '<div class="t-frase">' + (b ? '<em>' + esc(a) + '</em>' + esc(b) : esc(a)) + '</div>';
+  elTela.innerHTML = '<i class="t-fundo" style="background:' + FUNDO_TELA[tl.modelo] + '"></i><div class="t-meio">' + meio + '</div>';
+}
+function animaTela(tl) {
+  const d = tl.d, entra = Math.min(1, d / 0.3), m = elTela.querySelector('.t-meio');
+  m.style.transform = 'translateY(' + n3(60 * (1 - suave(entra))) + 'px) scale(' + n3(0.92 + 0.08 * molinha(entra)) + ')';
+  if (tl.modelo === 'numero') elTela.querySelector('.t-numero').style.transform = 'scale(' + n3(d < 0.45 ? 0.3 + 0.7 * molinha(d / 0.45) : 1) + ')';
+  if (tl.modelo === 'carimbo') {
+    const q = Math.max(0, Math.min(1, (d - 0.55) / 0.22)), cb = elTela.querySelector('.t-carimbo');
+    cb.style.opacity = q > 0 ? 1 : 0; cb.style.transform = 'rotate(-12deg) scale(' + n3(2.4 - 1.4 * suave(q)) + ')';
+  }
+  if (tl.modelo === 'medidor') {
+    const alvo = Math.max(0, Math.min(100, parseFloat(tl.partes[0]) || 0)), q = suave(Math.min(1, Math.max(0, (d - 0.15) / 0.9))), v = alvo * q;
+    elTela.querySelector('.t-agulha').setAttribute('transform', 'rotate(' + n3(-90 + 180 * v / 100) + ' 410 410)');
+    elTela.querySelector('.t-arco').setAttribute('stroke-dasharray', n3(v) + ' 100');
+    elTela.querySelector('.t-valor').textContent = Math.round(v) + '%';
+  }
+  if (tl.modelo === 'lista') elTela.querySelectorAll('.t-item').forEach((it, k) => {
+    const q = Math.max(0, Math.min(1, (d - 0.15 - k * 0.35) / 0.25));
+    it.style.opacity = q; it.style.transform = 'translateX(' + n3(-80 * (1 - suave(q))) + 'px)';
+  });
+}
+function desenhaShow(e) {
+  elMan.hidden = !e.man;
+  if (e.man) {
+    const pal = R.legendas[e.man.b].palavras;
+    elMan.innerHTML = e.man.ws.map((p, k) => '<span class="' + (pal[k].destaque ? 'forte' : '') + '" style="opacity:' + n3(Math.min(1, p * 2)) +
+      ';transform:translateY(' + n3(26 * (1 - suave(p))) + 'px) scale(' + n3(pal[k].destaque ? 0.7 + 0.3 * molinha(p) : 1) + ')">' + esc(pal[k].texto) + '</span>').join('');
+  }
+  // o lance escrito some enquanto uma tela gráfica ou um cartaz cobrem o tabuleiro
+  elNota.hidden = !e.nota || !!(e.tela && e.tela.o > 0.5) || !!(e.cartaz && e.cartaz.o > 0.5);
+  if (e.nota) { elNota.textContent = e.nota.texto; elNota.style.transform = 'translateX(-50%) scale(' + e.nota.e + ')';
+    document.getElementById('hudLance').textContent = 'Lance ' + String(e.nota.k).padStart(2, '0') + ' / ' + String(R.totalNotas).padStart(2, '0'); }
+  else document.getElementById('hudLance').textContent = '';
+  elFlash.hidden = !e.flash;
+  if (e.flash) elFlash.style.background = 'radial-gradient(circle at 50% 55%,rgba(' + COR_FLASH[e.flash.cor] + ',' + e.flash.o + '),rgba(' + COR_FLASH[e.flash.cor] + ',' + n3(e.flash.o * 0.45) + ') 70%)';
+  document.getElementById('cena3d').style.transform = e.treme ? 'translate(' + e.treme.x + 'px,' + e.treme.y + 'px)' : '';
+  elTela.hidden = !e.tela;
+  if (e.tela) {
+    const chaveTela = e.tela.t0 + e.tela.modelo;
+    if (chaveTela !== telaFeita) { montaTela(e.tela); telaFeita = chaveTela; }
+    elTela.style.opacity = e.tela.o; animaTela(e.tela);
+  }
+}
+
 // ---------------------------------------------------------------- o que o gera.js chama
 async function prepara(roteiro) {
   R = roteiro;
   const num = document.getElementById('numero'), tit = document.getElementById('titulo');
   if (R.numero) { num.hidden = false; num.querySelector('span').textContent = 'Lição ' + String(R.numero).padStart(2, '0'); }
   tit.textContent = R.titulo; tit.classList.toggle('longo', R.titulo.length > 30);
+  if (R.edicao === 'show') {
+    document.getElementById('palco').classList.add('show'); elHud.hidden = false;
+    document.getElementById('hudNome').textContent = R.numero ? 'Lição ' + String(R.numero).padStart(2, '0') : (R.titulo || 'Xadrez Express');
+    R.totalNotas = R.eventos.filter(ev => ev.tipo === 'nota').length;
+  }
   elLegenda.hidden = !R.legenda;
   await document.fonts.load('700 84px "Chakra Petch"');
   await document.fonts.ready;
@@ -672,12 +818,12 @@ async function prepara(roteiro) {
 let ultima3d = null, ultimaHtml = null;
 function quadro(t) {
   const e = estado(t);
-  const a3d = JSON.stringify([e.cam, e.pecas, e.veio, e.foi, e.marcas, e.setas, e.brilho, e.expl, e.mao]);
-  const aHtml = JSON.stringify([e.leg, e.faixa, e.cartaz]);
-  const muda3d = a3d !== ultima3d && !(e.cartaz && e.cartaz.o >= 1);
+  const a3d = JSON.stringify([e.cam, e.pecas, e.veio, e.foi, e.marcas, e.setas, e.brilho, e.expl, e.mao, e.etq]);
+  const aHtml = JSON.stringify([e.leg, e.faixa, e.cartaz, e.man, e.nota, e.flash, e.treme, e.tela]);
+  const muda3d = a3d !== ultima3d && !(e.cartaz && e.cartaz.o >= 1) && !(e.tela && e.tela.o >= 1);
   if (!muda3d && aHtml === ultimaHtml) return false;
   if (muda3d) { ultima3d = a3d; desenha3d(e); }
-  if (aHtml !== ultimaHtml) { ultimaHtml = aHtml; desenhaHtml(e); }
+  if (aHtml !== ultimaHtml) { ultimaHtml = aHtml; desenhaHtml(e); if (R.edicao === 'show') desenhaShow(e); }
   // espera o navegador pôr o quadro novo na tela antes da foto
   return new Promise(r => requestAnimationFrame(() => r(true)));
 }

@@ -212,6 +212,29 @@ async function geraVideo(arquivoLicao, op) {
   return saida;
 }
 
+// Os efeitos sonoros da edição "show": que som toca, em que segundo e com que volume.
+function efeitosSonoros(roteiro) {
+  const pasta = path.join(BASE, 'sons');
+  if (roteiro.edicao !== 'show' || !fs.existsSync(pasta)) return [];
+  const lista = [], som = (nome, t, vol) => {
+    const f = path.join(pasta, nome + '.mp3');
+    if (fs.existsSync(f)) lista.push({ arquivo: f, t: Math.max(0, t), vol: vol });
+  };
+  const D = roteiro.durLance;
+  roteiro.eventos.forEach(ev => {
+    if (ev.tipo === 'lance') {
+      if (ev.mate) som('mate', ev.t + D * 0.9, 0.8);
+      else if (ev.capturada) som('impacto', ev.t + D * 0.8, 0.55);
+      else som('peca', ev.t + D * 0.85, 0.6);
+      if (ev.xeque != null && !ev.mate) som('alerta', ev.t + D, 0.35);
+    } else if (ev.tipo === 'tela') { som('whoosh', ev.t - 0.1, 0.6); if (ev.modelo === 'alerta') som('alerta', ev.t + 0.15, 0.4); if (ev.modelo === 'carimbo') som('impacto', ev.t + 0.6, 0.5); }
+    else if (ev.tipo === 'etiqueta') som('pop', ev.t, 0.6);
+    else if (ev.tipo === 'treme') som('impacto', ev.t, 0.55);
+    else if (ev.tipo === 'mostra') som('whoosh', ev.t - 0.1, 0.5);
+  });
+  return lista;
+}
+
 // Filma o roteiro num estilo e monta o MP4 com o áudio.
 async function filma(roteiro, estilo, duracao, audio, saida) {
   const pagina = await abrePalco(estilo);
@@ -241,10 +264,17 @@ async function filma(roteiro, estilo, duracao, audio, saida) {
   const d = duracao.toFixed(3);
   const args = ['-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', path.join(tmp, 'lista.txt')];
   if (audio) args.push('-i', audio); else args.push('-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=stereo');
-  args.push('-f', 'lavfi', '-i', 'color=c=0xffd36b:s=' + LARGURA + 'x10:r=' + QPS,
-    '-filter_complex',
-    '[0:v]fps=' + QPS + ',format=yuv420p[q];[q][2:v]overlay=x=\'-W+W*t/' + d + '\':y=H-10:shortest=0[v];' +
-    '[1:a]' + (audio ? 'loudnorm=I=-16:TP=-1.5:LRA=11,' : '') + 'apad[a]',
+  args.push('-f', 'lavfi', '-i', 'color=c=0xffd36b:s=' + LARGURA + 'x10:r=' + QPS);
+  // na edição "show", os efeitos sonoros (pasta sons/ das lições) entram no segundo de cada acontecimento
+  const sons = efeitosSonoros(roteiro);
+  sons.forEach(e => args.push('-i', e.arquivo));
+  let mix = '[1:a]' + (audio ? 'loudnorm=I=-16:TP=-1.5:LRA=11,' : '') + 'apad' + (sons.length ? '[voz];' : '[a]');
+  if (sons.length) {
+    sons.forEach((e, k) => { const ms = Math.round(e.t * 1000); mix += '[' + (3 + k) + ':a]aresample=48000,adelay=' + ms + ':all=1,volume=' + e.vol + '[s' + k + '];'; });
+    mix += '[voz]' + sons.map((e, k) => '[s' + k + ']').join('') + 'amix=inputs=' + (sons.length + 1) + ':normalize=0:duration=first[a]';
+  }
+  args.push('-filter_complex',
+    '[0:v]fps=' + QPS + ',format=yuv420p[q];[q][2:v]overlay=x=\'-W+W*t/' + d + '\':y=H-10:shortest=0[v];' + mix,
     '-map', '[v]', '-map', '[a]', '-t', d,
     '-c:v', 'libx264', '-preset', 'fast', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', String(QPS),
     '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', saida);
