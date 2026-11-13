@@ -74,15 +74,21 @@
     cartao.addEventListener('pointerleave', function () { cartao.style.setProperty('--rx', '0deg'); cartao.style.setProperty('--ry', '0deg'); });
   }
   // a "telinha" do cartão: uma amostra de como são as lições, trocando sozinha
+  // (as sete primeiras lições do Módulo 1, na ordem em que estão no curso)
   var AMOSTRAS = [
-    ['wn', 'Como o cavalo se move', '0:45'], ['wb', 'O bispo e as diagonais', '0:38'], ['wr', 'A torre nas colunas abertas', '0:52'],
-    ['wq', 'A força da dama', '0:41'], ['wk', 'Proteja o seu rei: o roque', '0:58'], ['wp', 'O peão que vira dama', '0:36']
+    ['img/tabuleiro.svg', 'O tabuleiro: onde tudo começa'],
+    ['img/pecas-express/wp.svg', 'Cada peça no seu lugar'],
+    ['img/pecas-express/wr.svg', 'A torre: força em linha reta'],
+    ['img/pecas-express/wb.svg', 'O bispo: o dono das diagonais'],
+    ['img/pecas-express/wn.svg', 'O cavalo: o único que salta'],
+    ['img/pecas-express/wq.svg', 'A dama: a peça mais poderosa'],
+    ['img/pecas-express/wk.svg', 'O rei: quem decide a partida']
   ];
   var amostra = 0, tPeca = id('telaPeca'), tBarra = id('telaBarra'), vendoTela = false, inicioTela = 0;
   function poeAmostra() {
     var a = AMOSTRAS[amostra];
-    tPeca.style.backgroundImage = 'url(img/pecas-express/' + a[0] + '.svg)';
-    id('telaTitulo').textContent = a[1]; id('telaTempo').textContent = a[2];
+    tPeca.style.backgroundImage = 'url(' + a[0] + ')';
+    id('telaTitulo').textContent = a[1];
     id('telaNumero').textContent = (amostra + 1 < 10 ? '0' : '') + (amostra + 1);
   }
   function giraTela(agora) {
