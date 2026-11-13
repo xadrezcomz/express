@@ -113,6 +113,11 @@ Alguns efeitos são automáticos, sem ordem nenhuma:
   a faixa **XEQUE!**. Se for mate, a casa fica dourada e a faixa é **XEQUE-MATE!**. Só funciona com
   os dois reis no tabuleiro.
 
+**Fala diferente da legenda.** `{trinta e duas|32}` faz a voz falar "trinta e duas" e a legenda
+mostrar "32" (bom para números, que a voz erra no gênero quando vêm em algarismos). As casas
+escritas como `e5`, `D4` ou `E quatro` são faladas pelo nome da letra ("é cinco", "dê quatro"):
+sem isso a voz lê o "e" como a conjunção ("i").
+
 Os lances não passam por conferência de regra: a peça vai de uma casa à outra. Isso permite
 posições de ensino (um cavalo sozinho no tabuleiro, sem reis). Linhas começadas por `#` são
 anotações e não entram na fala.
