@@ -8,7 +8,7 @@
 // ============================================================================
 window.XE_CONFIG = {
   linkCompra: 'https://pay.hotmart.com/F108444972P?off=qxxyc3yo&bid=1794535357552',
-  preco: '',               // ex.: 'R$ 97'      (aparece grande no cartão)
+  preco: 'R$ 29,90',       // aparece grande no cartão do curso e na barra do celular
   precoDe: '',             // ex.: 'R$ 197'     (aparece riscado; opcional)
   parcelas: '',            // ex.: 'ou 12x de R$ 9,70'  (opcional)
   instagram: 'https://www.instagram.com/xadrezcomz/',

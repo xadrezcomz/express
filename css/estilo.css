@@ -519,6 +519,8 @@ button{font:inherit;color:inherit}
   border-radius:50%;background:rgba(124,255,90,.2);color:var(--verde);font-weight:800;font-size:.9em}
 .curso-preco{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
 .curso-preco s{color:var(--suave);font-size:1.125rem}
+/* sem preço riscado ou parcelas, esses espaços somem para o preço não ficar deslocado */
+.curso-preco s:empty,.curso-preco small:empty{display:none}
 .curso-preco b{font-family:var(--titulo);font-size:2.5rem;color:var(--ouro);line-height:1}
 .curso-preco small{flex-basis:100%;font-size:1rem;color:var(--suave)}
 .curso-nota{font-size:1rem;color:var(--suave)}
