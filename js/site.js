@@ -38,7 +38,9 @@
   if (CFG.linkCompra) {
     botao.href = CFG.linkCompra; botao.textContent = 'Quero começar agora';
     id('cursoSelo').textContent = 'Disponível';
-    id('cursoNota').textContent = 'Acesso imediato. Assista no celular, quando e onde quiser.';
+    id('cursoNota').textContent = 'Acesso liberado na hora, logo depois do pagamento.';
+    // garantia, acesso vitalício e compra segura só valem com a venda ligada
+    document.querySelectorAll('[data-so-venda]').forEach(function (el) { el.hidden = false; });
     if (CFG.preco) {
       id('cursoPreco').hidden = false;
       id('cursoPrecoPor').textContent = CFG.preco;
