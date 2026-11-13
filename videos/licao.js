@@ -162,7 +162,9 @@ function le(texto, nomeArquivo) {
 
   // a fala: palavras e, entre elas, as ordens (cada ordem guarda antes de qual palavra ela vem)
   const palavras = [], ordens = [];
-  const corpo = linhas.slice(i).filter(l => !/^\s*(#|\/\/)/.test(l)).join('\n');
+  // {fala|legenda}: a voz fala uma coisa e a legenda mostra outra ({trinta e duas|32})
+  const corpo = linhas.slice(i).filter(l => !/^\s*(#|\/\/)/.test(l)).join('\n')
+    .replace(/\{([^|{}\[\]]+)\|([^{}\s\[\]]+)\}/g, (m, fala, leg) => leg + '\u0001' + encodeURIComponent(fala.trim()));
   corpo.split(/(\[[^\]]*\])/).forEach(pedaco => {
     if (pedaco[0] === '[' && pedaco[pedaco.length - 1] === ']') {
       leOrdem(pedaco.slice(1, -1), onde).forEach(a => { a.antesDe = palavras.length; ordens.push(a); });
@@ -172,7 +174,14 @@ function le(texto, nomeArquivo) {
         linha.split(/\s+/).filter(Boolean).forEach(p => {
           if (chave(p) === '' && palavras.length) palavras[palavras.length - 1].texto += ' ' + p;   // um travessão solto
           // *palavra*: a palavra em destaque no texto animado (os asteriscos não vão para a voz)
-          else if (chave(p) !== '') palavras.push(p.includes('*') ? { texto: p.replace(/\*/g, ''), destaque: true } : { texto: p });
+          else if (chave(p.split('\u0001')[0]) !== '' || p.includes('\u0001')) {
+            const pal = p.includes('*') ? { texto: p.replace(/\*/g, ''), destaque: true } : { texto: p };
+            if (pal.texto.includes('\u0001')) {
+              const [leg, resto] = pal.texto.split('\u0001'), m = resto.match(/^(.*?)([.,!?;:…"]*)$/);
+              pal.texto = leg + m[2]; pal.voz = decodeURIComponent(m[1]) + m[2];
+            }
+            palavras.push(pal);
+          }
         });
       });
     }
@@ -186,7 +195,7 @@ function le(texto, nomeArquivo) {
     legenda: !/^(nao|n|off|0)$/.test(chave(cab.legenda || 'sim')),
     edicao: chave(cab.edicao || ''),
     casas: casas, palavras: palavras, ordens: ordens,
-    fala: palavras.map(p => p.texto).join(' ')
+    fala: palavras.map(p => p.voz || p.texto).join(' ')
   };
 }
 
