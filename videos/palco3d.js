@@ -707,6 +707,7 @@ function desenhaHtml(e) {
   if (e.faixa) {
     elFaixa.textContent = e.faixa.texto; elFaixa.className = 'faixa ' + e.faixa.classe;
     elFaixa.style.transform = 'translate(-50%,-50%) scale(' + e.faixa.e + ')'; elFaixa.style.opacity = e.faixa.o;
+    elFaixa.style.top = ((e.faixa.y || 0.5) * 100) + '%';
   }
   elCartaz.hidden = !e.cartaz;
   if (e.cartaz) {
@@ -818,8 +819,40 @@ async function prepara(roteiro) {
 // O 3D só é redesenhado quando algo do 3D muda: a palavra da legenda trocando, por exemplo,
 // não custa um desenho novo do tabuleiro. Com o cartaz cobrindo tudo, o 3D fica parado.
 let ultima3d = null, ultimaHtml = null;
+// A faixa ([texto], XEQUE!) não pode tampar o que está em destaque: entre o meio, o alto e o pé
+// da área do tabuleiro, fica no lugar mais longe das casas do lance, do xeque, das marcas e setas.
+const ALTURAS_FAIXA = [0.5, 0.16, 0.84];
+function lugarDaFaixa(e) {
+  const casas = new Set();
+  if (e.veio >= 0) casas.add(e.veio); if (e.foi >= 0) casas.add(e.foi);
+  if (e.brilho) casas.add(e.brilho.casa);
+  e.marcas.forEach(m => casas.add(m.casa));
+  e.setas.forEach(sx => { casas.add(sx.de); casas.add(sx.para); });
+  e.pecas.forEach(p => { if (p.h > 0.05) casas.add(Math.round(p.l) * 8 + Math.round(p.c)); });
+  const etq = e.etq || [];
+  if (!casas.size && !etq.length) return 0.5;
+  poeCamera(e.cam);
+  const v = new THREE.Vector3(), ponto = (i, h) => {
+    v.set(mundoX(col(i)), TOPO + h, mundoZ(lin(i))).project(camera);
+    return [(v.x + 1) * 540, (1 - v.y) * 960];
+  };
+  const pts = [...casas].map(i => ponto(i, 0.4));
+  // as etiquetas flutuam acima da casa; o lance escrito fica embaixo (y ~1360)
+  etq.forEach(q => { pts.push(ponto(q.casa, 1.4)); pts.push(ponto(q.casa, 1.8)); });
+  if (e.nota) pts.push([510, 1365]);
+  // a área da faixa: x 80–940, y 600–1400 (a .area3d); a faixa tem uns 680 x 150 px
+  let melhor = 0.5, nota = -1;
+  ALTURAS_FAIXA.forEach((a, k) => {
+    const cy = 600 + 800 * a;
+    const livre = Math.min(...pts.map(([x, y]) => Math.max(Math.abs(y - cy) - 75, Math.abs(x - 510) - 340, 0) + Math.abs(y - cy) * 0.001));
+    const n = livre - k * 2;          // em empate, prefere o meio
+    if (n > nota) { nota = n; melhor = a; }
+  });
+  return melhor;
+}
 function quadro(t) {
   const e = estado(t);
+  if (e.faixa) e.faixa.y = lugarDaFaixa(e);
   const a3d = JSON.stringify([e.cam, e.pecas, e.veio, e.foi, e.marcas, e.setas, e.brilho, e.expl, e.mao, e.etq]);
   const aHtml = JSON.stringify([e.leg, e.faixa, e.cartaz, e.man, e.nota, e.flash, e.treme, e.tela]);
   const muda3d = a3d !== ultima3d && !(e.cartaz && e.cartaz.o >= 1) && !(e.tela && e.tela.o >= 1);
