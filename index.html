@@ -57,6 +57,7 @@
       <a class="botao botao-ouro" href="#curso">Conhecer o curso</a>
       <a class="botao botao-vidro" href="#puzzle">Aceitar o desafio de hoje</a>
     </div>
+    <p class="garantias" data-so-venda hidden><span>Acesso vitalício</span><span>7 dias de garantia</span></p>
   </div>
 
   <a class="hero-desce" href="#como" aria-label="Ver como funciona"><span></span></a>
@@ -66,7 +67,8 @@
 <section class="secao como" id="como">
   <div class="miolo">
     <p class="olho">Como funciona</p>
-    <h2>Xadrez na velocidade do seu dia</h2>
+    <h2>Xadrez pra quem tem pressa</h2>
+    <p class="sub">Pra quem quer aprender ou evoluir, mas tem pouco tempo.</p>
     <ul class="passos">
       <li class="cartao passo revela">
         <div class="passo-arte arte-tempo" aria-hidden="true">
@@ -150,6 +152,7 @@
           <p class="resultado-golpe" id="pzGolpe" hidden></p>
           <p class="resultado-texto" id="pzTexto"></p>
           <a class="botao botao-ouro botao-g" id="pzBotao" href="#curso">Quero evoluir mais rápido</a>
+          <p class="garantias" data-so-venda hidden><span>Acesso vitalício</span><span>7 dias de garantia</span></p>
           <p class="resultado-pe">
             <span id="pzSequencia" hidden></span>
             <span>Amanhã tem outro desafio, em <b id="pzRelogio">--:--:--</b></span>
@@ -235,8 +238,8 @@
 <section class="secao curso" id="curso">
   <div class="miolo">
     <p class="olho">O curso</p>
-    <h2>Xadrez Express</h2>
-    <p class="sub">O jeito mais rápido de sair do zero no xadrez.</p>
+    <h2>Pouco tempo? É pra você.</h2>
+    <p class="sub">Uma lição cabe no intervalo do café. Você aprende ou evolui no xadrez sem mexer na sua rotina.</p>
 
     <div class="curso-palco">
       <article class="curso-cartao" id="cursoCartao">
@@ -258,6 +261,7 @@
             <li>Começa do zero e evolui passo a passo</li>
             <li>Assista no celular, quando e onde quiser</li>
             <li>Direto ao ponto, sem enrolação</li>
+            <li data-so-venda hidden><b>Acesso vitalício:</b> reveja quantas vezes quiser</li>
           </ul>
 
           <div class="curso-preco" id="cursoPreco" hidden>
@@ -267,6 +271,12 @@
           </div>
 
           <a class="botao botao-ouro botao-g" id="cursoBotao" href="https://www.instagram.com/xadrezcomz/" target="_blank" rel="noopener">Quero ser avisado no Instagram</a>
+          <!-- as garantias da compra: só aparecem quando a venda está ligada (js/config.js) -->
+          <ul class="curso-selos" data-so-venda hidden>
+            <li><i aria-hidden="true">🛡️</i><span><b>7 dias de garantia</b>Não gostou? É só pedir o dinheiro de volta.</span></li>
+            <li><i aria-hidden="true">♾️</i><span><b>Acesso vitalício</b>Pagou uma vez, é seu para sempre.</span></li>
+            <li><i aria-hidden="true">🔒</i><span><b>Compra segura</b>Pagamento pela Hotmart.</span></li>
+          </ul>
           <p class="curso-nota" id="cursoNota">As gravações estão a caminho. Siga <b>@xadrezcomz</b> para saber do lançamento em primeira mão.</p>
         </div>
       </article>
