@@ -7,7 +7,7 @@
 //  sozinhos no topo, no cartão do curso e na barra fixa do celular.
 // ============================================================================
 window.XE_CONFIG = {
-  linkCompra: '',          // ex.: 'https://pay.hotmart.com/XXXXXXXX'
+  linkCompra: 'https://pay.hotmart.com/F108444972P?off=qxxyc3yo&bid=1794535357552',
   preco: '',               // ex.: 'R$ 97'      (aparece grande no cartão)
   precoDe: '',             // ex.: 'R$ 197'     (aparece riscado; opcional)
   parcelas: '',            // ex.: 'ou 12x de R$ 9,70'  (opcional)
