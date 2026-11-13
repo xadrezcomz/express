@@ -117,6 +117,14 @@ Os lances não passam por conferência de regra: a peça vai de uma casa à outr
 posições de ensino (um cavalo sozinho no tabuleiro, sem reis). Linhas começadas por `#` são
 anotações e não entram na fala.
 
+## Zona segura dos Reels
+
+O Instagram cobre o vídeo com o nome da conta, a legenda do post e os botões de curtir,
+comentar e compartilhar. Por isso o título, a legenda, o tabuleiro, as faixas, os cartazes, as
+telas gráficas e o rodapé ficam dentro de **x 80–940 e y 250–1480** (250 px livres em cima, 440
+embaixo, 80 à esquerda e 140 à direita). As medidas estão no fim do `palco.css` e do
+`palco3d.css`, e o enquadramento da câmera 3D (`QUADRO` no `palco3d.js`) segue a mesma área.
+
 ## A edição "show"
 
 Com `edicao: show` no cabeçalho (e `estilo: 3d`), o vídeo ganha uma edição mais intensa:

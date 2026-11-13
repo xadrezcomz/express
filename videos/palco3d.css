@@ -91,3 +91,38 @@
 .tela .t-item b.duvida{background:var(--ouro)}
 .tela .t-frase{font-weight:700;font-size:130px;line-height:1;text-transform:uppercase;text-shadow:0 10px 40px rgba(0,0,0,.5)}
 .tela .t-frase em{display:block;font-family:var(--corpo);font-style:italic;font-weight:300;font-size:80px;text-transform:none;margin-bottom:20px}
+
+/* ------------------------------------------------------------- zona segura dos Reels (ver palco.css) */
+.palco3d .cabeca{left:80px;right:140px;top:250px;height:150px;gap:12px}
+.palco3d h1{font-size:58px}
+.palco3d h1.longo{font-size:48px}
+.legenda3d{left:80px;right:140px;top:410px;height:170px;font-size:48px;gap:8px}
+.area3d{left:80px;top:600px;width:860px;height:800px}
+.palco3d .pe{top:1428px}
+.sombra-topo{height:640px}
+.sombra-pe{height:560px;background:linear-gradient(0deg,#070417 0%,rgba(7,4,23,.96) 40%,rgba(7,4,23,0) 100%)}
+.palco3d.show .sombra-topo{height:720px}
+.hud{left:80px;right:140px;top:250px;font-size:22px;padding-bottom:12px}
+.manchete{left:80px;right:140px;top:312px;font-size:54px;gap:2px 14px}
+.manchete span.forte{font-size:78px}
+.nota{top:1330px;left:510px;font-size:58px;padding:10px 34px 14px}
+.tela .t-meio{left:80px;right:140px;top:600px;bottom:480px}
+.tela .t-numero{font-size:440px}
+.tela .t-legenda{font-size:50px;margin-top:20px}
+.tela .t-pontos{gap:16px;margin-top:26px}
+.tela .t-pontos i{width:24px;height:24px}
+.tela .t-alerta{font-size:116px;padding:24px 40px}
+.tela .t-sub{font-size:46px;margin-top:34px}
+.tela .t-papel{width:780px;padding:46px 46px 70px}
+.tela .t-papel h2{font-size:32px}
+.tela .t-papel h3{font-size:58px;margin-bottom:30px}
+.tela .t-carimbo{font-size:56px}
+.tela .t-medidor{width:700px;height:376px}
+.tela .t-valor{font-size:120px;margin-top:-140px}
+.tela .t-lista{width:820px;gap:22px}
+.tela .t-item{font-size:52px;padding:18px 28px}
+.tela .t-item b{width:70px;height:70px;font-size:50px}
+.tela .t-frase{font-size:104px}
+.tela .t-frase em{font-size:64px}
+/* na edição "show" a marca vai para a barra do alto, e o rodapé some (ficaria em cima das peças) */
+.palco3d.show .pe{display:none}

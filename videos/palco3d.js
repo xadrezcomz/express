@@ -431,7 +431,9 @@ function cameraEm(t) {
     az: n3(m(a.az, b.az) + DERIVA * Math.sin(t * 0.45)), el: n3(m(a.el, b.el) + DERIVA * 0.5 * Math.sin(t * 0.31 + 1)) };
 }
 // A faixa da tela onde o tabuleiro deve caber: entre a legenda e o rodapé.
-const QUADRO = { x0: 30, x1: 1050, y0: 560, y1: 1740 };
+// (dentro da zona segura dos Reels: x 80–940, y 250–1480; na edição "show", acima do lance escrito)
+const QUADRO = { x0: 80, x1: 940, y0: 590, y1: 1410 };
+const quadroY1 = () => R && R.edicao === 'show' ? 1310 : QUADRO.y1;
 function poeCamera(c) {
   const alvo = new THREE.Vector3(c.cx, TOPO, c.cz);
   const dir = new THREE.Vector3(Math.sin(c.az) * Math.cos(c.el), Math.sin(c.el), Math.cos(c.az) * Math.cos(c.el));
@@ -452,11 +454,11 @@ function poeCamera(c) {
   let perto = 3, longe = 80;
   for (let k = 0; k < 30; k++) {
     const d = (perto + longe) / 2, m = medida(d);
-    if (m.x1 - m.x0 <= QUADRO.x1 - QUADRO.x0 && m.y1 - m.y0 <= QUADRO.y1 - QUADRO.y0) longe = d; else perto = d;
+    if (m.x1 - m.x0 <= QUADRO.x1 - QUADRO.x0 && m.y1 - m.y0 <= quadroY1() - QUADRO.y0) longe = d; else perto = d;
   }
   const m = medida(longe);
   // e desliza a imagem para a área ficar no meio da faixa
-  const dx = (m.x0 + m.x1) / 2 - (QUADRO.x0 + QUADRO.x1) / 2, dy = (m.y0 + m.y1) / 2 - (QUADRO.y0 + QUADRO.y1) / 2;
+  const dx = (m.x0 + m.x1) / 2 - (QUADRO.x0 + QUADRO.x1) / 2, dy = (m.y0 + m.y1) / 2 - (QUADRO.y0 + quadroY1()) / 2;
   camera.setViewOffset(1080, 1920, dx, dy, 1080, 1920);
 }
 
@@ -797,7 +799,7 @@ async function prepara(roteiro) {
   tit.textContent = R.titulo; tit.classList.toggle('longo', R.titulo.length > 30);
   if (R.edicao === 'show') {
     document.getElementById('palco').classList.add('show'); elHud.hidden = false;
-    document.getElementById('hudNome').textContent = R.numero ? 'Lição ' + String(R.numero).padStart(2, '0') : (R.titulo || 'Xadrez Express');
+    document.getElementById('hudNome').textContent = 'Xadrez Express' + (R.numero ? ' · Lição ' + String(R.numero).padStart(2, '0') : '');
     R.totalNotas = R.eventos.filter(ev => ev.tipo === 'nota').length;
   }
   elLegenda.hidden = !R.legenda;

@@ -127,3 +127,24 @@ h1.longo{font-size:62px}
   text-shadow:0 0 50px rgba(255,211,107,.7),0 6px 0 rgba(13,7,48,.9)}
 .cartaz.logo img{width:460px;height:460px;border-radius:90px;margin-bottom:30px}
 .cartaz.logo b{font-size:104px}
+
+/* ------------------------------------------------------------- zona segura dos Reels
+   O Instagram cobre a tela com o nome da conta, a legenda do post e os botões. Tudo o que
+   importa fica dentro de x 80–940 e y 250–1480 (250 livres em cima, 440 embaixo, 80 à
+   esquerda e 140 à direita, onde ficam os botões de curtir, comentar e compartilhar). */
+.cabeca{left:80px;right:140px;top:250px;height:160px;gap:14px}
+.numero{font-size:28px;padding:8px 22px}
+h1{font-size:62px}
+h1.longo{font-size:50px}
+.legenda{left:80px;right:140px;top:418px;height:150px;font-size:50px;align-content:center}
+.tab-moldura{left:80px;top:580px;width:840px;height:840px;padding:14px;border-radius:32px}
+.pe{left:80px;right:140px;top:1428px;height:52px;gap:14px}
+.pe img{width:48px;height:48px;border-radius:11px}
+.pe span{font-size:34px}
+.pe em{font-size:26px}
+.faixa{font-size:84px;padding:18px 44px}
+.faixa.longa{font-size:62px;width:740px}
+.cartaz img{width:500px;height:500px}
+.cartaz b{font-size:96px}
+.cartaz.logo img{width:380px;height:380px}
+.cartaz.logo b{font-size:84px}
