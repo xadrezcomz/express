@@ -488,7 +488,7 @@ function estado(t) {
       // a mão que segura a peça do lance vai junto com ela e solta logo depois; outra mão sai
       if (mao && mao.sai == null && ev.de === mao.casa) { mao.segue = ev; mao.sai = chega + 0.3; }
       else maoSai(ev.t);
-    } else if (ev.tipo === 'posicao') { veio = foi = -1; setas = []; marcas = []; xeque = null; etiquetas = []; maoSai(ev.t); fechaTela(ev.t); }
+    } else if (ev.tipo === 'posicao') { veio = foi = -1; setas = []; marcas = []; xeque = null; etiquetas = []; nota = null; maoSai(ev.t); fechaTela(ev.t); }
     else if (ev.tipo === 'nota') { nNota++; nota = { texto: ev.texto, t0: ev.t, k: nNota }; }
     else if (ev.tipo === 'etiqueta') etiquetas.push({ casa: ev.casa, texto: ev.texto, cor: ev.cor, t0: ev.t });
     else if (ev.tipo === 'flash') flash = { cor: ev.cor, t0: ev.t, forte: 0.7 };
