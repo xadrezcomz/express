@@ -67,11 +67,18 @@ var FOGUETE = '<svg viewBox="-60 -30 96 60"><path d="M-22 0c-12-5-22-3-34 0 12 3
   '<path d="M-22-8.5Q5-13.5 15-7V7Q5 13.5-22 8.5Z" fill="#f4f5fb" stroke="#1b1250" stroke-width="1.6"/>' +
   '<path d="M14-7.5Q25-5 31 0 25 5 14 7.5Z" fill="#e02a2a" stroke="#1b1250" stroke-width="1.6" stroke-linejoin="round"/>' +
   '<circle cx="3" cy="0" r="4.6" fill="#35c8ff" stroke="#1b1250" stroke-width="1.6"/></svg>';
-// Põe a peça (ou o foguete) na caixa. cx, cy = centro; tam = lado; giro em graus.
+// Um tabuleirinho no traço das peças do curso (contorno escuro, faixa dourada embaixo).
+var TABULEIRO = (function () {
+  var casas = '';
+  for (var l = 0; l < 4; l++) for (var c = 0; c < 4; c++) if ((l + c) % 2) casas += '<rect x="' + (14 + c * 18) + '" y="' + (8 + l * 18) + '" width="18" height="18" fill="#5a45c9"/>';
+  return '<svg viewBox="0 0 100 100"><g stroke="#1b1250" stroke-width="3.5" stroke-linejoin="round"><rect x="10" y="80" width="80" height="12" rx="6" fill="#ffc45a"/>' +
+    '<rect x="14" y="8" width="72" height="72" rx="5" fill="#f8f6ff"/></g>' + casas + '<rect x="14" y="8" width="72" height="72" rx="5" fill="none" stroke="#1b1250" stroke-width="3.5"/></svg>';
+})();
+// Põe a peça (ou o foguete, ou o tabuleiro) na caixa. cx, cy = centro; tam = lado; giro em graus.
 function poePeca(caixa, peca, cx, cy, tam, giro) {
   var fog = peca === 'foguete', larg = fog ? tam * 1.25 : tam, alt = fog ? tam * 1.25 * 60 / 96 : tam;
   caixa.style.cssText = 'left:' + (cx - larg / 2) + 'px;top:' + (cy - alt / 2) + 'px;width:' + larg + 'px;height:' + alt + 'px;transform:rotate(' + giro + 'deg)';
-  caixa.innerHTML = fog ? FOGUETE : '<img src="../img/pecas-express/' + peca + '.svg" alt="">';
+  caixa.innerHTML = fog ? FOGUETE : peca === 'tabuleiro' ? TABULEIRO : '<img src="../img/pecas-express/' + peca + '.svg" alt="">';
 }
 // Diminui a letra até o título caber na altura e na largura da caixa (no máximo 3 linhas).
 function cabe(el, maximo, minimo, alturaMax) {
