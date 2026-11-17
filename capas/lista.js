@@ -54,4 +54,15 @@ module.exports = [
       { rotulo: 'Lição 19', titulo: 'Como Termina uma Partida de Xadrez?', peca: 'tabuleiro' },
     ],
   },
+  {
+    numero: '3',
+    titulo: 'Primeiros Passos na Estratégia',
+    peca: 'wb',
+    aulas: [
+      { rotulo: 'Lição 20', titulo: 'O Valor das Peças', peca: 'wq' },
+      { rotulo: 'Lição 21', titulo: 'O Controle do Centro', peca: 'wp' },
+      { rotulo: 'Lição 22', titulo: 'O Desenvolvimento das Peças', peca: 'wn' },
+      { rotulo: 'Lição 23', titulo: 'A Segurança do Rei', peca: 'wk' },
+    ],
+  },
 ];
