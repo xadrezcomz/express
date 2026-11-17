@@ -36,4 +36,22 @@ module.exports = [
       { rotulo: 'Lição 08', titulo: 'O Peão', peca: 'wp' },
     ],
   },
+  {
+    numero: '2',
+    titulo: 'Regras Essenciais',
+    peca: 'wk',
+    aulas: [
+      { rotulo: 'Lição 09', titulo: 'O Xeque', peca: 'wk' },
+      { rotulo: 'Lição 10', titulo: 'O Xeque-mate', peca: 'bk' },
+      { rotulo: 'Lição 11', titulo: 'O Afogamento', peca: 'bq' },
+      { rotulo: 'Lição 12', titulo: 'O Roque', peca: 'wr' },
+      { rotulo: 'Lição 13', titulo: 'En Passant', peca: 'bp' },
+      { rotulo: 'Lição 14', titulo: 'Promoção', peca: 'wq' },
+      { rotulo: 'Lição 15', titulo: 'Lance Ilegal', peca: 'bb' },
+      { rotulo: 'Lição 16', titulo: 'Peça tocada é peça jogada', peca: 'wn' },
+      { rotulo: 'Lição 17', titulo: 'Quem Começa a Partida?', peca: 'wp' },
+      { rotulo: 'Lição 18', titulo: 'Outras Formas de Empate', peca: 'br' },
+      { rotulo: 'Lição 19', titulo: 'Como Termina uma Partida de Xadrez?', peca: 'tabuleiro' },
+    ],
+  },
 ];
