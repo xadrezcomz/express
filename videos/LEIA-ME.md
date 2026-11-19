@@ -176,6 +176,18 @@ O 3D é desenhado pelo processador (sem placa de vídeo), então demora mais: um
 segundos leva cerca de 1 minuto e meio, contra uns 30 segundos no 2D. `--2d` força o 2D numa
 lição que tem `estilo: 3d`.
 
+## Postar no Instagram
+
+`node videos/posta.js NOME` converte `videos/prontos/NOME.mp4` para o formato de Reels do Instagram,
+cria o post com a legenda de `instagram/NOME.txt` (na pasta privada das lições) e envia o vídeo,
+mas **não publica**: fica um rascunho que expira em 24 horas. `--publica` publica de verdade e anota
+o link em `instagram/publicados.json`. A conta e o quadro da capa ficam em `instagram.json`
+(`{ "conta": "ID da conta do Instagram", "capa_ms": 1500 }`).
+
+O token da Meta (login do Facebook para Empresas, com `instagram_content_publish`) nunca fica em
+arquivo: nas sessões do Claude na nuvem ele é um segredo de rede do ambiente para
+`graph.facebook.com` e `rupload.facebook.com`; em outro computador, a variável `META_TOKEN`.
+
 ## Para rodar
 
 Precisa de `node`, `ffmpeg`, `playwright` (Chromium) e, para áudio gravado,
