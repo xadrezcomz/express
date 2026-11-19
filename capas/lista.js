@@ -65,4 +65,17 @@ module.exports = [
       { rotulo: 'Lição 23', titulo: 'A Segurança do Rei', peca: 'wk' },
     ],
   },
+  {
+    numero: '4',
+    titulo: 'Táticas Essenciais',
+    peca: 'wr',
+    aulas: [
+      { rotulo: 'Lição 24', titulo: 'O Que É uma Tática no Xadrez?', peca: 'wq' },
+      { rotulo: 'Lição 25', titulo: 'O Garfo e o Ataque Duplo', peca: 'wn' },
+      { rotulo: 'Lição 26', titulo: 'A Cravada', peca: 'wb' },
+      { rotulo: 'Lição 27', titulo: 'O Espeto', peca: 'wr' },
+      { rotulo: 'Lição 28', titulo: 'O Ataque Descoberto', peca: 'bb' },
+      { rotulo: 'Lição 29', titulo: 'Como Identificar Ameaças', peca: 'bq' },
+    ],
+  },
 ];
