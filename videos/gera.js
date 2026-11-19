@@ -212,6 +212,16 @@ async function geraVideo(arquivoLicao, op) {
   return saida;
 }
 
+function escolheMusica(clima, saida) {
+  const pasta = path.join(BASE, 'musicas');
+  if (!fs.existsSync(pasta)) return null;
+  const opcoes = fs.readdirSync(pasta).filter(f => new RegExp('^' + clima + '(_\\d+)?\\.mp3$').test(f)).sort();
+  if (!opcoes.length) return null;
+  const nome = path.basename(saida);
+  let h = 0; for (const ch of nome) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return path.join(pasta, opcoes[h % opcoes.length]);
+}
+
 // Os efeitos sonoros da edição "show": que som toca, em que segundo e com que volume.
 function efeitosSonoros(roteiro) {
   const pasta = path.join(BASE, 'sons');
@@ -269,7 +279,9 @@ async function filma(roteiro, estilo, duracao, audio, saida) {
   const sons = efeitosSonoros(roteiro);
   sons.forEach(e => args.push('-i', e.arquivo));
   // música de fundo ("musica: suspense" no cabeçalho -> musicas/suspense.mp3 da pasta das lições), baixinha
-  const fMusica = roteiro.musica ? path.join(BASE, 'musicas', roteiro.musica + '.mp3') : null;
+  // com várias versões do mesmo clima (suspense_1.mp3, suspense_2.mp3...), cada vídeo pega uma,
+  // sempre a mesma para o mesmo vídeo, para os vídeos parecidos não soarem iguais
+  const fMusica = roteiro.musica ? escolheMusica(roteiro.musica, saida) : null;
   const comMusica = fMusica && fs.existsSync(fMusica);
   if (comMusica) args.push('-stream_loop', '-1', '-i', fMusica);
   const extras = sons.length + (comMusica ? 1 : 0);
