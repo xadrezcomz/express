@@ -91,19 +91,17 @@ module.exports = [
       { rotulo: 'Lição 35', titulo: 'A Regra do Quadrado', peca: 'wp' },
     ],
   },
-  // A versão anterior do Módulo 5, guardada caso volte (por exemplo, como Módulo 6).
-  // Para usar: tire as barras do começo das linhas e acerte o número.
-  // {
-  //   numero: '5',
-  //   titulo: 'Sua Primeira Partida',
-  //   peca: 'wp',
-  //   aulas: [
-  //     { rotulo: 'Lição 30', titulo: 'As Três Fases de uma Partida', peca: 'tabuleiro' },
-  //     { rotulo: 'Lição 31', titulo: 'Como Começar Bem uma Partida', peca: 'wn' },
-  //     { rotulo: 'Lição 32', titulo: 'Os Erros Mais Comuns dos Iniciantes', peca: 'bp' },
-  //     { rotulo: 'Lição 33', titulo: 'Como Pensar Antes de Jogar', peca: 'wb' },
-  //     { rotulo: 'Lição 34', titulo: 'Como Praticar e Evoluir no Xadrez', peca: 'wq' },
-  //     { rotulo: 'Lição 35', titulo: 'Seu Próximo Passo no Xadrez', peca: 'foguete' },
-  //   ],
-  // },
+  {
+    numero: '6',
+    titulo: 'Sua Primeira Partida',
+    peca: 'wp',
+    aulas: [
+      { rotulo: 'Lição 36', titulo: 'As Três Fases de uma Partida', peca: 'tabuleiro' },
+      { rotulo: 'Lição 37', titulo: 'Como Começar Bem uma Partida', peca: 'wn' },
+      { rotulo: 'Lição 38', titulo: 'Os Erros Mais Comuns dos Iniciantes', peca: 'bp' },
+      { rotulo: 'Lição 39', titulo: 'Como Pensar Antes de Jogar', peca: 'wb' },
+      { rotulo: 'Lição 40', titulo: 'Como Praticar e Evoluir no Xadrez', peca: 'wq' },
+      { rotulo: 'Lição 41', titulo: 'Seu Próximo Passo no Xadrez', peca: 'foguete' },
+    ],
+  },
 ];
