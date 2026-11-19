@@ -418,7 +418,11 @@ function planejaCamera() {
     if (!nova) return;
     if (ev.tipo === 'posicao') { nova.larg = 8.4; nova.prof = 9.2; nova.el = 1.05; nova.cx = nova.cz = 0; }
     // [zoom]: o próximo lance é visto bem de perto e mais de lado, para o golpe ficar dramático
-    if (perto && ev.tipo === 'lance') { nova.larg = Math.min(nova.larg, 3.6); nova.prof = Math.min(nova.prof, 3.0); nova.el = 0.5; nova.az += 0.28; perto = false; }
+    if (perto && ev.tipo === 'lance') {
+      // perto, o que importa é a casa de chegada (e o rei em xeque): a saída pode ficar fora
+      const foco = enquadra([ev.para].concat(ev.xeque != null ? [ev.xeque] : []), ev.t, tomadas.length);
+      if (foco) { nova.cx = foco.cx; nova.cz = foco.cz; }
+      nova.larg = Math.min(nova.larg, 3.6); nova.prof = Math.min(nova.prof, 3.0); nova.el = 0.5; nova.az += 0.28; perto = false; }
     // se o novo enquadramento é quase o mesmo, a câmera fica onde está
     if (Math.hypot(nova.cx - ult.cx, nova.cz - ult.cz) < 0.7 && Math.abs(nova.larg - ult.larg) < 0.9 && Math.abs(nova.prof - ult.prof) < 0.9) return;
     // uma tomada nova logo depois de outra espera a anterior terminar
