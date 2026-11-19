@@ -273,9 +273,12 @@ async function filma(roteiro, estilo, duracao, audio, saida) {
   const comMusica = fMusica && fs.existsSync(fMusica);
   if (comMusica) args.push('-stream_loop', '-1', '-i', fMusica);
   const extras = sons.length + (comMusica ? 1 : 0);
-  let mix = '[1:a]' + (audio ? 'loudnorm=I=-16:TP=-1.5:LRA=11,' : '') + 'apad' + (extras ? '[voz];' : '[a]');
+  // com música, a voz é dividida em duas: uma vai para a mistura e a outra comanda o "ducking"
+  // (a música baixa sozinha enquanto a voz fala e volta a subir nas pausas)
+  let mix = '[1:a]' + (audio ? 'loudnorm=I=-16:TP=-1.5:LRA=11,' : '') + 'apad' + (comMusica ? ',asplit=2[voz][vozsc];' : extras ? '[voz];' : '[a]');
   sons.forEach((e, k) => { const ms = Math.round(e.t * 1000); mix += '[' + (3 + k) + ':a]aresample=48000,adelay=' + ms + ':all=1,volume=' + e.vol + '[s' + k + '];'; });
-  if (comMusica) mix += '[' + (3 + sons.length) + ':a]aresample=48000,atrim=0:' + d + ',volume=0.11,afade=t=in:d=0.8,afade=t=out:st=' + Math.max(0, duracao - 1.5).toFixed(2) + ':d=1.5[mu];';
+  if (comMusica) mix += '[' + (3 + sons.length) + ':a]aresample=48000,atrim=0:' + d + ',volume=0.32,afade=t=in:d=0.8,afade=t=out:st=' + Math.max(0, duracao - 1.5).toFixed(2) + ':d=1.5[mu0];' +
+    '[mu0][vozsc]sidechaincompress=threshold=0.02:ratio=6:attack=30:release=450:makeup=1[mu];';
   if (extras) mix += '[voz]' + sons.map((e, k) => '[s' + k + ']').join('') + (comMusica ? '[mu]' : '') + 'amix=inputs=' + (extras + 1) + ':normalize=0:duration=first[a]';
   args.push('-filter_complex',
     '[0:v]fps=' + QPS + ',format=yuv420p[q];[q][2:v]overlay=x=\'-W+W*t/' + d + '\':y=H-10:shortest=0[v];' + mix,
