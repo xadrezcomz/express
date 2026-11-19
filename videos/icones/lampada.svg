@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><!-- lâmpada: ideia -->
+<circle cx="200" cy="165" r="105" fill="#ffd36b" stroke="#c98a12" stroke-width="8"/>
+<path d="M160 255 V290 H240 V255" fill="#ffd36b" stroke="#c98a12" stroke-width="8"/>
+<rect x="158" y="292" width="84" height="22" rx="6" fill="#7462e6"/><rect x="168" y="318" width="64" height="22" rx="6" fill="#7462e6"/>
+<path d="M175 250 L175 180 L200 205 L225 180 L225 250" fill="none" stroke="#c98a12" stroke-width="8" stroke-linejoin="round"/>
+<path d="M200 30 V8 M80 70 L62 52 M320 70 L338 52 M50 170 H26 M350 170 H374" stroke="#fff" stroke-width="12" stroke-linecap="round"/></svg>

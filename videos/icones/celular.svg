@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><!-- celular com um tabuleiro -->
+<rect x="110" y="30" width="180" height="340" rx="30" fill="#1b1150" stroke="#ffd36b" stroke-width="8"/>
+<rect x="128" y="80" width="144" height="240" rx="8" fill="#2a1f7a"/>
+<g transform="translate(140 130)">
+<rect width="120" height="120" fill="#ece7ff"/>
+<path d="M0 0h15v15H0zM30 0h15v15H30zM60 0h15v15H60zM90 0h15v15H90zM15 15h15v15H15zM45 15h15v15H45zM75 15h15v15H75zM105 15h15v15h-15zM0 30h15v15H0zM30 30h15v15H30zM60 30h15v15H60zM90 30h15v15H90zM15 45h15v15H15zM45 45h15v15H45zM75 45h15v15H75zM105 45h15v15h-15zM0 60h15v15H0zM30 60h15v15H30zM60 60h15v15H60zM90 60h15v15H90zM15 75h15v15H15zM45 75h15v15H45zM75 75h15v15H75zM105 75h15v15h-15zM0 90h15v15H0zM30 90h15v15H30zM60 90h15v15H60zM90 90h15v15H90zM15 105h15v15H15zM45 105h15v15H45zM75 105h15v15H75zM105 105h15v15h-15z" fill="#7462e6"/></g>
+<rect x="170" y="48" width="60" height="10" rx="5" fill="#7462e6"/><circle cx="200" cy="345" r="11" fill="#7462e6"/></svg>

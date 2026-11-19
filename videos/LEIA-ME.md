@@ -157,6 +157,17 @@ E estas ordens (só no 3D):
 | `[tela lista Item ✓ \| Item ✗ \| Item ?]` | lista que entra item por item |
 | `[tela frase linha pequena \| LINHA GRANDE]` | uma frase de impacto em tela cheia |
 
+| `[tela cronometro 5 \| Ache o lance!]` | contagem regressiva (para desafios) |
+| `[tela icone trofeu \| Título \| subtítulo]` | uma ilustração de `videos/icones/` (relogio, trofeu, celular, apito, livro, lampada, alvo) |
+| `[tela versus FEN lance \| Iniciante \| FEN lance \| Mestre]` | dois tabuleirinhos lado a lado: o lance errado (vermelho) e o certo (verde) |
+| `[zoom]` | a câmera chega bem perto do próximo lance (o golpe decisivo) |
+| `[lance e5d3 lento]` | a peça anda em câmera lenta |
+
+Cabeçalho da edição show: `serie: Armadilha #2 de 8` (aparece na barra e na capa) e
+`musica: suspense` (trilha de `musicas/` da pasta das lições, baixinha por baixo da voz). Todo
+vídeo show abre com uma **capa** de 0,7 s (título grande e série), que o `posta.js` usa como capa
+do Reel.
+
 A tela gráfica cobre o tabuleiro até um `[esconde]`, `[limpa]`, lance, `[posicao]` ou outra tela.
 
 ## O estilo 3D

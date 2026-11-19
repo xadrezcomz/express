@@ -403,8 +403,10 @@ function planejaCamera() {
   tomadas = [];
   const inicio = enquadra(ocupadas(R.inicial), -10, 0) || enquadra([0, 63], -10, 0);
   inicio.larg = 8.4; inicio.prof = 9.2; inicio.el = 1.05; inicio.cx = inicio.cz = 0; tomadas.push(inicio);
+  let perto = false;
   R.eventos.forEach(ev => {
     let casas = null;
+    if (ev.tipo === 'zoom') { perto = true; return; }
     if (ev.tipo === 'lance') { casas = [ev.de, ev.para]; if (ev.xeque != null) casas.push(ev.xeque); }
     else if (ev.tipo === 'seta') casas = [].concat(...ev.setas);
     else if (ev.tipo === 'marca') casas = ev.casas;
@@ -415,6 +417,8 @@ function planejaCamera() {
     const nova = enquadra(casas, ev.t, tomadas.length), ult = tomadas[tomadas.length - 1];
     if (!nova) return;
     if (ev.tipo === 'posicao') { nova.larg = 8.4; nova.prof = 9.2; nova.el = 1.05; nova.cx = nova.cz = 0; }
+    // [zoom]: o próximo lance é visto bem de perto e mais de lado, para o golpe ficar dramático
+    if (perto && ev.tipo === 'lance') { nova.larg = Math.min(nova.larg, 3.6); nova.prof = Math.min(nova.prof, 3.0); nova.el = 0.5; nova.az += 0.28; perto = false; }
     // se o novo enquadramento é quase o mesmo, a câmera fica onde está
     if (Math.hypot(nova.cx - ult.cx, nova.cz - ult.cz) < 0.7 && Math.abs(nova.larg - ult.larg) < 0.9 && Math.abs(nova.prof - ult.prof) < 0.9) return;
     // uma tomada nova logo depois de outra espera a anterior terminar
@@ -473,18 +477,18 @@ function estado(t) {
   for (const ev of R.eventos) {
     if (ev.t > t) break;
     tab = ev.tabuleiro; andando = null; novas = null;
-    const chega = ev.t + R.durLance;
+    const chega = ev.t + (ev.dur || R.durLance);
     if (ev.tipo === 'lance') {
       veio = ev.de; foi = ev.para; setas = []; marcas = [];
-      if (t - ev.t < R.durLance) andando = { ev, p: (t - ev.t) / R.durLance };
+      if (t - ev.t < (ev.dur || R.durLance)) andando = { ev, p: (t - ev.t) / (ev.dur || R.durLance) };
       xeque = ev.xeque != null ? { casa: ev.xeque, mate: ev.mate, t0: chega } : null;
-      if (ev.capturada) captura = { casa: ev.capturada.casa, peca: ev.capturada.peca, t0: ev.t + R.durLance * DUR_ATE_BATER };
+      if (ev.capturada) captura = { casa: ev.capturada.casa, peca: ev.capturada.peca, t0: ev.t + (ev.dur || R.durLance) * DUR_ATE_BATER };
       if (ev.xeque != null) faixa = { texto: ev.mate ? 'XEQUE-MATE!' : 'XEQUE!', classe: ev.mate ? 'mate' : 'xeque', t0: chega, dur: ev.mate ? 2.2 : 1.4 };
       if (cartaz) { cartazSai = { c: cartaz, t0: ev.t }; cartaz = null; }
       fechaTela(ev.t);
       // na edição "show", o mate e a captura pedem piscada e tremor
       if (show && ev.mate) { flash = { cor: 'amarela', t0: chega, forte: 1 }; treme = { t0: chega, forca: 1 }; }
-      else if (show && ev.capturada) treme = { t0: ev.t + R.durLance * DUR_ATE_BATER, forca: 0.5 };
+      else if (show && ev.capturada) treme = { t0: ev.t + (ev.dur || R.durLance) * DUR_ATE_BATER, forca: 0.5 };
       // a mão que segura a peça do lance vai junto com ela e solta logo depois; outra mão sai
       if (mao && mao.sai == null && ev.de === mao.casa) { mao.segue = ev; mao.sai = chega + 0.3; }
       else maoSai(ev.t);
@@ -529,7 +533,7 @@ function estado(t) {
     if (t < fim + DUR_MAO_VAI) {
       let c = col(mao.casa), l = lin(mao.casa), h = 0;
       if (mao.segue && t >= mao.segue.t) {
-        const ev = mao.segue, q = Math.min(1, (t - ev.t) / R.durLance), p = vaiVem(q);
+        const ev = mao.segue, q = Math.min(1, (t - ev.t) / (ev.dur || R.durLance)), p = vaiVem(q);
         c = col(ev.de) + (col(ev.para) - col(ev.de)) * p; l = lin(ev.de) + (lin(ev.para) - lin(ev.de)) * p;
         h = (mao.peca.toLowerCase() === 'n' ? 0.75 : 0.35) * Math.sin(Math.PI * q);
       }
@@ -589,7 +593,7 @@ function estado(t) {
       tr = { x: n3(a * Math.sin(d * 97)), y: n3(a * Math.cos(d * 73)) };
     }
     if (tela) tl = { modelo: tela.modelo, partes: tela.partes, t0: tela.t0, d: n3(Math.min(2.4, t - tela.t0)), o: n3(Math.min(1, (t - tela.t0) / 0.18)),
-      d2: tela.modelo === 'cronometro' ? n3(Math.min(30, Math.floor((t - tela.t0) * 10) / 10)) : 0 };
+      d2: tela.modelo === 'cronometro' ? n3(Math.min(30, Math.floor((t - tela.t0) * 10) / 10)) : tela.modelo === 'versus' ? n3(Math.min(2.6, t - tela.t0)) : 0 };
     else if (telaSai && t - telaSai.t0 < 0.22) tl = { modelo: telaSai.tl.modelo, partes: telaSai.tl.partes, t0: telaSai.tl.t0, d: 2.4, o: n3(1 - (t - telaSai.t0) / 0.22), sai: 1 };
   }
   return {
@@ -725,7 +729,21 @@ function desenhaHtml(e) {
 const elMan = document.getElementById('manchete'), elNota = document.getElementById('nota'), elFlash = document.getElementById('flash');
 const elTela = document.getElementById('tela'), elHud = document.getElementById('hud');
 const COR_FLASH = { amarela: '255,190,80', verde: '88,226,58', vermelha: '255,60,100', azul: '46,200,255' };
-const FUNDO_TELA = { cronometro: 'radial-gradient(900px 900px at 50% 55%,#2a1f7a,#07041a)', numero: 'radial-gradient(900px 900px at 50% 55%,#4a2cc0,#140a45 70%,#07041a)',
+// tabuleirinho 2D para a tela "versus": FEN -> casas; o lance anima entre d = 0,5 e 1,1 (esquerda) ou 1,3 e 1,9 (direita)
+function miniTabuleiro(fen, uci, cor, lado) {
+  const casas = []; fen.split(' ')[0].split('/').forEach(l => { for (const ch of l) { if (/\d/.test(ch)) for (let k = 0; k < +ch; k++) casas.push(''); else casas.push(ch); } });
+  const idx = s => (8 - Number(s[1])) * 8 + 'abcdefgh'.indexOf(s[0]);
+  const de = uci ? idx(uci.slice(0, 2)) : -1, para = uci ? idx(uci.slice(2, 4)) : -1;
+  let h = '<div class="vs-tab" data-lado="' + lado + '">';
+  for (let i = 0; i < 64; i++) h += '<i class="' + (((i % 8) + Math.floor(i / 8)) % 2 ? 'esc' : '') + (i === de || i === para ? ' alvo-' + cor : '') + '"></i>';
+  casas.forEach((p, i) => { if (!p || i === para) return;
+    h += '<img class="vs-p' + (i === de ? ' vs-anda' : '') + '" data-de="' + i + '" data-para="' + para + '" src="' + imagemDaPeca(p) + '" style="left:' + (i % 8) * 12.5 + '%;top:' + Math.floor(i / 8) * 12.5 + '%">'; });
+  if (de >= 0) { const a = [de % 8 + .5, Math.floor(de / 8) + .5], b = [para % 8 + .5, Math.floor(para / 8) + .5];
+    h += '<svg class="vs-seta" viewBox="0 0 8 8"><defs><marker id="m' + lado + '" viewBox="0 0 4 4" refX="2" refY="2" markerWidth="2.4" markerHeight="2.4" orient="auto"><path d="M0 0L4 2L0 4z" fill="' + (cor === 'verde' ? '#58e23a' : '#ff4f78') + '"/></marker></defs>' +
+      '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="' + (cor === 'verde' ? '#58e23a' : '#ff4f78') + '" stroke-width=".22" stroke-linecap="round" marker-end="url(#m' + lado + ')" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1"/></svg>'; }
+  return h + '</div>';
+}
+const FUNDO_TELA = { versus: 'linear-gradient(90deg,#3a0f2a,#1b1150 50%,#0f3a1a)', icone: 'radial-gradient(900px 900px at 50% 50%,#4a2cc0,#1b1150 60%,#07041a)', cronometro: 'radial-gradient(900px 900px at 50% 55%,#2a1f7a,#07041a)', numero: 'radial-gradient(900px 900px at 50% 55%,#4a2cc0,#140a45 70%,#07041a)',
   alerta: 'repeating-linear-gradient(135deg,#ff4f78 0 70px,#c2133f 70px 140px)',
   carimbo: 'radial-gradient(900px 900px at 50% 55%,#2a1f7a,#0b0624)', medidor: 'radial-gradient(900px 900px at 50% 60%,#1f1566,#07041a)',
   lista: 'radial-gradient(900px 900px at 50% 55%,#2a1f7a,#0b0624)', frase: 'linear-gradient(160deg,#ffb53d,#ff7a2e 55%,#d9431f)' };
@@ -751,6 +769,13 @@ function montaTela(tl) {
   else if (tl.modelo === 'cronometro') meio = '<svg class="t-relogio" viewBox="0 0 400 400"><circle cx="200" cy="200" r="170" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="26"/>' +
     '<circle class="t-anel" cx="200" cy="200" r="170" fill="none" stroke="#ffd36b" stroke-width="26" stroke-linecap="round" pathLength="100" stroke-dasharray="100 100" transform="rotate(-90 200 200)"/></svg>' +
     '<div class="t-conta">' + esc(a) + '</div><div class="t-legenda">' + esc(b) + '</div>';
+  else if (tl.modelo === 'icone') meio = '<img class="t-icone" src="icones/' + esc(a.toLowerCase()) + '.svg" alt=""><div class="t-frase t-ico-tit">' + esc(b) + '</div>' + (c ? '<div class="t-sub">' + esc(c) + '</div>' : '');
+  else if (tl.modelo === 'versus') {
+    const [f1 = '', r1 = 'Iniciante', f2 = '', r2 = 'Mestre'] = tl.partes, sp = x => { const w = x.trim().split(/\s+/); const u = /^[a-h][1-8][a-h][1-8]$/.test(w[w.length - 1]) ? w.pop() : ''; return [w.join(' '), u]; };
+    const [fa, ua] = sp(f1), [fb, ub] = sp(f2);
+    meio = '<div class="vs"><div class="vs-lado"><b class="vs-r ruim">✗ ' + esc(r1) + '</b>' + miniTabuleiro(fa, ua, 'vermelha', 'a') + '</div>' +
+      '<div class="vs-x">×</div><div class="vs-lado"><b class="vs-r bom">✓ ' + esc(r2) + '</b>' + miniTabuleiro(fb, ub, 'verde', 'b') + '</div></div>';
+  }
   else if (tl.modelo === 'frase') meio = '<div class="t-frase">' + (b ? '<em>' + esc(a) + '</em>' + esc(b) : esc(a)) + '</div>';
   elTela.innerHTML = '<i class="t-fundo" style="background:' + FUNDO_TELA[tl.modelo] + '"></i><div class="t-meio">' + meio + '</div>';
 }
@@ -768,6 +793,18 @@ function animaTela(tl) {
     elTela.querySelector('.t-arco').setAttribute('stroke-dasharray', n3(v) + ' 100');
     elTela.querySelector('.t-valor').textContent = Math.round(v) + '%';
   }
+  if (tl.modelo === 'versus') {
+    const d = tl.d2;
+    ['a', 'b'].forEach((lado, k) => {
+      const ini = k ? 1.4 : 0.5, q = Math.max(0, Math.min(1, (d - ini) / 0.6)), s = suave(q);
+      const tab = elTela.querySelector('.vs-tab[data-lado="' + lado + '"]'); if (!tab) return;
+      const seta = tab.querySelector('line'), qs = Math.max(0, Math.min(1, (d - ini + 0.4) / 0.4));
+      if (seta) { seta.setAttribute('stroke-dashoffset', n3(1 - qs)); seta.style.opacity = qs > 0.05 ? 1 : 0; }
+      const p = tab.querySelector('.vs-anda'); if (p) { const de = +p.dataset.de, pa = +p.dataset.para;
+        p.style.left = n3(((de % 8) + ((pa % 8) - (de % 8)) * s) * 12.5) + '%'; p.style.top = n3((Math.floor(de / 8) + (Math.floor(pa / 8) - Math.floor(de / 8)) * s) * 12.5) + '%'; }
+      tab.parentNode.style.opacity = d < (k ? 1.0 : 0.1) ? 0.25 : 1;
+    });
+  }
   if (tl.modelo === 'cronometro') {
     const total = Math.max(1, parseInt(tl.partes[0]) || 5), passou = Math.min(total, tl.d2), falta = Math.max(0, total - passou);
     elTela.querySelector('.t-conta').textContent = falta > 0 ? Math.ceil(falta) : '!';
@@ -779,7 +816,11 @@ function animaTela(tl) {
     it.style.opacity = q; it.style.transform = 'translateX(' + n3(-80 * (1 - suave(q))) + 'px)';
   });
 }
+const DUR_CAPA = 0.7;     // segundos da capa no começo (o Reel usa esse quadro como capa)
 function desenhaShow(e) {
+  const capa = document.getElementById('capa');
+  capa.hidden = !e.capa;
+  if (e.capa) capa.style.opacity = e.capa.o;
   elMan.hidden = !e.man;
   if (e.man) {
     const pal = R.legendas[e.man.b].palavras;
@@ -812,6 +853,8 @@ async function prepara(roteiro) {
     document.getElementById('palco').classList.add('show'); elHud.hidden = false;
     document.getElementById('hudNome').textContent = 'Xadrez Express' + (R.serie ? ' · ' + R.serie : R.numero ? ' · Lição ' + String(R.numero).padStart(2, '0') : '');
     R.totalNotas = R.eventos.filter(ev => ev.tipo === 'nota').length;
+    document.getElementById('capaSerie').textContent = R.serie || (R.numero ? 'Lição ' + String(R.numero).padStart(2, '0') : 'Xadrez Express');
+    document.getElementById('capaTitulo').textContent = R.titulo;
   }
   elLegenda.hidden = !R.legenda;
   await document.fonts.load('700 84px "Chakra Petch"');
@@ -864,7 +907,8 @@ function quadro(t) {
   const e = estado(t);
   if (e.faixa) e.faixa.y = lugarDaFaixa(e);
   const a3d = JSON.stringify([e.cam, e.pecas, e.veio, e.foi, e.marcas, e.setas, e.brilho, e.expl, e.mao, e.etq]);
-  const aHtml = JSON.stringify([e.leg, e.faixa, e.cartaz, e.man, e.nota, e.flash, e.treme, e.tela]);
+  if (R.edicao === 'show' && t < DUR_CAPA) e.capa = { o: n3(Math.min(1, (DUR_CAPA - t) / 0.18)) };
+  const aHtml = JSON.stringify([e.leg, e.faixa, e.cartaz, e.man, e.nota, e.flash, e.treme, e.tela, e.capa]);
   const muda3d = a3d !== ultima3d && !(e.cartaz && e.cartaz.o >= 1) && !(e.tela && e.tela.o >= 1);
   if (!muda3d && aHtml === ultimaHtml) return false;
   if (muda3d) { ultima3d = a3d; desenha3d(e); }

@@ -48,7 +48,11 @@ async function principal() {
 
   // 2. o "rascunho" do Reel (container), com a legenda; a capa é o quadro em thumb_ms
   const campos = ['media_type=REELS', 'upload_type=resumable', 'caption=' + legenda, 'share_to_feed=true'];
-  if (cfg.capa_ms != null) campos.push('thumb_offset=' + cfg.capa_ms);
+  // na edição "show" o vídeo abre com uma capa (título grande): ela vira a capa do Reel
+  const fLicao = path.join(BASE, 'licoes', nome + '.txt');
+  const show = fs.existsSync(fLicao) && /^edicao:\s*show/m.test(fs.readFileSync(fLicao, 'utf8'));
+  const capa = show ? 250 : cfg.capa_ms;
+  if (capa != null) campos.push('thumb_offset=' + capa);
   const c = curl(['-X', 'POST', API + cfg.conta + '/media', '-H', AUT].concat(...campos.map(x => ['--form-string', x])));
   console.log('  rascunho ' + c.id);
 

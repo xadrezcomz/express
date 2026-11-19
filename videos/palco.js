@@ -68,12 +68,12 @@
       if (ev.t > t) break;
       tab = ev.tabuleiro;
       andando = null; novas = null;
-      var chega = ev.t + R.durLance;            // quando a peça do lance termina de andar
+      var chega = ev.t + (ev.dur || R.durLance);            // quando a peça do lance termina de andar
       if (ev.tipo === 'lance') {
         veio = ev.de; foi = ev.para; setas = []; marcas = [];
-        if (t - ev.t < R.durLance) andando = { ev: ev, p: (t - ev.t) / R.durLance };
+        if (t - ev.t < (ev.dur || R.durLance)) andando = { ev: ev, p: (t - ev.t) / (ev.dur || R.durLance) };
         xeque = ev.xeque != null ? { casa: ev.xeque, mate: ev.mate, t0: chega } : null;
-        if (ev.capturada) captura = { casa: ev.capturada.casa, peca: ev.capturada.peca, t0: ev.t + R.durLance * DUR_ATE_BATER };
+        if (ev.capturada) captura = { casa: ev.capturada.casa, peca: ev.capturada.peca, t0: ev.t + (ev.dur || R.durLance) * DUR_ATE_BATER };
         if (ev.xeque != null) faixa = { texto: ev.mate ? 'XEQUE-MATE!' : 'XEQUE!', classe: ev.mate ? 'mate' : 'xeque', t0: chega, dur: ev.mate ? 2.2 : 1.4 };
         if (cartaz) { cartazSai = { c: cartaz, t0: ev.t }; cartaz = null; }
       } else if (ev.tipo === 'posicao') { veio = foi = -1; setas = []; marcas = []; xeque = null; }
