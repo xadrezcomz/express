@@ -385,6 +385,8 @@ for (let k = 0; k < 22; k++) {
 // Para cada acontecimento, o enquadramento que mostra as casas envolvidas. A câmera vai
 // de um enquadramento ao outro em DUR_CAMERA segundos.
 let tomadas = [];
+// o lance escrito fica alguns segundos e some (o contador no alto continua)
+const NOTA_FICA = 3.6;
 function enquadra(casas, t, k) {
   if (!casas.length) return null;
   let x0 = 9, x1 = -9, z0 = 9, z1 = -9;
@@ -588,7 +590,7 @@ function estado(t) {
   if (show) {
     if (leg) man = { b: leg.b, ws: R.legendas[leg.b].palavras.map((w, k) => Math.max(0, Math.min(1, (t - w.ini + 0.04) / 0.22)))
       .map(p => n3(p)).filter((p, k) => t >= R.legendas[leg.b].palavras[k].ini - 0.04) };
-    if (nota) { const d = t - nota.t0; nt = { texto: nota.texto, k: nota.k, e: n3(d < 0.3 ? 0.6 + 0.4 * molinha(d / 0.3) : 1) }; }
+    if (nota) { const d = t - nota.t0; nt = { texto: nota.texto, k: nota.k, e: n3(d < 0.3 ? 0.6 + 0.4 * molinha(d / 0.3) : 1), o: n3(Math.max(0, Math.min(1, (NOTA_FICA + 0.4 - d) / 0.4))) }; }
     etiquetas.forEach(q => { const d = t - q.t0; if (d < 4.5) etq.push({ casa: q.casa, texto: q.texto, cor: q.cor,
       e: n3(d < 0.35 ? molinha(d / 0.35) : 1), o: n3(Math.min(1, (4.5 - d) / 0.3)) }); });
     if (flash && t >= flash.t0 && t - flash.t0 < 0.55) fl = { cor: flash.cor, o: n3(flash.forte * Math.pow(1 - (t - flash.t0) / 0.55, 2)) };
@@ -832,8 +834,8 @@ function desenhaShow(e) {
       ';transform:translateY(' + n3(26 * (1 - suave(p))) + 'px) scale(' + n3(pal[k].destaque ? 0.7 + 0.3 * molinha(p) : 1) + ')">' + esc(pal[k].texto) + '</span>').join('');
   }
   // o lance escrito some enquanto uma tela gráfica ou um cartaz cobrem o tabuleiro
-  elNota.hidden = !e.nota || !!(e.tela && e.tela.o > 0.5) || !!(e.cartaz && e.cartaz.o > 0.5);
-  if (e.nota) { elNota.textContent = e.nota.texto; elNota.style.transform = 'translateX(-50%) scale(' + e.nota.e + ')';
+  elNota.hidden = !e.nota || e.nota.o <= 0 || !!(e.tela && e.tela.o > 0.5) || !!(e.cartaz && e.cartaz.o > 0.5);
+  if (e.nota) { elNota.textContent = e.nota.texto; elNota.style.transform = 'translateX(-50%) scale(' + e.nota.e + ')'; elNota.style.opacity = e.nota.o;
     document.getElementById('hudLance').textContent = 'Lance ' + String(e.nota.k).padStart(2, '0') + ' / ' + String(R.totalNotas).padStart(2, '0'); }
   else document.getElementById('hudLance').textContent = '';
   elFlash.hidden = !e.flash;
@@ -896,7 +898,7 @@ function lugarDaFaixa(e) {
   const pts = [...casas].map(i => ponto(i, 0.4));
   // as etiquetas flutuam acima da casa; o lance escrito fica embaixo (y ~1360)
   etq.forEach(q => { pts.push(ponto(q.casa, 1.4)); pts.push(ponto(q.casa, 1.8)); });
-  if (e.nota) pts.push([510, 1365]);
+  if (e.nota && e.nota.o > 0) pts.push([510, 1365]);
   // a área da faixa: x 80–940, y 600–1400 (a .area3d); a faixa tem uns 680 x 150 px
   let melhor = 0.5, nota = -1;
   ALTURAS_FAIXA.forEach((a, k) => {

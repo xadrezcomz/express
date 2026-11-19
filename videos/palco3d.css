@@ -45,6 +45,8 @@
 .hud span::before{content:'';display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--ouro);
   box-shadow:0 0 12px var(--ouro);margin-right:14px;vertical-align:2px}
 .hud b{color:var(--ouro)}
+.hud span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;margin-right:18px}
+.hud b{white-space:nowrap;flex-shrink:0}
 
 /* o texto animado: entra palavra por palavra; as palavras em destaque vêm grandes e douradas */
 .manchete{position:absolute;left:52px;right:52px;top:128px;z-index:9;display:flex;flex-wrap:wrap;align-items:baseline;
@@ -102,7 +104,7 @@
 .sombra-topo{height:640px}
 .sombra-pe{height:560px;background:linear-gradient(0deg,#070417 0%,rgba(7,4,23,.96) 40%,rgba(7,4,23,0) 100%)}
 .palco3d.show .sombra-topo{height:720px}
-.hud{left:80px;right:140px;top:250px;font-size:22px;padding-bottom:12px}
+.hud{left:80px;right:140px;top:250px;font-size:22px;letter-spacing:.1em;padding-bottom:12px}
 .manchete{left:80px;right:140px;top:312px;font-size:54px;gap:2px 14px}
 .manchete span.forte{font-size:78px}
 .nota{top:1330px;left:510px;font-size:58px;padding:10px 34px 14px}
