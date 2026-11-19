@@ -131,7 +131,7 @@ function leOrdem(texto, onde) {
   } else if (nome === 'tela') {                         // [tela numero 7 | lances]: uma tela gráfica inteira
     const resto2 = partes.slice(2).join(' ').split('|').map(x => x.trim());
     const modelo = chave(partes[1] || '');
-    if (!/^(numero|alerta|carimbo|medidor|lista|frase)$/.test(modelo)) throw new Error(onde + ': as telas são numero, alerta, carimbo, medidor, lista e frase');
+    if (!/^(numero|alerta|carimbo|medidor|lista|frase|cronometro)$/.test(modelo)) throw new Error(onde + ': as telas são numero, alerta, carimbo, medidor, lista, frase e cronometro');
     acoes.push({ tipo: 'tela', modelo: modelo, partes: resto2 });
   } else if (nome === 'tira') {
     semCor.forEach(p => { if (!ehCasa(p)) throw new Error(onde + ': "' + p + '" não é uma casa'); });
@@ -153,7 +153,7 @@ function le(texto, nomeArquivo) {
     if (l === '' && !Object.keys(cab).length) continue;
     if (/^-{3,}$/.test(l)) { i++; break; }
     const m = l.match(/^([A-Za-zÀ-ÿ]+)\s*:\s*(.*)$/);
-    if (!m || !/^(licao|titulo|posicao|pecas|lado|legenda|voz|estilo|edicao)$/.test(chave(m[1]))) break;
+    if (!m || !/^(licao|titulo|posicao|pecas|lado|legenda|voz|estilo|edicao|musica|serie)$/.test(chave(m[1]))) break;
     cab[chave(m[1])] = m[2].trim();
   }
   const onde = nomeArquivo || 'lição';
@@ -193,7 +193,7 @@ function le(texto, nomeArquivo) {
     pretasEmbaixo: /^pret/.test(chave(cab.lado || '')),
     estilo: chave(cab.estilo || '') === '3d' ? '3d' : '2d',
     legenda: !/^(nao|n|off|0)$/.test(chave(cab.legenda || 'sim')),
-    edicao: chave(cab.edicao || ''),
+    edicao: chave(cab.edicao || ''), musica: chave(cab.musica || ''), serie: cab.serie || '',
     casas: casas, palavras: palavras, ordens: ordens,
     fala: palavras.map(p => p.voz || p.texto).join(' ')
   };
@@ -357,7 +357,7 @@ function roteiro(licao, tempos, duracao) {
   const fim = Math.max(fimDaFala, ultimo, efeitos, duracao || 0);
   return {
     numero: licao.numero, titulo: licao.titulo, pretasEmbaixo: licao.pretasEmbaixo, estilo: licao.estilo,
-    legenda: licao.legenda, edicao: licao.edicao, inicial: inicial, eventos: eventos, legendas: legendas,
+    legenda: licao.legenda, edicao: licao.edicao, musica: licao.musica, serie: licao.serie, inicial: inicial, eventos: eventos, legendas: legendas,
     durLance: DUR_LANCE, duracao: fim, visoes: visoes
   };
 }

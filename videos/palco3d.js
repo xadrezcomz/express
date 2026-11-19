@@ -588,7 +588,8 @@ function estado(t) {
       const d = t - treme.t0, a = 26 * treme.forca * (1 - d / 0.45);
       tr = { x: n3(a * Math.sin(d * 97)), y: n3(a * Math.cos(d * 73)) };
     }
-    if (tela) tl = { modelo: tela.modelo, partes: tela.partes, t0: tela.t0, d: n3(Math.min(2.4, t - tela.t0)), o: n3(Math.min(1, (t - tela.t0) / 0.18)) };
+    if (tela) tl = { modelo: tela.modelo, partes: tela.partes, t0: tela.t0, d: n3(Math.min(2.4, t - tela.t0)), o: n3(Math.min(1, (t - tela.t0) / 0.18)),
+      d2: tela.modelo === 'cronometro' ? n3(Math.min(30, Math.floor((t - tela.t0) * 10) / 10)) : 0 };
     else if (telaSai && t - telaSai.t0 < 0.22) tl = { modelo: telaSai.tl.modelo, partes: telaSai.tl.partes, t0: telaSai.tl.t0, d: 2.4, o: n3(1 - (t - telaSai.t0) / 0.22), sai: 1 };
   }
   return {
@@ -724,7 +725,7 @@ function desenhaHtml(e) {
 const elMan = document.getElementById('manchete'), elNota = document.getElementById('nota'), elFlash = document.getElementById('flash');
 const elTela = document.getElementById('tela'), elHud = document.getElementById('hud');
 const COR_FLASH = { amarela: '255,190,80', verde: '88,226,58', vermelha: '255,60,100', azul: '46,200,255' };
-const FUNDO_TELA = { numero: 'radial-gradient(900px 900px at 50% 55%,#4a2cc0,#140a45 70%,#07041a)',
+const FUNDO_TELA = { cronometro: 'radial-gradient(900px 900px at 50% 55%,#2a1f7a,#07041a)', numero: 'radial-gradient(900px 900px at 50% 55%,#4a2cc0,#140a45 70%,#07041a)',
   alerta: 'repeating-linear-gradient(135deg,#ff4f78 0 70px,#c2133f 70px 140px)',
   carimbo: 'radial-gradient(900px 900px at 50% 55%,#2a1f7a,#0b0624)', medidor: 'radial-gradient(900px 900px at 50% 60%,#1f1566,#07041a)',
   lista: 'radial-gradient(900px 900px at 50% 55%,#2a1f7a,#0b0624)', frase: 'linear-gradient(160deg,#ffb53d,#ff7a2e 55%,#d9431f)' };
@@ -747,6 +748,9 @@ function montaTela(tl) {
     const m = x.match(/^(.*?)\s*(✓|✗|\?)$/), txt = m ? m[1] : x, k = m ? m[2] : '✓';
     return '<div class="t-item"><b class="' + (k === '✗' ? 'nao' : k === '?' ? 'duvida' : '') + '">' + k + '</b><span>' + esc(txt) + '</span></div>';
   }).join('') + '</div>';
+  else if (tl.modelo === 'cronometro') meio = '<svg class="t-relogio" viewBox="0 0 400 400"><circle cx="200" cy="200" r="170" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="26"/>' +
+    '<circle class="t-anel" cx="200" cy="200" r="170" fill="none" stroke="#ffd36b" stroke-width="26" stroke-linecap="round" pathLength="100" stroke-dasharray="100 100" transform="rotate(-90 200 200)"/></svg>' +
+    '<div class="t-conta">' + esc(a) + '</div><div class="t-legenda">' + esc(b) + '</div>';
   else if (tl.modelo === 'frase') meio = '<div class="t-frase">' + (b ? '<em>' + esc(a) + '</em>' + esc(b) : esc(a)) + '</div>';
   elTela.innerHTML = '<i class="t-fundo" style="background:' + FUNDO_TELA[tl.modelo] + '"></i><div class="t-meio">' + meio + '</div>';
 }
@@ -763,6 +767,12 @@ function animaTela(tl) {
     elTela.querySelector('.t-agulha').setAttribute('transform', 'rotate(' + n3(-90 + 180 * v / 100) + ' 410 410)');
     elTela.querySelector('.t-arco').setAttribute('stroke-dasharray', n3(v) + ' 100');
     elTela.querySelector('.t-valor').textContent = Math.round(v) + '%';
+  }
+  if (tl.modelo === 'cronometro') {
+    const total = Math.max(1, parseInt(tl.partes[0]) || 5), passou = Math.min(total, tl.d2), falta = Math.max(0, total - passou);
+    elTela.querySelector('.t-conta').textContent = falta > 0 ? Math.ceil(falta) : '!';
+    elTela.querySelector('.t-anel').setAttribute('stroke-dasharray', n3(100 * falta / total) + ' 100');
+    elTela.querySelector('.t-anel').setAttribute('stroke', falta < 1.5 ? '#ff4f78' : '#ffd36b');
   }
   if (tl.modelo === 'lista') elTela.querySelectorAll('.t-item').forEach((it, k) => {
     const q = Math.max(0, Math.min(1, (d - 0.15 - k * 0.35) / 0.25));
@@ -800,7 +810,7 @@ async function prepara(roteiro) {
   tit.textContent = R.titulo; tit.classList.toggle('longo', R.titulo.length > 30);
   if (R.edicao === 'show') {
     document.getElementById('palco').classList.add('show'); elHud.hidden = false;
-    document.getElementById('hudNome').textContent = 'Xadrez Express' + (R.numero ? ' · Lição ' + String(R.numero).padStart(2, '0') : '');
+    document.getElementById('hudNome').textContent = 'Xadrez Express' + (R.serie ? ' · ' + R.serie : R.numero ? ' · Lição ' + String(R.numero).padStart(2, '0') : '');
     R.totalNotas = R.eventos.filter(ev => ev.tipo === 'nota').length;
   }
   elLegenda.hidden = !R.legenda;

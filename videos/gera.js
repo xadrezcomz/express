@@ -268,11 +268,15 @@ async function filma(roteiro, estilo, duracao, audio, saida) {
   // na edição "show", os efeitos sonoros (pasta sons/ das lições) entram no segundo de cada acontecimento
   const sons = efeitosSonoros(roteiro);
   sons.forEach(e => args.push('-i', e.arquivo));
-  let mix = '[1:a]' + (audio ? 'loudnorm=I=-16:TP=-1.5:LRA=11,' : '') + 'apad' + (sons.length ? '[voz];' : '[a]');
-  if (sons.length) {
-    sons.forEach((e, k) => { const ms = Math.round(e.t * 1000); mix += '[' + (3 + k) + ':a]aresample=48000,adelay=' + ms + ':all=1,volume=' + e.vol + '[s' + k + '];'; });
-    mix += '[voz]' + sons.map((e, k) => '[s' + k + ']').join('') + 'amix=inputs=' + (sons.length + 1) + ':normalize=0:duration=first[a]';
-  }
+  // música de fundo ("musica: suspense" no cabeçalho -> musicas/suspense.mp3 da pasta das lições), baixinha
+  const fMusica = roteiro.musica ? path.join(BASE, 'musicas', roteiro.musica + '.mp3') : null;
+  const comMusica = fMusica && fs.existsSync(fMusica);
+  if (comMusica) args.push('-stream_loop', '-1', '-i', fMusica);
+  const extras = sons.length + (comMusica ? 1 : 0);
+  let mix = '[1:a]' + (audio ? 'loudnorm=I=-16:TP=-1.5:LRA=11,' : '') + 'apad' + (extras ? '[voz];' : '[a]');
+  sons.forEach((e, k) => { const ms = Math.round(e.t * 1000); mix += '[' + (3 + k) + ':a]aresample=48000,adelay=' + ms + ':all=1,volume=' + e.vol + '[s' + k + '];'; });
+  if (comMusica) mix += '[' + (3 + sons.length) + ':a]aresample=48000,atrim=0:' + d + ',volume=0.11,afade=t=in:d=0.8,afade=t=out:st=' + Math.max(0, duracao - 1.5).toFixed(2) + ':d=1.5[mu];';
+  if (extras) mix += '[voz]' + sons.map((e, k) => '[s' + k + ']').join('') + (comMusica ? '[mu]' : '') + 'amix=inputs=' + (extras + 1) + ':normalize=0:duration=first[a]';
   args.push('-filter_complex',
     '[0:v]fps=' + QPS + ',format=yuv420p[q];[q][2:v]overlay=x=\'-W+W*t/' + d + '\':y=H-10:shortest=0[v];' + mix,
     '-map', '[v]', '-map', '[a]', '-t', d,

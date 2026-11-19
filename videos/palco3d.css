@@ -126,3 +126,6 @@
 .tela .t-frase em{font-size:64px}
 /* na edição "show" a marca vai para a barra do alto, e o rodapé some (ficaria em cima das peças) */
 .palco3d.show .pe{display:none}
+/* o cronômetro dos desafios ([tela cronometro 5 | Ache o lance!]) */
+.tela .t-relogio{width:440px;height:440px}
+.tela .t-conta{font-weight:700;font-size:220px;line-height:1;margin-top:-330px;margin-bottom:110px;color:#fff;text-shadow:0 0 60px rgba(255,190,80,.6)}
