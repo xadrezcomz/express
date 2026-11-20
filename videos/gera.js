@@ -249,6 +249,20 @@ function efeitosSonoros(roteiro) {
 // a tela do celular desenhado pelo palco (palco3d.css, .t-celular i)
 const CEL = { x: 240, y: 500, w: 541, h: 920 };
 // cada [tela celular] vale até o próximo lance, posição, tela, [limpa] ou [esconde]
+// a gravação começa com a página em branco, ainda carregando: pula esse pedaço
+const brancos = {};
+function inicioSemBranco(arq) {
+  if (brancos[arq] != null) return brancos[arq];
+  let ini = 0;
+  try {
+    const r = require('child_process').execFileSync('ffmpeg', ['-v', 'error', '-t', '6', '-i', arq, '-vf',
+      'fps=10,scale=54:92,signalstats,metadata=print:key=lavfi.signalstats.YAVG:file=-', '-f', 'null', '-'], { encoding: 'utf8' });
+    const ys = [...r.matchAll(/YAVG=([\d.]+)/g)].map(m => +m[1]);
+    const k = ys.findIndex(y => y < 233);
+    ini = k > 0 ? k / 10 + 0.1 : 0;
+  } catch (e) {}
+  return (brancos[arq] = ini);
+}
 function janelasDoCelular(roteiro, duracao) {
   const fecha = ['lance', 'posicao', 'tela', 'limpa', 'esconde'];
   const js = []; let aberta = null;
@@ -259,7 +273,7 @@ function janelasDoCelular(roteiro, duracao) {
       let arq = path.isAbsolute(nome) ? nome : path.join(BASE, nome);
       if (!/\.(mp4|mov|webm)$/i.test(arq)) arq += '.mp4';
       if (!fs.existsSync(arq)) throw new Error('[tela celular]: não achei a gravação ' + arq);
-      aberta = { arquivo: arq, ini, de: Math.max(ev.t, 0.75) };   // depois da capa
+      aberta = { arquivo: arq, ini: Math.max(ini, inicioSemBranco(arq)), de: Math.max(ev.t, 0.75) };   // depois da capa
     }
   });
   if (aberta) { aberta.ate = duracao; js.push(aberta); }
@@ -312,8 +326,8 @@ async function filma(roteiro, estilo, duracao, audio, saida) {
   let cel = '', ultimo = 'q';
   clipes.forEach((c, k) => {
     cel += '[' + (base + k) + ':v]trim=start=' + c.ini.toFixed(3) + ',setpts=PTS-STARTPTS,fps=' + QPS + ',scale=' + CEL.w + ':' + CEL.h +
-      ':force_original_aspect_ratio=increase,crop=' + CEL.w + ':' + CEL.h + ':0:0,format=yuv420p,tpad=stop_mode=clone:stop_duration=600,setpts=PTS+' + (c.de + 0.15).toFixed(3) + '/TB[c' + k + '];' +
-      '[' + ultimo + '][c' + k + ']overlay=' + CEL.x + ':' + CEL.y + ':enable=\'between(t,' + (c.de + 0.15).toFixed(3) + ',' + c.ate.toFixed(3) + ')\':eof_action=pass[k' + k + '];';
+      ':force_original_aspect_ratio=increase,crop=' + CEL.w + ':' + CEL.h + ':0:0,format=yuv420p,tpad=stop_mode=clone:stop_duration=600,setpts=PTS+' + c.de.toFixed(3) + '/TB[c' + k + '];' +
+      '[' + ultimo + '][c' + k + ']overlay=' + CEL.x + ':' + CEL.y + ':enable=\'between(t,' + c.de.toFixed(3) + ',' + c.ate.toFixed(3) + ')\':eof_action=pass[k' + k + '];';
     ultimo = 'k' + k;
   });
   // com música, a voz é dividida em duas: uma vai para a mistura e a outra comanda o "ducking"

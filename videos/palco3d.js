@@ -498,7 +498,7 @@ function estado(t) {
       // a mão que segura a peça do lance vai junto com ela e solta logo depois; outra mão sai
       if (mao && mao.sai == null && ev.de === mao.casa) { mao.segue = ev; mao.sai = chega + 0.3; }
       else maoSai(ev.t);
-    } else if (ev.tipo === 'posicao') { veio = foi = -1; setas = []; marcas = []; xeque = null; etiquetas = []; nota = null; maoSai(ev.t); fechaTela(ev.t); }
+    } else if (ev.tipo === 'posicao') { veio = foi = -1; setas = []; marcas = []; xeque = null; etiquetas = []; faixa = null; maoSai(ev.t); fechaTela(ev.t); }
     else if (ev.tipo === 'nota') { nNota++; nota = { texto: ev.texto, t0: ev.t, k: nNota }; }
     else if (ev.tipo === 'etiqueta') etiquetas.push({ casa: ev.casa, texto: ev.texto, cor: ev.cor, t0: ev.t });
     else if (ev.tipo === 'flash') flash = { cor: ev.cor, t0: ev.t, forte: 0.7 };
@@ -785,12 +785,12 @@ function montaTela(tl) {
   }
   // [tela celular arquivo | segundo]: só a moldura; a gravação entra na tela do celular na montagem (gera.js)
   else if (tl.modelo === 'celular') { elTela.innerHTML = '<i class="t-fundo" style="background:' + FUNDO_TELA.celular + '"></i><div class="t-celular"><i></i></div>'; return; }
-  else if (tl.modelo === 'frase') meio = '<div class="t-frase">' + (b ? '<em>' + esc(a) + '</em>' + esc(b) : esc(a)) + '</div>';
+  else if (tl.modelo === 'frase') meio = '<div class="t-frase' + (ehNotacao(a + ' ' + (b || '')) ? ' minus' : '') + '">' + (b ? '<em>' + esc(a) + '</em>' + esc(b) : esc(a)) + '</div>';
   elTela.innerHTML = '<i class="t-fundo" style="background:' + FUNDO_TELA[tl.modelo] + '"></i><div class="t-meio">' + meio + '</div>';
 }
 function animaTela(tl) {
   const d = tl.d, entra = Math.min(1, d / 0.3), m = elTela.querySelector('.t-meio');
-  if (tl.modelo === 'celular') { elTela.querySelector('.t-celular').style.transform = 'scale(' + n3(0.9 + 0.1 * molinha(entra)) + ')'; return; }
+  if (tl.modelo === 'celular') return;   // a gravação entra por cima: o celular fica parado
   m.style.transform = 'translateY(' + n3(60 * (1 - suave(entra))) + 'px) scale(' + n3(0.92 + 0.08 * molinha(entra)) + ')';
   if (tl.modelo === 'numero') elTela.querySelector('.t-numero').style.transform = 'scale(' + n3(d < 0.45 ? 0.3 + 0.7 * molinha(d / 0.45) : 1) + ')';
   if (tl.modelo === 'carimbo') {
@@ -827,6 +827,8 @@ function animaTela(tl) {
   });
 }
 const DUR_CAPA = 0.7;     // segundos da capa no começo (o Reel usa esse quadro como capa)
+// casas e lances (e4, Cf3, b8=D) ficam em minúsculas mesmo nos textos em caixa alta
+const ehNotacao = s => /[a-h][1-8]/.test(s || '');
 function desenhaShow(e) {
   const capa = document.getElementById('capa');
   capa.hidden = !e.capa;
@@ -834,7 +836,7 @@ function desenhaShow(e) {
   elMan.hidden = !e.man;
   if (e.man) {
     const pal = R.legendas[e.man.b].palavras;
-    elMan.innerHTML = e.man.ws.map((p, k) => '<span class="' + (pal[k].destaque ? 'forte' : '') + '" style="opacity:' + n3(Math.min(1, p * 2)) +
+    elMan.innerHTML = e.man.ws.map((p, k) => '<span class="' + (pal[k].destaque ? 'forte' + (ehNotacao(pal[k].texto) ? ' minus' : '') : '') + '" style="opacity:' + n3(Math.min(1, p * 2)) +
       ';transform:translateY(' + n3(26 * (1 - suave(p))) + 'px) scale(' + n3(pal[k].destaque ? 0.7 + 0.3 * molinha(p) : 1) + ')">' + esc(pal[k].texto) + '</span>').join('');
   }
   // o lance escrito some enquanto uma tela gráfica ou um cartaz cobrem o tabuleiro
@@ -849,7 +851,7 @@ function desenhaShow(e) {
   if (e.tela) {
     const chaveTela = e.tela.t0 + e.tela.modelo;
     if (chaveTela !== telaFeita) { montaTela(e.tela); telaFeita = chaveTela; }
-    elTela.style.opacity = e.tela.o; animaTela(e.tela);
+    elTela.style.opacity = e.tela.modelo === 'celular' ? 1 : e.tela.o; animaTela(e.tela);
   }
 }
 
@@ -892,6 +894,9 @@ function lugarDaFaixa(e) {
   e.marcas.forEach(m => casas.add(m.casa));
   e.setas.forEach(sx => { casas.add(sx.de); casas.add(sx.para); });
   e.pecas.forEach(p => { if (p.h > 0.05) casas.add(Math.round(p.l) * 8 + Math.round(p.c)); });
+  // o xeque: a linha entre a peça que chegou e o rei também fica livre
+  const linha = [];
+  if (e.brilho && e.foi >= 0) for (let k = 1; k < 6; k++) linha.push([e.foi, e.brilho.casa, k / 6]);
   const etq = e.etq || [];
   if (!casas.size && !etq.length) return 0.5;
   poeCamera(e.cam);
@@ -900,6 +905,7 @@ function lugarDaFaixa(e) {
     return [(v.x + 1) * 540, (1 - v.y) * 960];
   };
   const pts = [...casas].map(i => ponto(i, 0.4));
+  linha.forEach(([a, b, f]) => { const pa = ponto(a, 0.4), pb = ponto(b, 0.4); pts.push([pa[0] + (pb[0] - pa[0]) * f, pa[1] + (pb[1] - pa[1]) * f]); });
   // as etiquetas flutuam acima da casa; o lance escrito fica embaixo (y ~1360)
   etq.forEach(q => { pts.push(ponto(q.casa, 1.4)); pts.push(ponto(q.casa, 1.8)); });
   if (e.nota && e.nota.o > 0) pts.push([510, 1365]);
