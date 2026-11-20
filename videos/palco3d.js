@@ -889,7 +889,9 @@ let ultima3d = null, ultimaHtml = null;
 const ALTURAS_FAIXA = [0.5, 0.16, 0.84];
 function lugarDaFaixa(e) {
   const casas = new Set();
-  if (e.veio >= 0) casas.add(e.veio); if (e.foi >= 0) casas.add(e.foi);
+  // no xeque, a casa de saída já está vazia: não precisa ficar livre
+  const ehXeque = e.faixa && /xeque|mate/.test(e.faixa.classe || '');
+  if (e.veio >= 0 && !ehXeque) casas.add(e.veio); if (e.foi >= 0) casas.add(e.foi);
   if (e.brilho) casas.add(e.brilho.casa);
   e.marcas.forEach(m => casas.add(m.casa));
   e.setas.forEach(sx => { casas.add(sx.de); casas.add(sx.para); });
