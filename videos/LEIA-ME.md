@@ -160,6 +160,7 @@ E estas ordens (só no 3D):
 | `[tela cronometro 5 \| Ache o lance!]` | contagem regressiva (para desafios) |
 | `[tela icone trofeu \| Título \| subtítulo]` | uma ilustração de `videos/icones/` (relogio, trofeu, celular, apito, livro, lampada, alvo) |
 | `[tela versus FEN lance \| Iniciante \| FEN lance \| Mestre]` | dois tabuleirinhos lado a lado: o lance errado (vermelho) e o certo (verde) |
+| `[tela celular pasta/gravacao \| 4]` | um celular grande na tela, tocando uma gravação de tela (mp4 vertical) a partir do segundo 4; o caminho é relativo à pasta das lições. Fica até o próximo lance, `[esconde]`, `[limpa]`, posição ou tela |
 | `[zoom]` | a câmera chega bem perto do próximo lance (o golpe decisivo) |
 | `[lance e5d3 lento]` | a peça anda em câmera lenta |
 

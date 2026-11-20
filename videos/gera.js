@@ -246,6 +246,26 @@ function efeitosSonoros(roteiro) {
 }
 
 // Filma o roteiro num estilo e monta o MP4 com o áudio.
+// a tela do celular desenhado pelo palco (palco3d.css, .t-celular i)
+const CEL = { x: 240, y: 500, w: 541, h: 920 };
+// cada [tela celular] vale até o próximo lance, posição, tela, [limpa] ou [esconde]
+function janelasDoCelular(roteiro, duracao) {
+  const fecha = ['lance', 'posicao', 'tela', 'limpa', 'esconde'];
+  const js = []; let aberta = null;
+  roteiro.eventos.forEach(ev => {
+    if (aberta && fecha.includes(ev.tipo)) { aberta.ate = ev.t; js.push(aberta); aberta = null; }
+    if (ev.tipo === 'tela' && ev.modelo === 'celular') {
+      const nome = (ev.partes[0] || '').trim(), ini = parseFloat(ev.partes[1]) || 0;
+      let arq = path.isAbsolute(nome) ? nome : path.join(BASE, nome);
+      if (!/\.(mp4|mov|webm)$/i.test(arq)) arq += '.mp4';
+      if (!fs.existsSync(arq)) throw new Error('[tela celular]: não achei a gravação ' + arq);
+      aberta = { arquivo: arq, ini, de: Math.max(ev.t, 0.75) };   // depois da capa
+    }
+  });
+  if (aberta) { aberta.ate = duracao; js.push(aberta); }
+  return js;
+}
+
 async function filma(roteiro, estilo, duracao, audio, saida) {
   const pagina = await abrePalco(estilo);
   await pagina.evaluate(r => window.XEV.prepara(r), Object.assign({}, roteiro, { estilo: estilo }));
@@ -285,6 +305,17 @@ async function filma(roteiro, estilo, duracao, audio, saida) {
   const comMusica = fMusica && fs.existsSync(fMusica);
   if (comMusica) args.push('-stream_loop', '-1', '-i', fMusica);
   const extras = sons.length + (comMusica ? 1 : 0);
+  // [tela celular arquivo | segundo]: a gravação de tela entra dentro do celular desenhado pelo palco
+  const clipes = janelasDoCelular(roteiro, duracao);
+  clipes.forEach(c => args.push('-i', c.arquivo));
+  const base = 3 + sons.length + (comMusica ? 1 : 0);
+  let cel = '', ultimo = 'q';
+  clipes.forEach((c, k) => {
+    cel += '[' + (base + k) + ':v]trim=start=' + c.ini.toFixed(3) + ',setpts=PTS-STARTPTS,fps=' + QPS + ',scale=' + CEL.w + ':' + CEL.h +
+      ':force_original_aspect_ratio=increase,crop=' + CEL.w + ':' + CEL.h + ':0:0,format=yuv420p,tpad=stop_mode=clone:stop_duration=600,setpts=PTS+' + (c.de + 0.15).toFixed(3) + '/TB[c' + k + '];' +
+      '[' + ultimo + '][c' + k + ']overlay=' + CEL.x + ':' + CEL.y + ':enable=\'between(t,' + (c.de + 0.15).toFixed(3) + ',' + c.ate.toFixed(3) + ')\':eof_action=pass[k' + k + '];';
+    ultimo = 'k' + k;
+  });
   // com música, a voz é dividida em duas: uma vai para a mistura e a outra comanda o "ducking"
   // (a música baixa sozinha enquanto a voz fala e volta a subir nas pausas)
   let mix = '[1:a]' + (audio ? 'loudnorm=I=-16:TP=-1.5:LRA=11,' : '') + 'apad' + (comMusica ? ',asplit=2[voz][vozsc];' : extras ? '[voz];' : '[a]');
@@ -293,7 +324,7 @@ async function filma(roteiro, estilo, duracao, audio, saida) {
     '[mu0][vozsc]sidechaincompress=threshold=0.02:ratio=6:attack=30:release=450:makeup=1[mu];';
   if (extras) mix += '[voz]' + sons.map((e, k) => '[s' + k + ']').join('') + (comMusica ? '[mu]' : '') + 'amix=inputs=' + (extras + 1) + ':normalize=0:duration=first[a]';
   args.push('-filter_complex',
-    '[0:v]fps=' + QPS + ',format=yuv420p[q];[q][2:v]overlay=x=\'-W+W*t/' + d + '\':y=H-10:shortest=0[v];' + mix,
+    '[0:v]fps=' + QPS + ',format=yuv420p[q];' + cel + '[' + ultimo + '][2:v]overlay=x=\'-W+W*t/' + d + '\':y=H-10:shortest=0[v];' + mix,
     '-map', '[v]', '-map', '[a]', '-t', d,
     '-c:v', 'libx264', '-preset', 'fast', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', String(QPS),
     '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', saida);

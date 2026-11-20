@@ -134,7 +134,7 @@ function leOrdem(texto, onde) {
   } else if (nome === 'tela') {                         // [tela numero 7 | lances]: uma tela gráfica inteira
     const resto2 = partes.slice(2).join(' ').split('|').map(x => x.trim());
     const modelo = chave(partes[1] || '');
-    if (!/^(numero|alerta|carimbo|medidor|lista|frase|cronometro|icone|versus)$/.test(modelo)) throw new Error(onde + ': as telas são numero, alerta, carimbo, medidor, lista, frase, cronometro, icone e versus');
+    if (!/^(numero|alerta|carimbo|medidor|lista|frase|cronometro|icone|versus|celular)$/.test(modelo)) throw new Error(onde + ': as telas são numero, alerta, carimbo, medidor, lista, frase, cronometro, icone, versus e celular');
     acoes.push({ tipo: 'tela', modelo: modelo, partes: resto2 });
   } else if (nome === 'tira') {
     semCor.forEach(p => { if (!ehCasa(p)) throw new Error(onde + ': "' + p + '" não é uma casa'); });

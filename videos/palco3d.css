@@ -159,3 +159,8 @@
 .tela .vs-tab i.alvo-vermelha{box-shadow:inset 0 0 0 4px #ff4f78}.tela .vs-tab i.alvo-verde{box-shadow:inset 0 0 0 4px #58e23a}
 .tela .vs-p{position:absolute;width:12.5%;height:12.5%;padding:2%}
 .tela .vs-seta{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+/* [tela celular]: a moldura do celular; a tela (240,500 até 781,1420) recebe a gravação na montagem */
+.tela .t-celular{position:absolute;left:216px;top:476px;width:589px;height:968px;border-radius:64px;background:#0d0a1c;
+  box-shadow:0 0 0 4px #3b3266,0 40px 120px rgba(0,0,0,.7),0 0 160px rgba(120,90,255,.35);transform-origin:50% 50%}
+.tela .t-celular i{position:absolute;left:24px;top:24px;width:541px;height:920px;border-radius:40px;background:#000}

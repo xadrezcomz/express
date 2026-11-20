@@ -752,6 +752,7 @@ function miniTabuleiro(fen, uci, cor, lado) {
 const FUNDO_TELA = { versus: 'linear-gradient(90deg,#3a0f2a,#1b1150 50%,#0f3a1a)', icone: 'radial-gradient(900px 900px at 50% 50%,#4a2cc0,#1b1150 60%,#07041a)', cronometro: 'radial-gradient(900px 900px at 50% 55%,#2a1f7a,#07041a)', numero: 'radial-gradient(900px 900px at 50% 55%,#4a2cc0,#140a45 70%,#07041a)',
   alerta: 'repeating-linear-gradient(135deg,#ff4f78 0 70px,#c2133f 70px 140px)',
   carimbo: 'radial-gradient(900px 900px at 50% 55%,#2a1f7a,#0b0624)', medidor: 'radial-gradient(900px 900px at 50% 60%,#1f1566,#07041a)',
+  celular: 'radial-gradient(1000px 1100px at 50% 52%,#3a24a8,#140a45 62%,#07041a)',
   lista: 'radial-gradient(900px 900px at 50% 55%,#2a1f7a,#0b0624)', frase: 'linear-gradient(160deg,#ffb53d,#ff7a2e 55%,#d9431f)' };
 let telaFeita = null;
 const esc = x => String(x).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
@@ -782,11 +783,14 @@ function montaTela(tl) {
     meio = '<div class="vs"><div class="vs-lado"><b class="vs-r ruim">✗ ' + esc(r1) + '</b>' + miniTabuleiro(fa, ua, 'vermelha', 'a') + '</div>' +
       '<div class="vs-x">×</div><div class="vs-lado"><b class="vs-r bom">✓ ' + esc(r2) + '</b>' + miniTabuleiro(fb, ub, 'verde', 'b') + '</div></div>';
   }
+  // [tela celular arquivo | segundo]: só a moldura; a gravação entra na tela do celular na montagem (gera.js)
+  else if (tl.modelo === 'celular') { elTela.innerHTML = '<i class="t-fundo" style="background:' + FUNDO_TELA.celular + '"></i><div class="t-celular"><i></i></div>'; return; }
   else if (tl.modelo === 'frase') meio = '<div class="t-frase">' + (b ? '<em>' + esc(a) + '</em>' + esc(b) : esc(a)) + '</div>';
   elTela.innerHTML = '<i class="t-fundo" style="background:' + FUNDO_TELA[tl.modelo] + '"></i><div class="t-meio">' + meio + '</div>';
 }
 function animaTela(tl) {
   const d = tl.d, entra = Math.min(1, d / 0.3), m = elTela.querySelector('.t-meio');
+  if (tl.modelo === 'celular') { elTela.querySelector('.t-celular').style.transform = 'scale(' + n3(0.9 + 0.1 * molinha(entra)) + ')'; return; }
   m.style.transform = 'translateY(' + n3(60 * (1 - suave(entra))) + 'px) scale(' + n3(0.92 + 0.08 * molinha(entra)) + ')';
   if (tl.modelo === 'numero') elTela.querySelector('.t-numero').style.transform = 'scale(' + n3(d < 0.45 ? 0.3 + 0.7 * molinha(d / 0.45) : 1) + ')';
   if (tl.modelo === 'carimbo') {
