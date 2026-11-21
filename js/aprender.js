@@ -20,6 +20,19 @@
 
   var ACERTOS = ['Isso aí!', 'Mandou bem!', 'Boa! Olho de enxadrista.', 'Exatamente!', 'É isso! Próximo?'];
   var ERROS = ['Não é esse. Olha de novo!', 'Quase! Tenta outro.', 'Hmm, esse não. Respira e procura.', 'Esse não resolve. Tenta mais uma.'];
+  // Nos passos de explicação sem pose definida, o professor vai alternando entre estas, para não
+  // ficar parado na mesma imagem. Novas poses de explicação entram aqui.
+  var POSES_EXPLICAR = ['explicando', 'gesto-aponta', 'mostrando', 'gesto-aqui', 'gesto-oferece', 'gesto-vem', 'gesto-convida', 'gesto-pensa'];
+  // Cada reação tem várias imagens; o professor vai alternando entre elas para não repetir.
+  var VARIA = {
+    apresentando: ['apresentando', 'gesto-cinco'],
+    comemorando: ['comemorando', 'vibrando', 'joinha', 'piscadinha'],
+    aprovando: ['aprovando', 'joinha', 'humilde'],
+    surpreso: ['surpreso', 'espanto'],
+    atencao: ['atencao', 'espera', 'duvida'],
+    pensativo: ['pensativo', 'confuso', 'gesto-pensa'],
+    curioso: ['curioso', 'gesto-convida', 'mostrando']
+  };
   function sorteia(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
 
   // ---------------------------------------------------------------- utilidades
@@ -82,6 +95,8 @@
   //   surpreso      jogadas inesperadas            pensativo    análise de posições e dicas
   //   atencao       alertas e erros                aprovando    elogios e encerramento
   //   curso         segurando o peão: quando se fala do curso
+  //   e mais: peca-peao, peca-torre, peca-bispo, peca-cavalo, peca-dama e peca-rei (o professor com a peça),
+  //   gestos de explicação (gesto-*) e expressões extras (joinha, espanto, duvida...): ver VARIA abaixo
   // Pose que faltar usa a padrão; sem nenhuma imagem, o desenho provisório.
   var faltam = {};
   function poeAvatar(img, pose) {
@@ -100,14 +115,18 @@
   }
   // O professor: avatar e balão de fala.
   function professor() {
-    var caixa = el('div', 'prof'), img = avatar('explicando'), balao = el('div', 'prof-balao');
+    var caixa = el('div', 'prof'), img = avatar('explicando'), balao = el('div', 'prof-balao'), vez = 0, ultima = '';
     balao.setAttribute('aria-live', 'polite');
     caixa.appendChild(img); caixa.appendChild(balao);
     return {
       el: caixa,
       fala: function (texto, pose) {
         balao.innerHTML = formata(texto);
-        poeAvatar(img, pose || 'explicando');
+        pose = pose || 'explicando';
+        var v = VARIA[pose];
+        if (v) { pose = v[vez++ % v.length]; if (pose === ultima) pose = v[vez++ % v.length]; }
+        ultima = pose;
+        poeAvatar(img, pose);
         balao.classList.remove('fala'); void balao.offsetWidth; balao.classList.add('fala');
       }
     };
@@ -261,7 +280,7 @@
 
   function capaLicao(ctx) {
     var p = daLicao(ctx.slug, ctx.id), c = el('div', 'licao-capa');
-    c.appendChild(avatar('apresentando', 'grande'));
+    c.appendChild(avatar(ctx.L.avatar || 'apresentando', 'grande'));
     var texto = el('div', 'licao-capa-texto', '<p class="olho">Lição ' + ctx.n + '</p><h1>' + esc(ctx.L.titulo) + '</h1>' +
       (ctx.L.abertura ? '<p class="sub">' + formata(ctx.L.abertura) + '</p>' : '') +
       '<p class="licao-capa-etapas"><span>Teoria</span><span>Exercícios</span><span>Avaliação Final</span></p>');
@@ -333,7 +352,12 @@
       T.modo('nenhum');
       T.posicao(fen(passo.fen), passo.lado || 'w');
       mostraTabuleiro(P);
-      prof.fala(passo.texto, passo.pose);
+      // a lição de uma peça abre e explica, de vez em quando, com o professor segurando a peça;
+      // nos outros passos sem pose, o professor alterna entre os gestos de explicação
+      var pose = passo.pose;
+      if (pose === 'apresentando' && ctx.L.avatar) pose = ctx.L.avatar;
+      else if (!pose) pose = ctx.L.avatar && i % 3 === 0 ? ctx.L.avatar : POSES_EXPLICAR[(i + ctx.n) % POSES_EXPLICAR.length];
+      prof.fala(passo.texto, pose);
       var marcas = { destaques: passo.destaques, setas: passo.setas, rotulos: passo.rotulos };
       var lances = (passo.animacao || []).slice();
       (function anima() {
@@ -399,11 +423,12 @@
     fila.forEach(function (k, j) { var b = el('li', '', String(j + 1)); trilha.appendChild(b); });
     ctx.corpo.appendChild(trilha);
     var P = palco(ctx), T = P.tabuleiro, prof = professor();
+    var opcoes = el('div', 'av-opcoes ex-opcoes'); opcoes.hidden = true;
     var acoes = el('div', 'ex-acoes');
     var bDica = botao('💡 Dica', 'botao-vidro', dica), bSolucao = botao('Ver solução', 'botao-vidro', verSolucao);
     var bProximo = botao('Próximo ›', 'botao-ouro', proximo);
     acoes.appendChild(bDica); acoes.appendChild(bSolucao); acoes.appendChild(bProximo);
-    P.lado.appendChild(faixa); P.lado.appendChild(prof.el); P.lado.appendChild(acoes);
+    P.lado.appendChild(faixa); P.lado.appendChild(prof.el); P.lado.appendChild(opcoes); P.lado.appendChild(acoes);
 
     function marcaTrilha() {
       Array.prototype.forEach.call(trilha.children, function (b, j) {
@@ -424,6 +449,27 @@
       marcaTrilha(); estadoBotoes();
       mostraTabuleiro(P);
       instr.textContent = item.pergunta || item.instrucao || EX.instrucao || 'Faça o melhor lance';
+      opcoes.hidden = true; P.tab.hidden = false;
+      P.el.classList.toggle('com-opcoes', item.tipo === 'multipla');
+      if (item.tipo === 'multipla') {
+        quem.innerHTML = '';
+        P.tab.hidden = !item.fen;
+        T.posicao(fen(item.fen), item.lado || 'w');
+        T.desenho({ destaques: item.destaques, setas: item.setas });
+        T.modo('nenhum');
+        opcoes.innerHTML = ''; opcoes.hidden = false;
+        item.opcoes.forEach(function (texto, k) {
+          var b = botao('<b>' + 'ABCD'[k] + '</b><span>' + esc(texto) + '</span>', 'av-opcao', function () {
+            if (terminou) return;
+            if (k === item.correta) { b.classList.add('certa'); Array.prototype.forEach.call(opcoes.children, function (o) { o.disabled = true; }); acertou(); return; }
+            b.classList.add('errada'); b.disabled = true;
+            errou();
+          });
+          opcoes.appendChild(b);
+        });
+        prof.fala(item.fen ? 'Olhe bem a posição e escolha.' : 'Pensa bem e escolhe.', 'curioso');
+        return;
+      }
       if (item.tipo === 'casa') {
         quem.innerHTML = '';
         T.posicao(fen(item.fen), item.lado || 'w');
@@ -474,11 +520,12 @@
       if (!erros && !viu) resultados[fila[pos]] = 'certo';
       marcaTrilha(); estadoBotoes();
       selo(P.moldura);
-      prof.fala(erros ? 'Achou! Errar antes faz parte do caminho.' : sorteia(ACERTOS), 'comemorando');
+      prof.fala((erros ? 'Achou! Errar antes faz parte do caminho.' : sorteia(ACERTOS)) + (item.tipo === 'multipla' && item.explicacao ? ' ' + item.explicacao : ''), 'comemorando');
       bProximo.focus({ preventScroll: true });
     }
     function dica() {
       dicas++;
+      if (item.tipo === 'multipla') { prof.fala(item.dica || 'Elimine primeiro as opções que com certeza estão erradas.', 'pensativo'); return; }
       if (item.tipo === 'casa') {
         if (dicas === 1 && item.dica) prof.fala(item.dica, 'pensativo');
         else { T.marcaCasas('dica', item.resposta); prof.fala('Olha a casa piscando.', 'explicando'); }
@@ -494,6 +541,11 @@
       vezDoItem++;
       var meu = vezDoItem;
       T.modo('nenhum');
+      if (item.tipo === 'multipla') {
+        Array.prototype.forEach.call(opcoes.children, function (o, k) { o.disabled = true; if (k === item.correta) o.classList.add('certa'); });
+        prof.fala('Era **' + esc(item.opcoes[item.correta]) + '**. ' + (item.explicacao || ''), 'explicando');
+        return;
+      }
       if (item.tipo === 'casa') {
         T.marcaCasas('certa', item.resposta);
         prof.fala('Era ' + (item.resposta.length > 1 ? 'qualquer uma destas: ' : 'esta: ') + '==' + item.resposta.join('==, ==') + '==.', 'explicando');
@@ -565,6 +617,12 @@
       if (q.tipo === 'multipla') {
         var caixa = el('div', 'av-multipla');
         caixa.appendChild(el('h2', 'av-pergunta', formata(q.pergunta)));
+        if (q.fen) {
+          var mini = el('div', 'av-tab'); caixa.appendChild(mini);
+          var tb = new Tabuleiro(mini, { pecas: PECAS });
+          tb.posicao(fen(q.fen), q.lado || 'w');
+          tb.desenho({ destaques: q.destaques, setas: q.setas });
+        }
         var ops = el('div', 'av-opcoes'), expl = el('p', 'av-explicacao');
         expl.hidden = true;
         q.opcoes.forEach(function (texto, j) {

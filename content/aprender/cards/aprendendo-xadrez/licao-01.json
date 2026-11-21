@@ -3,7 +3,7 @@
   "titulo": "O Tabuleiro",
   "abertura": "Antes de mexer em qualquer peça, a gente conhece o campo de batalha. Em poucos minutos você vai ler o tabuleiro como um mapa.",
   "teoria": [
-    { "fen": "vazio", "pose": "apresentando", "texto": "Oi! Eu sou o Fhellipe, e vou te mostrar o xadrez um passo de cada vez. Primeiro, o **campo de batalha**: o tabuleiro." },
+    { "fen": "vazio", "pose": "apresentando", "texto": "Oi! Eu sou o Prof. Fhellipe, e vou te mostrar o xadrez um passo de cada vez. Primeiro, o **campo de batalha**: o tabuleiro." },
     { "fen": "vazio",
       "texto": "O tabuleiro tem **64 casas**, arrumadas em 8 colunas e 8 fileiras. Um quadrado perfeito." },
     { "fen": "vazio",

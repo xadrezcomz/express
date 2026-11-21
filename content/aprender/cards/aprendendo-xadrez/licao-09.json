@@ -1,0 +1,168 @@
+{
+  "id": "licao-09",
+  "titulo": "Capturas",
+  "abertura": "Tirar peças do adversário costuma ser muito bom. Mas cada captura tem as suas regras.",
+  "teoria": [
+    {
+      "fen": "7k/8/8/8/5P2/8/3Q4/7K w - - 0 1",
+      "texto": "Capturar peças nem sempre ganha a partida, mas costuma ser ótimo. Primeira regra: você **nunca** captura as suas próprias peças.",
+      "pose": "apresentando",
+      "setas": [
+        {
+          "de": "d2",
+          "para": "f4",
+          "cor": "vermelho"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/8/3qk3/3rn3/8/8/K7 w - - 0 1",
+      "texto": "Pergunta rápida: entre **dama, rei, torre e cavalo**, uma dessas peças nunca pode ser capturada. Qual?",
+      "pose": "curioso"
+    },
+    {
+      "fen": "7k/8/8/3qk3/3rn3/8/8/K7 w - - 0 1",
+      "texto": "É o **rei**! Ele nunca é capturado, e nem pode ir para uma casa atacada. A vitória vem com o **xeque-mate**: o rei atacado, sem salvação.",
+      "pose": "atencao",
+      "destaques": [
+        {
+          "casas": ["e5"],
+          "cor": "vermelho"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/8/3p4/8/8/3Q4/7K w - - 0 1",
+      "texto": "Para capturar, basta levar a sua peça até a casa da peça inimiga. Capture o peão em ==d5==.",
+      "pose": "curioso",
+      "interativo": {
+        "lance": "d2d5",
+        "acerto": "Adeus, peão! Ele sai do tabuleiro."
+      }
+    },
+    {
+      "fen": "7k/8/8/3p4/8/8/3Q4/7K w - - 0 1",
+      "texto": "A dama **não pula** o peão: subindo pela coluna, ela tem que parar em d5. Só uma peça consegue pular as outras. Qual?",
+      "pose": "pensativo",
+      "setas": [
+        {
+          "de": "d2",
+          "para": "d8",
+          "cor": "vermelho"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/8/3q4/3Pp3/4N3/8/7K w - - 0 1",
+      "texto": "O **cavalo**! Ele pula, mas não captura quem fica no caminho. Capture a dama em ==d5==.",
+      "pose": "surpreso",
+      "interativo": {
+        "lance": "e3d5",
+        "acerto": "Isso! Pulou os peões e capturou a dama."
+      }
+    },
+    {
+      "fen": "7k/8/8/8/8/B1P1N1K1/8/8 w - - 0 1",
+      "texto": "Entre **bispo, peão, cavalo e rei**, qual captura de um jeito diferente de como anda?",
+      "pose": "curioso"
+    },
+    {
+      "fen": "7k/8/8/8/3p4/2P5/8/7K w - - 0 1",
+      "texto": "O **peão**! Ele anda reto para frente, mas captura na **diagonal**. Capture o peão preto.",
+      "pose": "explicando",
+      "interativo": {
+        "lance": "c3d4",
+        "acerto": "Na diagonal, como manda a regra."
+      }
+    },
+    {
+      "fen": "7k/8/8/8/3P4/8/8/7K w - - 0 1",
+      "texto": "Juntando tudo: tome as peças do adversário e, no fim, dê xeque-mate no rei. Bora praticar?",
+      "pose": "aprovando"
+    }
+  ],
+  "exercicios": {
+    "instrucao": "Capture!",
+    "itens": [
+      {
+        "tipo": "autoral",
+        "fen": "7k/8/8/5n2/8/8/2B5/7K w - - 0 1",
+        "pergunta": "Capture o cavalo preto",
+        "solucao": ["c2f5"],
+        "dica": "O bispo está na diagonal certa."
+      },
+      {
+        "tipo": "autoral",
+        "fen": "7k/8/8/8/8/2r5/1P6/7K w - - 0 1",
+        "pergunta": "Capture a torre com o peão",
+        "solucao": ["b2c3"],
+        "dica": "O peão captura na diagonal."
+      },
+      {
+        "tipo": "autoral",
+        "fen": "7k/8/8/8/1pp5/1pb5/8/1N5K w - - 0 1",
+        "pergunta": "Capture o bispo preto",
+        "solucao": ["b1c3"],
+        "dica": "O cavalo pula os peões."
+      },
+      {
+        "tipo": "multipla",
+        "pergunta": "Qual peça nunca pode ser capturada?",
+        "opcoes": ["A dama", "O rei", "A torre", "O cavalo"],
+        "correta": 1,
+        "explicacao": "O rei nunca é capturado: a partida acaba no xeque-mate."
+      },
+      {
+        "tipo": "multipla",
+        "pergunta": "Você pode capturar uma peça sua?",
+        "opcoes": ["Sim", "Não"],
+        "correta": 1,
+        "explicacao": "Nunca."
+      }
+    ]
+  },
+  "avaliacao": [
+    {
+      "tipo": "multipla",
+      "pergunta": "Como se captura uma peça?",
+      "opcoes": ["Pulando por cima dela", "Levando a sua peça até a casa dela", "Cercando a peça", "Encostando ao lado"],
+      "correta": 1,
+      "explicacao": "A peça inimiga sai e a sua fica no lugar."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Qual peça pode pular as outras?",
+      "opcoes": ["A torre", "O bispo", "O cavalo", "A dama"],
+      "correta": 2,
+      "explicacao": "Só o cavalo."
+    },
+    {
+      "tipo": "autoral",
+      "fen": "7k/8/8/8/2q5/1P6/8/7K w - - 0 1",
+      "pergunta": "Capture a dama com o peão",
+      "solucao": ["b3c4"],
+      "explicacao": "Diagonal, uma casa à frente."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Qual peça captura de forma diferente de como anda?",
+      "opcoes": ["O peão", "A torre", "O rei", "O bispo"],
+      "correta": 0,
+      "explicacao": "Anda reto e captura na diagonal."
+    },
+    {
+      "tipo": "autoral",
+      "fen": "7k/8/8/3r4/3pp3/4N3/8/7K w - - 0 1",
+      "pergunta": "Capture a torre preta",
+      "solucao": ["e3d5"],
+      "explicacao": "O cavalo pula os peões."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "O cavalo captura as peças que pula?",
+      "opcoes": ["Sim", "Não"],
+      "correta": 1,
+      "explicacao": "Ele só captura a peça da casa onde cai."
+    }
+  ]
+}

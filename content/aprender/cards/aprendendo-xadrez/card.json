@@ -1,8 +1,18 @@
 {
   "titulo": "Aprendendo Xadrez",
-  "descricao": "Do tabuleiro ao primeiro xeque-mate. Lições curtas, com o professor do seu lado em cada passo.",
+  "descricao": "Do tabuleiro ao xeque-mate. Lições curtas, com o professor do seu lado em cada passo.",
   "licoes": [
     { "id": "licao-01", "titulo": "O Tabuleiro" },
-    { "id": "licao-02", "titulo": "Mate em 1" }
+    { "id": "licao-02", "titulo": "A Torre" },
+    { "id": "licao-03", "titulo": "O Bispo" },
+    { "id": "licao-04", "titulo": "A Dama" },
+    { "id": "licao-05", "titulo": "O Rei" },
+    { "id": "licao-06", "titulo": "O Cavalo" },
+    { "id": "licao-07", "titulo": "O Peão" },
+    { "id": "licao-08", "titulo": "Promoção do Peão" },
+    { "id": "licao-09", "titulo": "Capturas" },
+    { "id": "licao-10", "titulo": "Xeque-mate" },
+    { "id": "licao-11", "titulo": "Xeque, Mate ou Afogamento?" },
+    { "id": "licao-12", "titulo": "Treino: Mate em 1" }
   ]
 }

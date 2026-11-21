@@ -1,0 +1,191 @@
+{
+  "id": "licao-06",
+  "titulo": "O Cavalo",
+  "avatar": "peca-cavalo",
+  "abertura": "O cavalo é a peça mais diferente do xadrez: anda em L e é o único que pula.",
+  "teoria": [
+    {
+      "fen": "7k/8/8/8/3N4/8/8/7K w - - 0 1",
+      "texto": "Agora a peça mais curiosa do tabuleiro: o **cavalo**.",
+      "pose": "apresentando"
+    },
+    {
+      "fen": "7k/8/8/8/3N4/8/8/7K w - - 0 1",
+      "texto": "Ele anda em **L**: duas casas numa direção e mais uma para o lado.",
+      "destaques": [
+        {
+          "casas": ["e2", "f3", "c2", "b3", "e6", "f5", "c6", "b5"],
+          "cor": "verde"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/8/8/3N4/8/8/7K w - - 0 1",
+      "texto": "Do centro, o cavalo alcança **8 casas**. Olhe o L de d4 até e6.",
+      "setas": [
+        {
+          "de": "d4",
+          "para": "d6",
+          "cor": "azul"
+        },
+        {
+          "de": "d6",
+          "para": "e6",
+          "cor": "azul"
+        }
+      ],
+      "destaques": [
+        {
+          "casas": ["e6"],
+          "cor": "verde"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/8/8/3N4/8/8/7K w - - 0 1",
+      "texto": "Sua vez: leve o cavalo até ==f5==.",
+      "pose": "curioso",
+      "interativo": {
+        "lance": "d4f5",
+        "acerto": "Isso! Duas para o lado e uma para cima."
+      }
+    },
+    {
+      "fen": "7k/8/8/2ppp3/2pNp3/2ppp3/8/7K w - - 0 1",
+      "texto": "E a grande surpresa: o cavalo é a **única peça que pula** as outras. Mesmo cercado, ele escapa!",
+      "pose": "surpreso",
+      "destaques": [
+        {
+          "casas": ["e2", "f3", "c2", "b3", "e6", "f5", "c6", "b5"],
+          "cor": "verde"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/8/2ppp3/2pNp3/2ppp3/8/7K w - - 0 1",
+      "texto": "Pule por cima dos peões até ==e6==.",
+      "pose": "curioso",
+      "interativo": {
+        "lance": "d4e6",
+        "acerto": "Pulou! E repare: ele não captura quem fica no caminho."
+      }
+    },
+    {
+      "fen": "7k/8/8/8/3N4/8/8/7K w - - 0 1",
+      "texto": "Um detalhe: a cada salto o cavalo **troca de cor**. Saiu de uma casa escura, cai numa clara, e vice-versa.",
+      "pose": "atencao",
+      "destaques": [
+        {
+          "casas": ["e2", "f3", "c2", "b3", "e6", "f5", "c6", "b5"],
+          "cor": "verde"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/8/8/8/8/8/N6K w - - 0 1",
+      "texto": "No canto, ele fica fraco: só **2 casas**. Cavalo gosta do centro!",
+      "pose": "pensativo",
+      "destaques": [
+        {
+          "casas": ["b3", "c2"],
+          "cor": "verde"
+        }
+      ]
+    },
+    {
+      "fen": "inicial",
+      "texto": "Na posição inicial, os cavalos ficam ao lado das torres: b1 e g1, b8 e g8. Bora praticar?",
+      "pose": "aprovando",
+      "destaques": [
+        {
+          "casas": ["b1", "g1", "b8", "g8"],
+          "cor": "amarelo"
+        }
+      ]
+    }
+  ],
+  "exercicios": {
+    "instrucao": "Movimento do cavalo",
+    "itens": [
+      {
+        "tipo": "casa",
+        "fen": "7k/8/8/8/4N3/8/8/7K w - - 0 1",
+        "pergunta": "Toque numa casa onde o cavalo pode ir",
+        "resposta": ["f2", "g3", "d2", "c3", "f6", "g5", "d6", "c5"],
+        "dica": "Duas casas numa direção e uma para o lado."
+      },
+      {
+        "tipo": "autoral",
+        "fen": "7k/8/8/2r5/8/1N6/8/7K w - - 0 1",
+        "pergunta": "Capture a torre preta",
+        "solucao": ["b3c5"],
+        "dica": "Um L para cima e para a direita."
+      },
+      {
+        "tipo": "casa",
+        "fen": "7k/8/8/8/8/8/8/6NK w - - 0 1",
+        "pergunta": "Toque numa casa onde o cavalo pode ir",
+        "resposta": ["h3", "f3", "e2"],
+        "dica": "Perto da borda, sobram poucas casas."
+      },
+      {
+        "tipo": "autoral",
+        "fen": "7k/8/4q3/2ppp3/2pNp3/2ppp3/8/7K w - - 0 1",
+        "pergunta": "Pule e capture a dama preta",
+        "solucao": ["d4e6"],
+        "dica": "O cavalo pula os peões."
+      },
+      {
+        "tipo": "multipla",
+        "pergunta": "Qual é a única peça que pode pular outras?",
+        "opcoes": ["A torre", "O cavalo", "A dama", "O rei"],
+        "correta": 1,
+        "explicacao": "Só o cavalo pula."
+      }
+    ]
+  },
+  "avaliacao": [
+    {
+      "tipo": "multipla",
+      "pergunta": "Como o cavalo se move?",
+      "opcoes": ["Em linha reta", "Na diagonal", "Em L", "Uma casa por vez"],
+      "correta": 2,
+      "explicacao": "Duas casas e mais uma para o lado."
+    },
+    {
+      "tipo": "casa",
+      "fen": "7k/8/8/5N2/8/8/8/7K w - - 0 1",
+      "pergunta": "Toque numa casa onde o cavalo pode ir",
+      "resposta": ["g3", "h4", "e3", "d4", "g7", "h6", "e7", "d6"],
+      "dica": "Oito casas em L."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "O cavalo pode pular outras peças?",
+      "opcoes": ["Sim", "Não"],
+      "correta": 0,
+      "explicacao": "É a única peça que pula."
+    },
+    {
+      "tipo": "autoral",
+      "fen": "7k/8/8/8/8/5b2/8/4N2K w - - 0 1",
+      "pergunta": "Capture o bispo preto",
+      "solucao": ["e1f3"],
+      "explicacao": "Um L de e1 até f3."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Um cavalo numa casa clara, depois de um lance, fica numa casa...",
+      "opcoes": ["Clara", "Escura", "Da mesma cor", "Depende"],
+      "correta": 1,
+      "explicacao": "Ele troca de cor a cada salto."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Onde o cavalo é mais forte?",
+      "opcoes": ["No canto", "Na borda", "No centro"],
+      "correta": 2,
+      "explicacao": "No centro ele alcança 8 casas; no canto, só 2."
+    }
+  ]
+}

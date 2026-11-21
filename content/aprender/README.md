@@ -97,6 +97,16 @@ Lances em UCI: casa de saída + casa de chegada (`e2e4`), com a peça no fim na 
   | `aprovando` | elogios e encerramento |
   | `curso` | o professor segurando o peão: quando se fala do curso |
 
+  | `peca-peao`, `peca-torre`, `peca-bispo`, `peca-cavalo`, `peca-dama`, `peca-rei` | o professor segurando a peça |
+  | `gesto-aponta`, `gesto-aqui`, `gesto-oferece`, `gesto-vem`, `gesto-convida`, `gesto-pensa`, `gesto-cinco`, `gesto-tres`, `mostrando` | gestos de explicação (`gesto-tres`: "três saídas", "três defesas") |
+
+  Cada reação tem variações que o site alterna sozinho para não repetir a mesma imagem (por exemplo,
+  `comemorando` vira às vezes `vibrando`, `joinha` ou `piscadinha`; a lista fica em `VARIA`, em
+  `js/aprender.js`). Passos sem `pose` alternam entre os gestos de explicação.
+
+  Na lição de uma peça, ponha `"avatar": "peca-torre"` (logo depois do título): a capa, a abertura e
+  um a cada três passos de explicação mostram o professor segurando a peça.
+
   Nos exercícios e na avaliação o site escolhe sozinho: `curioso` na pergunta, `comemorando` no acerto,
   `atencao` no erro, `pensativo` na dica, e `curso` na tela de lição concluída.
 - Cores de destaques e setas: `verde`, `vermelho`, `azul`, `amarelo`, `roxo`, `rosa`.
@@ -108,13 +118,17 @@ Lances em UCI: casa de saída + casa de chegada (`e2e4`), com a peça no fim na 
 
 ### Exercícios
 
-Três tipos de item:
+Quatro tipos de item:
 
 ```json
 { "tipo": "casa", "fen": "vazio", "pergunta": "Toque na casa e5", "resposta": ["e5"], "dica": "..." }
 { "tipo": "autoral", "fen": "...", "pergunta": "Leve o bispo até h8", "solucao": ["a1h8"], "dica": "..." }
 { "tipo": "lichess", "puzzleId": "00sHx" }
+{ "tipo": "multipla", "fen": "...", "pergunta": "Xeque, mate ou afogamento?", "opcoes": ["Xeque", "Xeque-mate", "Empate por afogamento"], "correta": 1, "explicacao": "..." }
 ```
+
+- `multipla`: pergunta de escolha. Com `fen` (e, se quiser, `setas` e `destaques`), a posição aparece no
+  tabuleiro; sem `fen`, o tabuleiro some. Nos exercícios dá para errar e tentar de novo.
 
 - `casa`: o aluno toca numa casa; `resposta` pode ter várias casas certas.
 - `autoral`: a `solucao` alterna lance do aluno e resposta do adversário (`["a1a8", "e8d7", "a8d8"]`).
@@ -125,7 +139,7 @@ Três tipos de item:
 
 ### Avaliação Final
 
-Os mesmos tipos dos exercícios (`casa`, `autoral`, `lichess`), mais a múltipla escolha:
+Os mesmos tipos dos exercícios (`casa`, `autoral`, `lichess`, `multipla`). A múltipla escolha também aceita `fen`:
 
 ```json
 { "tipo": "multipla", "pergunta": "Quantas casas tem o tabuleiro?",

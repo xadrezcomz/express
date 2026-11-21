@@ -1,0 +1,163 @@
+{
+  "id": "licao-05",
+  "titulo": "O Rei",
+  "avatar": "peca-rei",
+  "abertura": "O rei é lento, mas é a peça mais importante. Se ele cair, a partida acaba.",
+  "teoria": [
+    {
+      "fen": "8/8/8/8/3K4/8/8/7k w - - 0 1",
+      "texto": "Agora a peça mais importante de todas: o **rei**.",
+      "pose": "apresentando"
+    },
+    {
+      "fen": "8/8/8/8/3K4/8/8/7k w - - 0 1",
+      "texto": "O rei anda **uma casa** em qualquer direção: para frente, para trás, para os lados e na diagonal.",
+      "destaques": [
+        {
+          "casas": ["e4", "c4", "d3", "d5", "e3", "e5", "c3", "c5"],
+          "cor": "verde"
+        }
+      ]
+    },
+    {
+      "fen": "8/8/8/8/3K4/8/8/7k w - - 0 1",
+      "texto": "Sua vez: leve o rei até ==e5==.",
+      "pose": "curioso",
+      "interativo": {
+        "lance": "d4e5",
+        "acerto": "Isso! Uma casinha, na diagonal."
+      }
+    },
+    {
+      "fen": "8/8/8/8/3K4/8/8/4r2k w - - 0 1",
+      "texto": "Regra de ouro: o rei **nunca** pode ir para uma casa atacada. A torre preta ataca toda a coluna e, então e3, e4 e e5 estão proibidas.",
+      "pose": "atencao",
+      "destaques": [
+        {
+          "casas": ["c4", "d3", "d5", "c3", "c5"],
+          "cor": "verde"
+        },
+        {
+          "casas": ["e3", "e4", "e5"],
+          "cor": "vermelho"
+        }
+      ]
+    },
+    {
+      "fen": "8/8/8/3k4/8/3K4/8/8 w - - 0 1",
+      "texto": "Por isso, os dois reis nunca ficam lado a lado: sempre sobra pelo menos **uma casa** entre eles.",
+      "pose": "atencao",
+      "destaques": [
+        {
+          "casas": ["c4", "d4", "e4"],
+          "cor": "vermelho"
+        }
+      ]
+    },
+    {
+      "fen": "inicial",
+      "texto": "No começo, o rei branco fica em ==e1== e o preto em ==e8==, ao lado da dama.",
+      "destaques": [
+        {
+          "casas": ["e1", "e8"],
+          "cor": "amarelo"
+        }
+      ]
+    },
+    {
+      "fen": "8/8/8/8/3K4/8/8/7k w - - 0 1",
+      "texto": "O rei não pode ser capturado: quando ele é atacado e não tem saída, é **xeque-mate** e a partida acaba. Vamos ver isso mais à frente.",
+      "pose": "pensativo"
+    },
+    {
+      "fen": "8/8/8/8/3K4/8/8/7k w - - 0 1",
+      "texto": "Resumo: uma casa por vez, em qualquer direção, e nunca para uma casa atacada. Bora praticar?",
+      "pose": "aprovando"
+    }
+  ],
+  "exercicios": {
+    "instrucao": "Movimento do rei",
+    "itens": [
+      {
+        "tipo": "casa",
+        "fen": "8/8/8/8/2K5/8/8/7k w - - 0 1",
+        "pergunta": "Toque numa casa onde o rei pode ir",
+        "resposta": ["d4", "b4", "c3", "c5", "d3", "d5", "b3", "b5"],
+        "dica": "Só uma casinha, para qualquer lado."
+      },
+      {
+        "tipo": "autoral",
+        "fen": "7k/8/8/8/8/2p5/2K5/8 w - - 0 1",
+        "pergunta": "Capture o peão preto com o rei",
+        "solucao": ["c2c3"],
+        "dica": "Ele está colado no rei."
+      },
+      {
+        "tipo": "casa",
+        "fen": "8/8/8/4r3/2K5/8/8/7k w - - 0 1",
+        "pergunta": "Toque numa casa segura para o rei",
+        "resposta": ["d4", "b4", "c3", "d3", "b3"],
+        "dica": "A torre preta ataca a coluna e e a fileira 5."
+      },
+      {
+        "tipo": "multipla",
+        "pergunta": "O rei em d3 pode ir para d4?",
+        "opcoes": ["Sim", "Não, porque o rei preto vigia d4"],
+        "correta": 1,
+        "explicacao": "Os reis nunca ficam lado a lado.",
+        "fen": "8/8/8/3k4/8/3K4/8/8 w - - 0 1"
+      },
+      {
+        "tipo": "autoral",
+        "fen": "7k/8/8/8/8/8/1q6/K7 w - - 0 1",
+        "pergunta": "O rei pode capturar a dama? Faça isso!",
+        "solucao": ["a1b2"],
+        "dica": "A dama está sem proteção, colada no rei."
+      }
+    ]
+  },
+  "avaliacao": [
+    {
+      "tipo": "multipla",
+      "pergunta": "Como o rei se move?",
+      "opcoes": ["Uma casa em qualquer direção", "Em L", "Na diagonal, quantas casas quiser", "Só para frente"],
+      "correta": 0,
+      "explicacao": "Uma casinha, para qualquer lado."
+    },
+    {
+      "tipo": "casa",
+      "fen": "8/8/8/5K2/8/8/8/k7 w - - 0 1",
+      "pergunta": "Toque numa casa onde o rei pode ir",
+      "resposta": ["g5", "e5", "f4", "f6", "g4", "g6", "e4", "e6"],
+      "dica": "As oito casas em volta."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "O rei pode ir para uma casa atacada?",
+      "opcoes": ["Sim", "Não", "Só se capturar", "Só no começo"],
+      "correta": 1,
+      "explicacao": "Nunca. Esse lance não é permitido."
+    },
+    {
+      "tipo": "casa",
+      "fen": "8/8/8/8/3K4/8/8/6rk w - - 0 1",
+      "pergunta": "Toque numa casa segura para o rei",
+      "resposta": ["e4", "c4", "d3", "d5", "e3", "e5", "c3", "c5"],
+      "dica": "A torre preta só ataca a coluna g e a fileira 1."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Onde começa o rei branco?",
+      "opcoes": ["d1", "e1", "e8", "f1"],
+      "correta": 1,
+      "explicacao": "Em e1, ao lado da dama."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "O que acontece quando o rei é atacado e não tem saída?",
+      "opcoes": ["Ele é capturado", "É xeque-mate e a partida acaba", "Ele volta para e1", "Nada"],
+      "correta": 1,
+      "explicacao": "O rei nunca é capturado: é xeque-mate."
+    }
+  ]
+}

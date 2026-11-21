@@ -1,0 +1,151 @@
+{
+  "id": "licao-08",
+  "titulo": "Promoção do Peão",
+  "avatar": "peca-peao",
+  "abertura": "Todo peão sonha com o mesmo dia: chegar ao outro lado e virar outra peça.",
+  "teoria": [
+    {
+      "fen": "7k/4P3/8/8/8/8/8/K7 w - - 0 1",
+      "texto": "O peão tem um superpoder escondido: a **promoção**.",
+      "pose": "apresentando"
+    },
+    {
+      "fen": "7k/4P3/8/8/8/8/8/K7 w - - 0 1",
+      "texto": "Quando o peão chega à **última fileira**, ele vira outra peça: dama, torre, bispo ou cavalo. Só não pode virar rei.",
+      "destaques": [
+        {
+          "casas": ["e8"],
+          "cor": "verde"
+        }
+      ]
+    },
+    {
+      "fen": "7k/4P3/8/8/8/8/8/K7 w - - 0 1",
+      "texto": "Sua vez: avance o peão até ==e8== e escolha a **dama**.",
+      "pose": "curioso",
+      "interativo": {
+        "lance": "e7e8q",
+        "acerto": "Promoveu! Um peão virou a peça mais forte do jogo."
+      }
+    },
+    {
+      "fen": "4Q2k/8/8/8/8/8/8/K7 b - - 0 1",
+      "texto": "Quase sempre se escolhe a **dama**, porque ela é a mais forte. E dá até para ter duas damas no tabuleiro!",
+      "pose": "surpreso"
+    },
+    {
+      "fen": "3r3k/4P3/8/8/8/8/8/K7 w - - 0 1",
+      "texto": "O peão também pode promover **capturando**, na diagonal. Capture a torre em ==d8== e vire dama.",
+      "pose": "curioso",
+      "interativo": {
+        "lance": "e7d8q",
+        "acerto": "Captura e promoção no mesmo lance!"
+      }
+    },
+    {
+      "fen": "7k/5K2/8/8/8/8/8/8 w - - 0 1",
+      "texto": "Às vezes outra peça é melhor. Quem escolhe algo que não é dama faz uma **subpromoção**, por exemplo para dar mate de cavalo ou evitar um empate.",
+      "pose": "pensativo"
+    },
+    {
+      "fen": "8/8/8/8/8/8/3p4/7K b - - 0 1",
+      "texto": "Vale para as pretas também: o peão preto promove ao chegar na **fileira 1**.",
+      "pose": "atencao",
+      "destaques": [
+        {
+          "casas": ["d1"],
+          "cor": "verde"
+        }
+      ]
+    },
+    {
+      "fen": "7k/4P3/8/8/8/8/8/K7 w - - 0 1",
+      "texto": "Resumo: peão na última fileira vira dama, torre, bispo ou cavalo. Bora praticar?",
+      "pose": "aprovando"
+    }
+  ],
+  "exercicios": {
+    "instrucao": "Promoção",
+    "itens": [
+      {
+        "tipo": "autoral",
+        "fen": "7k/1P6/8/8/8/8/8/K7 w - - 0 1",
+        "pergunta": "Promova o peão a dama",
+        "solucao": ["b7b8q"],
+        "dica": "Avance até a última fileira."
+      },
+      {
+        "tipo": "casa",
+        "fen": "7k/2P5/8/8/8/8/8/K7 w - - 0 1",
+        "pergunta": "Em que casa este peão vai promover?",
+        "resposta": ["c8"],
+        "dica": "Ele anda para frente até a fileira 8."
+      },
+      {
+        "tipo": "autoral",
+        "fen": "2r4k/1P6/8/8/8/8/8/K7 w - - 0 1",
+        "pergunta": "Capture a torre e promova a dama",
+        "solucao": ["b7c8q"],
+        "dica": "O peão captura na diagonal."
+      },
+      {
+        "tipo": "multipla",
+        "pergunta": "Em que peça o peão NÃO pode se transformar?",
+        "opcoes": ["Dama", "Cavalo", "Rei", "Torre"],
+        "correta": 2,
+        "explicacao": "Rei só existe um de cada lado."
+      },
+      {
+        "tipo": "multipla",
+        "pergunta": "Onde o peão preto promove?",
+        "opcoes": ["Na fileira 8", "Na fileira 1", "No centro", "Em qualquer canto"],
+        "correta": 1,
+        "explicacao": "As pretas andam para baixo, até a fileira 1."
+      }
+    ]
+  },
+  "avaliacao": [
+    {
+      "tipo": "multipla",
+      "pergunta": "O que acontece quando o peão chega à última fileira?",
+      "opcoes": ["Nada", "Ele volta para o começo", "Ele vira outra peça", "A partida acaba"],
+      "correta": 2,
+      "explicacao": "É a promoção."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Qual peça costuma ser escolhida na promoção?",
+      "opcoes": ["Dama", "Torre", "Bispo", "Cavalo"],
+      "correta": 0,
+      "explicacao": "A dama, por ser a mais forte."
+    },
+    {
+      "tipo": "autoral",
+      "fen": "7k/3P4/8/8/8/8/8/K7 w - - 0 1",
+      "pergunta": "Promova o peão a dama",
+      "solucao": ["d7d8q"],
+      "explicacao": "Avançou e virou dama."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Pode haver duas damas brancas no tabuleiro?",
+      "opcoes": ["Sim, com a promoção", "Não, nunca"],
+      "correta": 0,
+      "explicacao": "Com a promoção, sim."
+    },
+    {
+      "tipo": "autoral",
+      "fen": "5n1k/6P1/8/8/8/8/8/K7 w - - 0 1",
+      "pergunta": "Capture o cavalo e promova a dama",
+      "solucao": ["g7f8q"],
+      "explicacao": "Captura na diagonal e promoção."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Como se chama escolher uma peça que não é a dama?",
+      "opcoes": ["Subpromoção", "En passant", "Roque", "Afogamento"],
+      "correta": 0,
+      "explicacao": "Subpromoção."
+    }
+  ]
+}
