@@ -1,6 +1,7 @@
 {
   "id": "licao-03",
   "titulo": "O Bispo",
+  "avatar": "peca-bispo",
   "abertura": "O bispo é o dono das diagonais. Ele corre longe, mas tem um segredo: nunca troca de cor.",
   "teoria": [
     {

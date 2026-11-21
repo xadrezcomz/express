@@ -97,6 +97,16 @@ Lances em UCI: casa de saída + casa de chegada (`e2e4`), com a peça no fim na 
   | `aprovando` | elogios e encerramento |
   | `curso` | o professor segurando o peão: quando se fala do curso |
 
+  | `peca-peao`, `peca-torre`, `peca-bispo`, `peca-cavalo`, `peca-dama`, `peca-rei` | o professor segurando a peça |
+  | `gesto-aponta`, `gesto-aqui`, `gesto-oferece`, `gesto-vem`, `gesto-convida`, `gesto-pensa`, `gesto-cinco`, `gesto-tres`, `mostrando` | gestos de explicação (`gesto-tres`: "três saídas", "três defesas") |
+
+  Cada reação tem variações que o site alterna sozinho para não repetir a mesma imagem (por exemplo,
+  `comemorando` vira às vezes `vibrando`, `joinha` ou `piscadinha`; a lista fica em `VARIA`, em
+  `js/aprender.js`). Passos sem `pose` alternam entre os gestos de explicação.
+
+  Na lição de uma peça, ponha `"avatar": "peca-torre"` (logo depois do título): a capa, a abertura e
+  um a cada três passos de explicação mostram o professor segurando a peça.
+
   Nos exercícios e na avaliação o site escolhe sozinho: `curioso` na pergunta, `comemorando` no acerto,
   `atencao` no erro, `pensativo` na dica, e `curso` na tela de lição concluída.
 - Cores de destaques e setas: `verde`, `vermelho`, `azul`, `amarelo`, `roxo`, `rosa`.

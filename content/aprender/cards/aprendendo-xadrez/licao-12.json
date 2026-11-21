@@ -44,7 +44,7 @@
       "texto": "Agora olhe esta: a torre dá xeque e o rei **não tem para onde ir**. Os próprios peões trancam a saída. Isso é **xeque-mate**. Fim de jogo!"
     },
     {
-      "fen": "R5k1/5ppp/8/8/8/8/8/6K1 b - - 1 1", "pose": "atencao",
+      "fen": "R5k1/5ppp/8/8/8/8/8/6K1 b - - 1 1", "pose": "gesto-tres",
       "texto": "Para escapar de um xeque existem três saídas: **fugir** com o rei, **bloquear** o caminho com outra peça ou **capturar** quem dá o xeque. Mate é quando nenhuma das três funciona."
     },
     {

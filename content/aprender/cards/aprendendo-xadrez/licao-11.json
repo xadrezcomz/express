@@ -11,7 +11,7 @@
     {
       "fen": "rnb1kbnr/ppp2ppp/3pp3/8/5P1q/3P1N2/PPP1P1PP/RNBQKB1R w KQkq - 1 4",
       "texto": "Um **xeque** é só um ataque ao rei. Ele tem três defesas: **capturar** quem ataca, **bloquear** o caminho ou **fugir** com o rei.",
-      "pose": "explicando",
+      "pose": "gesto-tres",
       "setas": [
         {
           "de": "f3",

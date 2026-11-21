@@ -22,7 +22,17 @@
   var ERROS = ['Não é esse. Olha de novo!', 'Quase! Tenta outro.', 'Hmm, esse não. Respira e procura.', 'Esse não resolve. Tenta mais uma.'];
   // Nos passos de explicação sem pose definida, o professor vai alternando entre estas, para não
   // ficar parado na mesma imagem. Novas poses de explicação entram aqui.
-  var POSES_EXPLICAR = ['explicando', 'pensativo'];
+  var POSES_EXPLICAR = ['explicando', 'gesto-aponta', 'mostrando', 'gesto-aqui', 'gesto-oferece', 'gesto-vem', 'gesto-convida', 'gesto-pensa'];
+  // Cada reação tem várias imagens; o professor vai alternando entre elas para não repetir.
+  var VARIA = {
+    apresentando: ['apresentando', 'gesto-cinco'],
+    comemorando: ['comemorando', 'vibrando', 'joinha', 'piscadinha'],
+    aprovando: ['aprovando', 'joinha', 'humilde'],
+    surpreso: ['surpreso', 'espanto'],
+    atencao: ['atencao', 'espera', 'duvida'],
+    pensativo: ['pensativo', 'confuso', 'gesto-pensa'],
+    curioso: ['curioso', 'gesto-convida', 'mostrando']
+  };
   function sorteia(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
 
   // ---------------------------------------------------------------- utilidades
@@ -85,6 +95,8 @@
   //   surpreso      jogadas inesperadas            pensativo    análise de posições e dicas
   //   atencao       alertas e erros                aprovando    elogios e encerramento
   //   curso         segurando o peão: quando se fala do curso
+  //   e mais: peca-peao, peca-torre, peca-bispo, peca-cavalo, peca-dama e peca-rei (o professor com a peça),
+  //   gestos de explicação (gesto-*) e expressões extras (joinha, espanto, duvida...): ver VARIA abaixo
   // Pose que faltar usa a padrão; sem nenhuma imagem, o desenho provisório.
   var faltam = {};
   function poeAvatar(img, pose) {
@@ -103,14 +115,18 @@
   }
   // O professor: avatar e balão de fala.
   function professor() {
-    var caixa = el('div', 'prof'), img = avatar('explicando'), balao = el('div', 'prof-balao');
+    var caixa = el('div', 'prof'), img = avatar('explicando'), balao = el('div', 'prof-balao'), vez = 0, ultima = '';
     balao.setAttribute('aria-live', 'polite');
     caixa.appendChild(img); caixa.appendChild(balao);
     return {
       el: caixa,
       fala: function (texto, pose) {
         balao.innerHTML = formata(texto);
-        poeAvatar(img, pose || 'explicando');
+        pose = pose || 'explicando';
+        var v = VARIA[pose];
+        if (v) { pose = v[vez++ % v.length]; if (pose === ultima) pose = v[vez++ % v.length]; }
+        ultima = pose;
+        poeAvatar(img, pose);
         balao.classList.remove('fala'); void balao.offsetWidth; balao.classList.add('fala');
       }
     };
@@ -264,7 +280,7 @@
 
   function capaLicao(ctx) {
     var p = daLicao(ctx.slug, ctx.id), c = el('div', 'licao-capa');
-    c.appendChild(avatar('apresentando', 'grande'));
+    c.appendChild(avatar(ctx.L.avatar || 'apresentando', 'grande'));
     var texto = el('div', 'licao-capa-texto', '<p class="olho">Lição ' + ctx.n + '</p><h1>' + esc(ctx.L.titulo) + '</h1>' +
       (ctx.L.abertura ? '<p class="sub">' + formata(ctx.L.abertura) + '</p>' : '') +
       '<p class="licao-capa-etapas"><span>Teoria</span><span>Exercícios</span><span>Avaliação Final</span></p>');
@@ -336,9 +352,11 @@
       T.modo('nenhum');
       T.posicao(fen(passo.fen), passo.lado || 'w');
       mostraTabuleiro(P);
-      // sem pose no passo: alterna as poses de explicação, sem repetir a do passo anterior
-      var pose = passo.pose || POSES_EXPLICAR[i % POSES_EXPLICAR.length];
-      if (!passo.pose && i > 0 && pose === (passos[i - 1].pose || POSES_EXPLICAR[(i - 1) % POSES_EXPLICAR.length])) pose = POSES_EXPLICAR[(i + 1) % POSES_EXPLICAR.length];
+      // a lição de uma peça abre e explica, de vez em quando, com o professor segurando a peça;
+      // nos outros passos sem pose, o professor alterna entre os gestos de explicação
+      var pose = passo.pose;
+      if (pose === 'apresentando' && ctx.L.avatar) pose = ctx.L.avatar;
+      else if (!pose) pose = ctx.L.avatar && i % 3 === 0 ? ctx.L.avatar : POSES_EXPLICAR[(i + ctx.n) % POSES_EXPLICAR.length];
       prof.fala(passo.texto, pose);
       var marcas = { destaques: passo.destaques, setas: passo.setas, rotulos: passo.rotulos };
       var lances = (passo.animacao || []).slice();

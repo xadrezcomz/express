@@ -1,6 +1,7 @@
 {
   "id": "licao-04",
   "titulo": "A Dama",
+  "avatar": "peca-dama",
   "abertura": "A dama é a peça mais poderosa do tabuleiro. E você já sabe metade do segredo dela.",
   "teoria": [
     {

@@ -1,6 +1,7 @@
 {
   "id": "licao-05",
   "titulo": "O Rei",
+  "avatar": "peca-rei",
   "abertura": "O rei é lento, mas é a peça mais importante. Se ele cair, a partida acaba.",
   "teoria": [
     {
