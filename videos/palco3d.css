@@ -45,6 +45,8 @@
 .hud span::before{content:'';display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--ouro);
   box-shadow:0 0 12px var(--ouro);margin-right:14px;vertical-align:2px}
 .hud b{color:var(--ouro)}
+.hud span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;margin-right:18px}
+.hud b{white-space:nowrap;flex-shrink:0}
 
 /* o texto animado: entra palavra por palavra; as palavras em destaque vêm grandes e douradas */
 .manchete{position:absolute;left:52px;right:52px;top:128px;z-index:9;display:flex;flex-wrap:wrap;align-items:baseline;
@@ -102,7 +104,7 @@
 .sombra-topo{height:640px}
 .sombra-pe{height:560px;background:linear-gradient(0deg,#070417 0%,rgba(7,4,23,.96) 40%,rgba(7,4,23,0) 100%)}
 .palco3d.show .sombra-topo{height:720px}
-.hud{left:80px;right:140px;top:250px;font-size:22px;padding-bottom:12px}
+.hud{left:80px;right:140px;top:250px;font-size:22px;letter-spacing:.1em;padding-bottom:12px}
 .manchete{left:80px;right:140px;top:312px;font-size:54px;gap:2px 14px}
 .manchete span.forte{font-size:78px}
 .nota{top:1330px;left:510px;font-size:58px;padding:10px 34px 14px}
@@ -126,3 +128,41 @@
 .tela .t-frase em{font-size:64px}
 /* na edição "show" a marca vai para a barra do alto, e o rodapé some (ficaria em cima das peças) */
 .palco3d.show .pe{display:none}
+/* o cronômetro dos desafios ([tela cronometro 5 | Ache o lance!]) */
+.tela .t-relogio{width:440px;height:440px}
+.tela .t-conta{font-weight:700;font-size:220px;line-height:1;margin-top:-330px;margin-bottom:110px;color:#fff;text-shadow:0 0 60px rgba(255,190,80,.6)}
+
+/* a capa (edição show): título grande nos primeiros quadros, dentro da zona segura */
+.capa{position:absolute;inset:0;z-index:20;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:34px;padding:250px 140px 440px 80px;text-align:center;
+  background:radial-gradient(900px 900px at 50% 48%,#4a2cc0,#1b1150 55%,#07041a)}
+.capa-raios{position:absolute;left:50%;top:46%;width:1700px;height:1700px;margin:-850px 0 0 -850px;border-radius:50%;opacity:.35;
+  background:repeating-conic-gradient(from 0deg,rgba(255,211,107,.35) 0 6deg,transparent 6deg 18deg)}
+.capa-marca{position:relative;font-family:var(--titulo);font-weight:700;font-size:30px;letter-spacing:.3em;text-transform:uppercase;color:rgba(244,241,255,.75)}
+.capa-serie{position:relative;padding:12px 30px;border-radius:99px;font-family:var(--titulo);font-weight:700;font-size:40px;letter-spacing:.08em;
+  text-transform:uppercase;color:#241300;background:var(--ouro);box-shadow:0 0 40px rgba(255,190,80,.6)}
+.capa-titulo{position:relative;margin:0;font-family:var(--titulo);font-weight:700;font-size:104px;line-height:1.02;text-transform:uppercase;
+  color:#fff;text-wrap:balance;text-shadow:0 0 50px rgba(160,107,255,.9),0 10px 30px rgba(0,0,0,.6)}
+.capa-logo{position:relative;width:150px;height:150px;border-radius:32px;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+/* tela de ícone ([tela icone trofeu | Título | subtítulo]) */
+.tela .t-icone{width:400px;height:400px;filter:drop-shadow(0 30px 40px rgba(0,0,0,.5))}
+.tela .t-ico-tit{font-size:96px;margin-top:20px}
+/* tela dividida ([tela versus FEN lance | Iniciante | FEN lance | Mestre]) */
+.tela .vs{display:flex;align-items:center;gap:16px}
+.tela .vs-lado{display:flex;flex-direction:column;align-items:center;gap:18px}
+.tela .vs-r{font-family:var(--titulo);font-size:44px;padding:8px 22px;border-radius:14px;text-transform:uppercase}
+.tela .vs-r.ruim{background:#ff4f78;color:#fff}.tela .vs-r.bom{background:#58e23a;color:#0b0624}
+.tela .vs-x{font-family:var(--titulo);font-weight:700;font-size:70px;color:var(--ouro)}
+.tela .vs-tab{position:relative;width:380px;height:380px;display:grid;grid-template-columns:repeat(8,1fr);border-radius:10px;overflow:hidden;
+  box-shadow:0 0 0 6px #2a1f7a,0 20px 40px rgba(0,0,0,.6)}
+.tela .vs-tab i{background:#ece7ff}.tela .vs-tab i.esc{background:#7462e6}
+.tela .vs-tab i.alvo-vermelha{box-shadow:inset 0 0 0 4px #ff4f78}.tela .vs-tab i.alvo-verde{box-shadow:inset 0 0 0 4px #58e23a}
+.tela .vs-p{position:absolute;width:12.5%;height:12.5%;padding:2%}
+.tela .vs-seta{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+/* [tela celular]: a moldura do celular; a tela (240,500 até 781,1420) recebe a gravação na montagem */
+.tela .t-celular{position:absolute;left:216px;top:476px;width:589px;height:968px;border-radius:64px;background:#0d0a1c;
+  box-shadow:0 0 0 4px #3b3266,0 40px 120px rgba(0,0,0,.7),0 0 160px rgba(120,90,255,.35);transform-origin:50% 50%}
+.tela .t-celular i{position:absolute;left:24px;top:24px;width:541px;height:920px;border-radius:40px;background:#000}
+
+.minus{text-transform:none!important}

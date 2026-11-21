@@ -81,9 +81,10 @@ function leOrdem(texto, onde) {
 
   if (nome === 'lance' || nome === 'lances') {
     let promo = null;
-    const casas = semCor.filter(p => { const t = PECAS[chave(p)]; if (t) promo = t; return !t; });
+    const lento = semCor.includes('lento');          // [lance e5d3 lento]: a peça anda em câmera lenta
+    const casas = semCor.filter(p => p !== 'lento').filter(p => { const t = PECAS[chave(p)]; if (t) promo = t; return !t; });
     paresDeCasas(casas, onde).forEach((par, k) => {
-      acoes.push({ tipo: 'lance', de: indice(par[0]), para: indice(par[1]), promo: promo, atraso: k * ENTRE_LANCES });
+      acoes.push({ tipo: 'lance', de: indice(par[0]), para: indice(par[1]), promo: promo, atraso: k * ENTRE_LANCES, lento: lento });
     });
   } else if (nome === 'seta' || nome === 'setas') {
     acoes.push({ tipo: 'seta', setas: paresDeCasas(semCor, onde).map(p => [indice(p[0]), indice(p[1])]), cor: cor || 'amarela' });
@@ -116,6 +117,8 @@ function leOrdem(texto, onde) {
   } else if (nome === 'mao') {                          // [mao f3]: a mão pega a peça (só no 3D)
     if (semCor.length !== 1 || !ehCasa(semCor[0])) throw new Error(onde + ': diga a casa da peça (ex.: [mao f3])');
     acoes.push({ tipo: 'mao', casa: indice(semCor[0]) });
+  } else if (nome === 'zoom') {                         // [zoom]: a câmera chega bem perto do próximo lance
+    acoes.push({ tipo: 'zoom' });
   } else if (nome === 'nota') {                         // [nota 7... Cd3#]: o lance escrito, embaixo
     acoes.push({ tipo: 'nota', texto: partes.slice(1).join(' ') });
   } else if (nome === 'etiqueta') {                     // [etiqueta d3 LIVRE! vermelha]
@@ -131,13 +134,13 @@ function leOrdem(texto, onde) {
   } else if (nome === 'tela') {                         // [tela numero 7 | lances]: uma tela gráfica inteira
     const resto2 = partes.slice(2).join(' ').split('|').map(x => x.trim());
     const modelo = chave(partes[1] || '');
-    if (!/^(numero|alerta|carimbo|medidor|lista|frase)$/.test(modelo)) throw new Error(onde + ': as telas são numero, alerta, carimbo, medidor, lista e frase');
+    if (!/^(numero|alerta|carimbo|medidor|lista|frase|cronometro|icone|versus|celular)$/.test(modelo)) throw new Error(onde + ': as telas são numero, alerta, carimbo, medidor, lista, frase, cronometro, icone, versus e celular');
     acoes.push({ tipo: 'tela', modelo: modelo, partes: resto2 });
   } else if (nome === 'tira') {
     semCor.forEach(p => { if (!ehCasa(p)) throw new Error(onde + ': "' + p + '" não é uma casa'); });
     acoes.push({ tipo: 'tira', casas: semCor.map(indice) });
   } else {
-    throw new Error(onde + ': não conheço a ordem [' + texto + ']. As ordens são: lance, seta, marca, limpa, posicao, poe, tira, mostra, esconde, texto, visao, mao, nota, etiqueta, flash, treme, tela.');
+    throw new Error(onde + ': não conheço a ordem [' + texto + ']. As ordens são: lance, seta, marca, limpa, posicao, poe, tira, mostra, esconde, texto, visao, mao, nota, etiqueta, flash, treme, tela, zoom.');
   }
   acoes.forEach(a => { a.aos = aos; });
   return acoes;
@@ -153,7 +156,7 @@ function le(texto, nomeArquivo) {
     if (l === '' && !Object.keys(cab).length) continue;
     if (/^-{3,}$/.test(l)) { i++; break; }
     const m = l.match(/^([A-Za-zÀ-ÿ]+)\s*:\s*(.*)$/);
-    if (!m || !/^(licao|titulo|posicao|pecas|lado|legenda|voz|estilo|edicao)$/.test(chave(m[1]))) break;
+    if (!m || !/^(licao|titulo|posicao|pecas|lado|legenda|voz|estilo|edicao|musica|serie)$/.test(chave(m[1]))) break;
     cab[chave(m[1])] = m[2].trim();
   }
   const onde = nomeArquivo || 'lição';
@@ -162,7 +165,9 @@ function le(texto, nomeArquivo) {
 
   // a fala: palavras e, entre elas, as ordens (cada ordem guarda antes de qual palavra ela vem)
   const palavras = [], ordens = [];
-  const corpo = linhas.slice(i).filter(l => !/^\s*(#|\/\/)/.test(l)).join('\n');
+  // {fala|legenda}: a voz fala uma coisa e a legenda mostra outra ({trinta e duas|32})
+  const corpo = linhas.slice(i).filter(l => !/^\s*(#|\/\/)/.test(l)).join('\n')
+    .replace(/\{([^|{}\[\]]+)\|([^{}\s\[\]]+)\}/g, (m, fala, leg) => leg + '\u0001' + encodeURIComponent(fala.trim()));
   corpo.split(/(\[[^\]]*\])/).forEach(pedaco => {
     if (pedaco[0] === '[' && pedaco[pedaco.length - 1] === ']') {
       leOrdem(pedaco.slice(1, -1), onde).forEach(a => { a.antesDe = palavras.length; ordens.push(a); });
@@ -172,7 +177,14 @@ function le(texto, nomeArquivo) {
         linha.split(/\s+/).filter(Boolean).forEach(p => {
           if (chave(p) === '' && palavras.length) palavras[palavras.length - 1].texto += ' ' + p;   // um travessão solto
           // *palavra*: a palavra em destaque no texto animado (os asteriscos não vão para a voz)
-          else if (chave(p) !== '') palavras.push(p.includes('*') ? { texto: p.replace(/\*/g, ''), destaque: true } : { texto: p });
+          else if (chave(p.split('\u0001')[0]) !== '' || p.includes('\u0001')) {
+            const pal = p.includes('*') ? { texto: p.replace(/\*/g, ''), destaque: true } : { texto: p };
+            if (pal.texto.includes('\u0001')) {
+              const [leg, resto] = pal.texto.split('\u0001'), m = resto.match(/^(.*?)([.,!?;:…"]*)$/);
+              pal.texto = leg + m[2]; pal.voz = decodeURIComponent(m[1]) + m[2];
+            }
+            palavras.push(pal);
+          }
         });
       });
     }
@@ -184,9 +196,9 @@ function le(texto, nomeArquivo) {
     pretasEmbaixo: /^pret/.test(chave(cab.lado || '')),
     estilo: chave(cab.estilo || '') === '3d' ? '3d' : '2d',
     legenda: !/^(nao|n|off|0)$/.test(chave(cab.legenda || 'sim')),
-    edicao: chave(cab.edicao || ''),
+    edicao: chave(cab.edicao || ''), musica: chave(cab.musica || ''), serie: cab.serie || '',
     casas: casas, palavras: palavras, ordens: ordens,
-    fala: palavras.map(p => p.texto).join(' ')
+    fala: palavras.map(p => p.voz || p.texto).join(' ')
   };
 }
 
@@ -299,7 +311,8 @@ function roteiro(licao, tempos, duracao) {
       ev.movem = r.movem; ev.capturada = r.capturada; ev.de = a.de; ev.para = a.para;
       casas = r.depois;
       Object.assign(ev, xequeDepois(casas, r.movem[0].peca));
-      ultimo = ev.t + DUR_LANCE;
+      if (a.lento) ev.dur = Math.round(DUR_LANCE * 2.6 * 1000) / 1000;
+      ultimo = ev.t + (ev.dur || DUR_LANCE);
     } else if (a.tipo === 'posicao') { casas = a.casas.slice(); ultimo = ev.t; }
     else if (a.tipo === 'poe') { casas = casas.slice(); a.pecas.forEach(p => { casas[p.casa] = p.peca; }); ev.novas = a.pecas.map(p => p.casa); ultimo = ev.t; }
     else if (a.tipo === 'mostra') { ev.peca = a.peca; ev.nome = a.nome; ultimo = ev.t; }
@@ -341,14 +354,14 @@ function roteiro(licao, tempos, duracao) {
   let efeitos = 0;
   eventos.forEach(ev => {
     if (ev.tipo === 'texto') efeitos = Math.max(efeitos, ev.t + 1.6);
-    if (ev.xeque != null) efeitos = Math.max(efeitos, ev.t + DUR_LANCE + 1.4);
-    if (ev.capturada) efeitos = Math.max(efeitos, ev.t + DUR_LANCE + 0.6);
+    if (ev.xeque != null) efeitos = Math.max(efeitos, ev.t + (ev.dur || DUR_LANCE) + 1.4);
+    if (ev.capturada) efeitos = Math.max(efeitos, ev.t + (ev.dur || DUR_LANCE) + 0.6);
     if (ev.tipo === 'mostra') efeitos = Math.max(efeitos, ev.t + 1.2);
   });
   const fim = Math.max(fimDaFala, ultimo, efeitos, duracao || 0);
   return {
     numero: licao.numero, titulo: licao.titulo, pretasEmbaixo: licao.pretasEmbaixo, estilo: licao.estilo,
-    legenda: licao.legenda, edicao: licao.edicao, inicial: inicial, eventos: eventos, legendas: legendas,
+    legenda: licao.legenda, edicao: licao.edicao, musica: licao.musica, serie: licao.serie, inicial: inicial, eventos: eventos, legendas: legendas,
     durLance: DUR_LANCE, duracao: fim, visoes: visoes
   };
 }

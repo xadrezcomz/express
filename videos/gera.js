@@ -212,6 +212,16 @@ async function geraVideo(arquivoLicao, op) {
   return saida;
 }
 
+function escolheMusica(clima, saida) {
+  const pasta = path.join(BASE, 'musicas');
+  if (!fs.existsSync(pasta)) return null;
+  const opcoes = fs.readdirSync(pasta).filter(f => new RegExp('^' + clima + '(_\\d+)?\\.mp3$').test(f)).sort();
+  if (!opcoes.length) return null;
+  const nome = path.basename(saida);
+  let h = 0; for (const ch of nome) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return path.join(pasta, opcoes[h % opcoes.length]);
+}
+
 // Os efeitos sonoros da edição "show": que som toca, em que segundo e com que volume.
 function efeitosSonoros(roteiro) {
   const pasta = path.join(BASE, 'sons');
@@ -236,6 +246,40 @@ function efeitosSonoros(roteiro) {
 }
 
 // Filma o roteiro num estilo e monta o MP4 com o áudio.
+// a tela do celular desenhado pelo palco (palco3d.css, .t-celular i)
+const CEL = { x: 240, y: 500, w: 541, h: 920 };
+// cada [tela celular] vale até o próximo lance, posição, tela, [limpa] ou [esconde]
+// a gravação começa com a página em branco, ainda carregando: pula esse pedaço
+const brancos = {};
+function inicioSemBranco(arq) {
+  if (brancos[arq] != null) return brancos[arq];
+  let ini = 0;
+  try {
+    const r = require('child_process').execFileSync('ffmpeg', ['-v', 'error', '-t', '6', '-i', arq, '-vf',
+      'fps=10,scale=54:92,signalstats,metadata=print:key=lavfi.signalstats.YAVG:file=-', '-f', 'null', '-'], { encoding: 'utf8' });
+    const ys = [...r.matchAll(/YAVG=([\d.]+)/g)].map(m => +m[1]);
+    const k = ys.findIndex(y => y < 233);
+    ini = k > 0 ? k / 10 + 0.1 : 0;
+  } catch (e) {}
+  return (brancos[arq] = ini);
+}
+function janelasDoCelular(roteiro, duracao) {
+  const fecha = ['lance', 'posicao', 'tela', 'limpa', 'esconde'];
+  const js = []; let aberta = null;
+  roteiro.eventos.forEach(ev => {
+    if (aberta && fecha.includes(ev.tipo)) { aberta.ate = ev.t; js.push(aberta); aberta = null; }
+    if (ev.tipo === 'tela' && ev.modelo === 'celular') {
+      const nome = (ev.partes[0] || '').trim(), ini = parseFloat(ev.partes[1]) || 0;
+      let arq = path.isAbsolute(nome) ? nome : path.join(BASE, nome);
+      if (!/\.(mp4|mov|webm)$/i.test(arq)) arq += '.mp4';
+      if (!fs.existsSync(arq)) throw new Error('[tela celular]: não achei a gravação ' + arq);
+      aberta = { arquivo: arq, ini: Math.max(ini, inicioSemBranco(arq)), de: Math.max(ev.t, 0.75) };   // depois da capa
+    }
+  });
+  if (aberta) { aberta.ate = duracao; js.push(aberta); }
+  return js;
+}
+
 async function filma(roteiro, estilo, duracao, audio, saida) {
   const pagina = await abrePalco(estilo);
   await pagina.evaluate(r => window.XEV.prepara(r), Object.assign({}, roteiro, { estilo: estilo }));
@@ -268,13 +312,33 @@ async function filma(roteiro, estilo, duracao, audio, saida) {
   // na edição "show", os efeitos sonoros (pasta sons/ das lições) entram no segundo de cada acontecimento
   const sons = efeitosSonoros(roteiro);
   sons.forEach(e => args.push('-i', e.arquivo));
-  let mix = '[1:a]' + (audio ? 'loudnorm=I=-16:TP=-1.5:LRA=11,' : '') + 'apad' + (sons.length ? '[voz];' : '[a]');
-  if (sons.length) {
-    sons.forEach((e, k) => { const ms = Math.round(e.t * 1000); mix += '[' + (3 + k) + ':a]aresample=48000,adelay=' + ms + ':all=1,volume=' + e.vol + '[s' + k + '];'; });
-    mix += '[voz]' + sons.map((e, k) => '[s' + k + ']').join('') + 'amix=inputs=' + (sons.length + 1) + ':normalize=0:duration=first[a]';
-  }
+  // música de fundo ("musica: suspense" no cabeçalho -> musicas/suspense.mp3 da pasta das lições), baixinha
+  // com várias versões do mesmo clima (suspense_1.mp3, suspense_2.mp3...), cada vídeo pega uma,
+  // sempre a mesma para o mesmo vídeo, para os vídeos parecidos não soarem iguais
+  const fMusica = roteiro.musica ? escolheMusica(roteiro.musica, saida) : null;
+  const comMusica = fMusica && fs.existsSync(fMusica);
+  if (comMusica) args.push('-stream_loop', '-1', '-i', fMusica);
+  const extras = sons.length + (comMusica ? 1 : 0);
+  // [tela celular arquivo | segundo]: a gravação de tela entra dentro do celular desenhado pelo palco
+  const clipes = janelasDoCelular(roteiro, duracao);
+  clipes.forEach(c => args.push('-i', c.arquivo));
+  const base = 3 + sons.length + (comMusica ? 1 : 0);
+  let cel = '', ultimo = 'q';
+  clipes.forEach((c, k) => {
+    cel += '[' + (base + k) + ':v]trim=start=' + c.ini.toFixed(3) + ',setpts=PTS-STARTPTS,fps=' + QPS + ',scale=' + CEL.w + ':' + CEL.h +
+      ':force_original_aspect_ratio=increase,crop=' + CEL.w + ':' + CEL.h + ':0:0,format=yuv420p,tpad=stop_mode=clone:stop_duration=600,setpts=PTS+' + c.de.toFixed(3) + '/TB[c' + k + '];' +
+      '[' + ultimo + '][c' + k + ']overlay=' + CEL.x + ':' + CEL.y + ':enable=\'between(t,' + c.de.toFixed(3) + ',' + c.ate.toFixed(3) + ')\':eof_action=pass[k' + k + '];';
+    ultimo = 'k' + k;
+  });
+  // com música, a voz é dividida em duas: uma vai para a mistura e a outra comanda o "ducking"
+  // (a música baixa sozinha enquanto a voz fala e volta a subir nas pausas)
+  let mix = '[1:a]' + (audio ? 'loudnorm=I=-16:TP=-1.5:LRA=11,' : '') + 'apad' + (comMusica ? ',asplit=2[voz][vozsc];' : extras ? '[voz];' : '[a]');
+  sons.forEach((e, k) => { const ms = Math.round(e.t * 1000); mix += '[' + (3 + k) + ':a]aresample=48000,adelay=' + ms + ':all=1,volume=' + e.vol + '[s' + k + '];'; });
+  if (comMusica) mix += '[' + (3 + sons.length) + ':a]aresample=48000,atrim=0:' + d + ',volume=0.32,afade=t=in:d=0.8,afade=t=out:st=' + Math.max(0, duracao - 1.5).toFixed(2) + ':d=1.5[mu0];' +
+    '[mu0][vozsc]sidechaincompress=threshold=0.02:ratio=6:attack=30:release=450:makeup=1[mu];';
+  if (extras) mix += '[voz]' + sons.map((e, k) => '[s' + k + ']').join('') + (comMusica ? '[mu]' : '') + 'amix=inputs=' + (extras + 1) + ':normalize=0:duration=first[a]';
   args.push('-filter_complex',
-    '[0:v]fps=' + QPS + ',format=yuv420p[q];[q][2:v]overlay=x=\'-W+W*t/' + d + '\':y=H-10:shortest=0[v];' + mix,
+    '[0:v]fps=' + QPS + ',format=yuv420p[q];' + cel + '[' + ultimo + '][2:v]overlay=x=\'-W+W*t/' + d + '\':y=H-10:shortest=0[v];' + mix,
     '-map', '[v]', '-map', '[a]', '-t', d,
     '-c:v', 'libx264', '-preset', 'fast', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', String(QPS),
     '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', saida);

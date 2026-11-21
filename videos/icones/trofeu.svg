@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><!-- troféu -->
+<path d="M120 70 H280 V150 A80 80 0 0 1 120 150 Z" fill="#ffd36b" stroke="#c98a12" stroke-width="8"/>
+<path d="M120 90 H70 A50 50 0 0 0 128 170 M280 90 H330 A50 50 0 0 1 272 170" fill="none" stroke="#ffd36b" stroke-width="16" stroke-linecap="round"/>
+<rect x="178" y="228" width="44" height="60" fill="#ffd36b"/><rect x="120" y="288" width="160" height="34" rx="8" fill="#c98a12"/>
+<rect x="100" y="320" width="200" height="34" rx="8" fill="#2a1f7a"/>
+<path d="M200 98 l12 26 28 3 -21 19 6 28 -25 -14 -25 14 6 -28 -21 -19 28 -3z" fill="#fff6d8"/></svg>

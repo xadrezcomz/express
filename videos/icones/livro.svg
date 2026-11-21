@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><!-- livro aberto -->
+<path d="M200 110 C150 80 90 80 40 100 V320 C90 300 150 300 200 330 Z" fill="#f3f0ff" stroke="#7462e6" stroke-width="8" stroke-linejoin="round"/>
+<path d="M200 110 C250 80 310 80 360 100 V320 C310 300 250 300 200 330 Z" fill="#ece7ff" stroke="#7462e6" stroke-width="8" stroke-linejoin="round"/>
+<path d="M75 150 H165 M75 185 H165 M75 220 H150 M235 150 H325 M235 185 H325 M235 220 H310" stroke="#a69cf0" stroke-width="10" stroke-linecap="round"/>
+<path d="M260 60 V130 L280 115 L300 130 V60 Z" fill="#ff4f78"/></svg>

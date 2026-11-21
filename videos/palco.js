@@ -46,6 +46,19 @@
     return Promise.all(imgs.concat(document.fonts.ready)).then(function () { return true; });
   }
 
+  // A faixa não pode tampar o que está em destaque: no meio, no alto ou no pé do tabuleiro,
+  // fica na faixa de linhas mais longe das casas do lance, do xeque, das marcas e das setas.
+  var focoAgora = [];
+  function lugarDaFaixa() {
+    if (!focoAgora.length) return 0.5;
+    var melhor = 0.5, nota = -1;
+    [0.5, 0.14, 0.86].forEach(function (a, k) {
+      var cy = a * 8, livre = Math.min.apply(null, focoAgora.map(function (i) { return Math.max(Math.abs(xy(i)[1] + 0.5 - cy) - 0.75, 0); }));
+      if (livre - k * 0.01 > nota) { nota = livre - k * 0.01; melhor = a; }
+    });
+    return melhor;
+  }
+
   // Tudo o que aparece no segundo t, como dados. O texto disso é a "assinatura" do quadro.
   function estado(t) {
     var tab = R.inicial, veio = -1, foi = -1, setas = [], marcas = [], andando = null, novas = null;
@@ -55,12 +68,12 @@
       if (ev.t > t) break;
       tab = ev.tabuleiro;
       andando = null; novas = null;
-      var chega = ev.t + R.durLance;            // quando a peça do lance termina de andar
+      var chega = ev.t + (ev.dur || R.durLance);            // quando a peça do lance termina de andar
       if (ev.tipo === 'lance') {
         veio = ev.de; foi = ev.para; setas = []; marcas = [];
-        if (t - ev.t < R.durLance) andando = { ev: ev, p: (t - ev.t) / R.durLance };
+        if (t - ev.t < (ev.dur || R.durLance)) andando = { ev: ev, p: (t - ev.t) / (ev.dur || R.durLance) };
         xeque = ev.xeque != null ? { casa: ev.xeque, mate: ev.mate, t0: chega } : null;
-        if (ev.capturada) captura = { casa: ev.capturada.casa, peca: ev.capturada.peca, t0: ev.t + R.durLance * DUR_ATE_BATER };
+        if (ev.capturada) captura = { casa: ev.capturada.casa, peca: ev.capturada.peca, t0: ev.t + (ev.dur || R.durLance) * DUR_ATE_BATER };
         if (ev.xeque != null) faixa = { texto: ev.mate ? 'XEQUE-MATE!' : 'XEQUE!', classe: ev.mate ? 'mate' : 'xeque', t0: chega, dur: ev.mate ? 2.2 : 1.4 };
         if (cartaz) { cartazSai = { c: cartaz, t0: ev.t }; cartaz = null; }
       } else if (ev.tipo === 'posicao') { veio = foi = -1; setas = []; marcas = []; xeque = null; }
@@ -105,10 +118,15 @@
       // pisca forte três vezes e depois fica aceso, parado
       brilho = { casa: xeque.casa, mate: xeque.mate ? 1 : 0, o: dx < 1.2 ? n3(0.55 + 0.45 * Math.cos(dx * Math.PI * 5)) : 1 };
     }
+    focoAgora = [];
+    if (veio >= 0) focoAgora.push(veio); if (foi >= 0) focoAgora.push(foi);
+    if (xeque && t >= xeque.t0) focoAgora.push(xeque.casa);
+    marcas.forEach(function (m) { focoAgora.push(m.casa); });
+    setas.forEach(function (s) { focoAgora.push(s.de, s.para); });
     var fx = null;
     if (faixa && t >= faixa.t0 && t - faixa.t0 < faixa.dur) {
       var df = t - faixa.t0, fim = faixa.dur - df;
-      fx = { texto: faixa.texto, classe: faixa.classe,
+      fx = { texto: faixa.texto, classe: faixa.classe, y: lugarDaFaixa(),
         e: n3(df < 0.3 ? 0.4 + 0.6 * molinha(df / 0.3) : 1), o: n3(Math.min(1, df / 0.12, fim / 0.25)) };
     }
     var cz = null;
@@ -224,6 +242,7 @@
       elFaixa.textContent = e.faixa.texto;
       elFaixa.className = 'faixa ' + e.faixa.classe;
       elFaixa.style.transform = 'translate(-50%,-50%) scale(' + e.faixa.e + ')';
+      elFaixa.style.top = (e.faixa.y * 100) + '%';
       elFaixa.style.opacity = e.faixa.o;
     }
     elCartaz.hidden = !e.cartaz;
