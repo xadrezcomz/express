@@ -71,10 +71,32 @@ button{font:inherit;color:inherit}
 .menu a:hover{background:rgba(160,107,255,.22)}
 .topo .botao{margin-left:auto}
 .topo .botao-p{background:linear-gradient(180deg,#ffe08a,#ffb53d);color:#241300}
+.menu a.menu-aprender{color:var(--ciano)}
+/* no celular o menu mora atrás do botão de três linhas e abre como uma lista embaixo do topo */
+.menu-abre{flex:none;width:44px;height:44px;margin-right:-6px;display:grid;place-items:center;
+  background:none;border:0;border-radius:12px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.menu-abre span,.menu-abre span::before,.menu-abre span::after{display:block;width:22px;height:2.5px;border-radius:2px;background:#fff;
+  transition:transform .2s ease,background .2s ease}
+.menu-abre span{position:relative}
+.menu-abre span::before,.menu-abre span::after{content:'';position:absolute;left:0}
+.menu-abre span::before{top:-7px}
+.menu-abre span::after{top:7px}
+.topo.menu-aberto .menu-abre span{background:transparent}
+.topo.menu-aberto .menu-abre span::before{transform:translateY(7px) rotate(45deg)}
+.topo.menu-aberto .menu-abre span::after{transform:translateY(-7px) rotate(-45deg)}
+@media (max-width:799px){
+  .topo.menu-aberto .menu{
+    display:flex;flex-direction:column;gap:2px;position:absolute;top:100%;left:0;right:0;margin:0;
+    padding:8px max(14px,env(safe-area-inset-right)) 14px max(14px,env(safe-area-inset-left));
+    background:#0a0620;border-bottom:1px solid var(--linha2);box-shadow:0 20px 40px -20px #000;
+  }
+  .topo.menu-aberto .menu a{min-height:50px;display:flex;align-items:center;font-size:1.125rem;padding:.5em .6em}
+}
 @media (min-width:800px){
   :root{--topo:68px}
   .menu{display:flex}
   .topo .botao{margin-left:6px}
+  .menu-abre{display:none}
 }
 
 /* ------------------------------------------------------------- início (hero) */

@@ -33,13 +33,15 @@
     <img src="img/logo.svg" alt="" width="36" height="36">
     <span>Xadrez <b>Express</b></span>
   </a>
-  <nav class="menu" aria-label="Seções">
+  <nav class="menu" id="menu" aria-label="Seções">
+    <a class="menu-aprender" href="aprender/">Aprender</a>
     <a href="#puzzle">Desafio do dia</a>
     <a href="#partida">Partida do dia</a>
     <a href="#frase">Frase do dia</a>
     <a href="#curso">O curso</a>
   </nav>
   <a class="botao botao-p" href="#curso" data-cta-topo>O curso</a>
+  <button type="button" class="menu-abre" aria-controls="menu" aria-expanded="false" aria-label="Abrir o menu"><span></span></button>
 </header>
 
 <main>
@@ -312,5 +314,6 @@
 <script src="js/puzzle.js" defer></script>
 <script src="js/partida.js" defer></script>
 <script src="js/site.js" defer></script>
+<script src="js/menu.js" defer></script>
 </body>
 </html>

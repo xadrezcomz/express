@@ -18,6 +18,7 @@ preços), os botões de compra aparecem no topo, no cartão do curso e numa barr
 | Desafio do dia | `js/puzzle.js`, `dados/puzzles.js` | Banco aberto do Lichess (CC0); peças e cores do tabuleiro do Slide Chess |
 | Partida do dia (tabuleiro 3D) | `js/partida.js`, `dados/partidas.js` | 400 partidas clássicas (PGN Mentor) |
 | Frase do dia | `js/site.js`, `dados/frases.js` | 408 frases de figuras do xadrez e do esporte |
+| Aprender (lições gratuitas, em `aprender/`) | `js/aprender.js`, `js/tabuleiro.js`, `content/aprender/` | Lições escritas à mão e exercícios do Lichess (CC0); como editar em `content/aprender/README.md` |
 | O curso (cartão de venda) | `index.html`, `js/site.js`, `js/config.js` | |
 
 `js/xadrez.js` tem as regras do xadrez usadas pelo puzzle, pela partida e pelas ferramentas.
