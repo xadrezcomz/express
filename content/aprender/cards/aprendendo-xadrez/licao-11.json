@@ -1,0 +1,194 @@
+{
+  "id": "licao-11",
+  "titulo": "Xeque, Mate ou Afogamento?",
+  "abertura": "Três resultados que decidem uma partida. Ou não decidem! Vamos aprender a diferença.",
+  "teoria": [
+    {
+      "fen": "4k3/8/8/8/8/8/8/4K3 w - - 0 1",
+      "texto": "Três palavras decidem o destino de uma partida: **xeque**, **xeque-mate** e **afogamento**.",
+      "pose": "apresentando"
+    },
+    {
+      "fen": "rnb1kbnr/ppp2ppp/3pp3/8/5P1q/3P1N2/PPP1P1PP/RNBQKB1R w KQkq - 1 4",
+      "texto": "Um **xeque** é só um ataque ao rei. Ele tem três defesas: **capturar** quem ataca, **bloquear** o caminho ou **fugir** com o rei.",
+      "pose": "explicando",
+      "setas": [
+        {
+          "de": "f3",
+          "para": "h4",
+          "cor": "verde"
+        },
+        {
+          "de": "g2",
+          "para": "g3",
+          "cor": "azul"
+        },
+        {
+          "de": "e1",
+          "para": "d2",
+          "cor": "amarelo"
+        }
+      ]
+    },
+    {
+      "fen": "1R2k3/R7/8/4K3/8/8/8/8 b - - 0 1",
+      "texto": "O **xeque-mate** é o xeque sem defesa: a torre ataca pela 8ª fileira e a outra fecha a 7ª. Fim de jogo!",
+      "pose": "surpreso",
+      "destaques": [
+        {
+          "casas": ["e8"],
+          "cor": "vermelho"
+        }
+      ]
+    },
+    {
+      "fen": "4k3/8/3Q1K2/8/8/8/8/8 b - - 0 1",
+      "texto": "Agora o **afogamento**: as pretas não têm nenhum lance, mas o rei **não está em xeque**. A partida termina **empatada**.",
+      "pose": "atencao",
+      "destaques": [
+        {
+          "casas": ["d8", "d7", "e7", "f7", "f8"],
+          "cor": "vermelho"
+        }
+      ]
+    },
+    {
+      "fen": "5K1k/8/6P1/8/7P/3B4/8/8 b - - 0 1",
+      "texto": "Pergunta: as brancas acabaram de capturar um peão em g6. É a vez das pretas. Xeque, mate ou afogamento?",
+      "pose": "curioso"
+    },
+    {
+      "fen": "5K1k/8/6P1/8/7P/3B4/8/8 b - - 0 1",
+      "texto": "**Afogamento!** O rei preto não está em xeque e todas as casas de fuga estão cobertas. Uma vitória virou empate.",
+      "pose": "atencao",
+      "destaques": [
+        {
+          "casas": ["g8", "g7", "h7"],
+          "cor": "vermelho"
+        }
+      ]
+    },
+    {
+      "fen": "8/8/8/8/8/5KP1/5B2/5k2 b - - 0 1",
+      "texto": "Capturar nem sempre é bom: o bispo acabou de tomar uma torre em f2 e... o rei preto ficou sem lances e sem xeque. **Afogamento**. Que tristeza!",
+      "pose": "surpreso"
+    },
+    {
+      "fen": "2k1R2r/pp3Q1p/3p2pB/3P1N2/3q1n2/2N5/PPP2PPP/6K1 b - - 1 1",
+      "texto": "E cuidado com o xeque que **parece** mate: aqui a torre preta de h8 simplesmente captura a torre branca. Foi só um xeque!",
+      "pose": "pensativo",
+      "setas": [
+        {
+          "de": "h8",
+          "para": "e8",
+          "cor": "verde"
+        }
+      ]
+    },
+    {
+      "fen": "1R2k3/R7/8/4K3/8/8/8/8 b - - 0 1",
+      "texto": "Dica de ouro: na hora de dar mate, deixe uma casa de fuga até o golpe final, para não **afogar** o rei. Bora praticar?",
+      "pose": "aprovando"
+    }
+  ],
+  "exercicios": {
+    "instrucao": "Xeque, mate ou afogamento?",
+    "itens": [
+      {
+        "tipo": "multipla",
+        "pergunta": "As pretas jogaram o bispo em b4. É xeque, mate ou afogamento?",
+        "opcoes": ["Xeque", "Xeque-mate", "Empate por afogamento"],
+        "correta": 0,
+        "explicacao": "Só xeque: as brancas podem bloquear com c3, Cc3 ou Bd2.",
+        "fen": "rnbqk1nr/pppp1ppp/8/4p3/1b1P4/8/PPP1PPPP/RNBQKBNR w KQkq - 2 3"
+      },
+      {
+        "tipo": "multipla",
+        "pergunta": "A dama branca foi para d1. É xeque, mate ou afogamento?",
+        "opcoes": ["Xeque", "Xeque-mate", "Empate por afogamento"],
+        "correta": 1,
+        "explicacao": "Xeque-mate! O rei branco apoia a dama junto à borda.",
+        "fen": "8/8/8/8/8/5K2/8/3Q1k2 b - - 0 1"
+      },
+      {
+        "tipo": "multipla",
+        "pergunta": "É a vez das pretas. Xeque, mate ou afogamento?",
+        "opcoes": ["Xeque", "Xeque-mate", "Empate por afogamento"],
+        "correta": 2,
+        "explicacao": "Afogamento: sem lances e sem xeque.",
+        "fen": "4k3/8/3Q1K2/8/8/8/8/8 b - - 0 1"
+      },
+      {
+        "tipo": "multipla",
+        "pergunta": "A torre subiu para g7. Xeque, mate ou afogamento?",
+        "opcoes": ["Xeque", "Xeque-mate", "Empate por afogamento"],
+        "correta": 1,
+        "explicacao": "Xeque-mate! O cavalo cobre as fugas e o rei branco protege a torre.",
+        "fen": "1r4k1/6R1/5KN1/6P1/8/8/8/8 b - - 0 1"
+      },
+      {
+        "tipo": "multipla",
+        "pergunta": "O bispo branco acabou de capturar em f2. Xeque, mate ou afogamento?",
+        "opcoes": ["Xeque", "Xeque-mate", "Empate por afogamento"],
+        "correta": 2,
+        "explicacao": "Afogamento: o rei preto não tem lances e não está em xeque.",
+        "fen": "8/8/8/8/8/5KP1/5B2/5k2 b - - 0 1"
+      },
+      {
+        "tipo": "multipla",
+        "pergunta": "A torre subiu para e8. Xeque, mate ou afogamento?",
+        "opcoes": ["Xeque", "Xeque-mate", "Empate por afogamento"],
+        "correta": 0,
+        "explicacao": "Só xeque: o bispo preto de a4 captura a torre.",
+        "fen": "4R2k/7p/5P2/2p1pK2/b1Br4/1P6/8/8 b - - 0 1"
+      }
+    ]
+  },
+  "avaliacao": [
+    {
+      "tipo": "multipla",
+      "pergunta": "O que é empate por afogamento?",
+      "opcoes": ["O rei em xeque sem saída", "Sem lances legais e sem estar em xeque", "Perder a dama", "Ficar só com o rei"],
+      "correta": 1,
+      "explicacao": "Sem lances e sem xeque: empate."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Xeque, mate ou afogamento?",
+      "opcoes": ["Xeque", "Xeque-mate", "Empate por afogamento"],
+      "correta": 1,
+      "explicacao": "Xeque-mate: as duas torres fecham as fileiras 7 e 8.",
+      "fen": "1R2k3/R7/8/4K3/8/8/8/8 b - - 0 1"
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Um xeque sempre é uma boa jogada?",
+      "opcoes": ["Sim", "Não: às vezes o adversário captura a peça que deu xeque"],
+      "correta": 1,
+      "explicacao": "Alguns xeques são bons, outros são inúteis."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "É a vez das pretas. Xeque, mate ou afogamento?",
+      "opcoes": ["Xeque", "Xeque-mate", "Empate por afogamento"],
+      "correta": 2,
+      "explicacao": "Afogamento.",
+      "fen": "5K1k/8/6P1/8/7P/3B4/8/8 b - - 0 1"
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "A torre branca deu xeque em e8. Xeque, mate ou afogamento?",
+      "opcoes": ["Xeque", "Xeque-mate", "Empate por afogamento"],
+      "correta": 0,
+      "explicacao": "Só xeque: a torre de h8 captura a torre branca.",
+      "fen": "2k1R2r/pp3Q1p/3p2pB/3P1N2/3q1n2/2N5/PPP2PPP/6K1 b - - 1 1"
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Quem está ganhando e afoga o rei adversário...",
+      "opcoes": ["Vence", "Empata", "Perde"],
+      "correta": 1,
+      "explicacao": "Afogamento é empate."
+    }
+  ]
+}

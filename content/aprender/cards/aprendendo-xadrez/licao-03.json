@@ -1,0 +1,188 @@
+{
+  "id": "licao-03",
+  "titulo": "O Bispo",
+  "abertura": "O bispo é o dono das diagonais. Ele corre longe, mas tem um segredo: nunca troca de cor.",
+  "teoria": [
+    {
+      "fen": "7k/8/8/8/3B4/8/8/7K w - - 0 1",
+      "texto": "Agora é a vez do **bispo**, o dono das diagonais.",
+      "pose": "apresentando"
+    },
+    {
+      "fen": "7k/8/8/8/3B4/8/8/7K w - - 0 1",
+      "texto": "O bispo anda na **diagonal**, quantas casas quiser.",
+      "destaques": [
+        {
+          "casas": ["e3", "f2", "g1", "e5", "f6", "g7", "h8", "c3", "b2", "a1", "c5", "b6", "a7"],
+          "cor": "verde"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/8/8/3B4/8/8/7K w - - 0 1",
+      "texto": "São quatro direções inclinadas, como um X. Daqui de d4 ele alcança 13 casas.",
+      "setas": [
+        {
+          "de": "d4",
+          "para": "a7",
+          "cor": "azul"
+        },
+        {
+          "de": "d4",
+          "para": "g7",
+          "cor": "azul"
+        },
+        {
+          "de": "d4",
+          "para": "a1",
+          "cor": "azul"
+        },
+        {
+          "de": "d4",
+          "para": "g1",
+          "cor": "azul"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/8/8/3B4/8/8/7K w - - 0 1",
+      "texto": "Sua vez: leve o bispo até ==a7==.",
+      "pose": "curioso",
+      "interativo": {
+        "lance": "d4a7",
+        "acerto": "Isso! Diagonal certinha."
+      }
+    },
+    {
+      "fen": "7k/8/8/8/3B4/8/8/7K w - - 0 1",
+      "texto": "Repare: o bispo em d4 só pisa em casas **escuras**. Ele nunca muda de cor, a partida inteira.",
+      "pose": "atencao",
+      "destaques": [
+        {
+          "casas": ["e3", "f2", "g1", "e5", "f6", "g7", "h8", "c3", "b2", "a1", "c5", "b6", "a7"],
+          "cor": "verde"
+        }
+      ]
+    },
+    {
+      "fen": "inicial",
+      "texto": "Por isso cada lado tem dois bispos: um das casas **claras** e um das casas **escuras**. Eles começam ao lado do rei e da dama.",
+      "destaques": [
+        {
+          "casas": ["c1", "f1", "c8", "f8"],
+          "cor": "amarelo"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/1p6/8/3B4/4P3/8/7K w - - 0 1",
+      "texto": "Como a torre, o bispo **não pula**. O peão branco em e3 trava uma diagonal, e o peão preto em b6 pode ser capturado.",
+      "pose": "atencao",
+      "destaques": [
+        {
+          "casas": ["e5", "f6", "g7", "h8", "c3", "b2", "a1", "c5", "b6"],
+          "cor": "verde"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/1p6/8/3B4/4P3/8/7K w - - 0 1",
+      "texto": "Capture o peão preto em ==b6==.",
+      "pose": "curioso",
+      "interativo": {
+        "lance": "d4b6",
+        "acerto": "Capturou! Na diagonal, sem pular ninguém."
+      }
+    },
+    {
+      "fen": "7k/8/8/8/3B4/8/8/7K w - - 0 1",
+      "texto": "Resumo: diagonal, quantas casas quiser, sempre na mesma cor. Bora praticar?",
+      "pose": "aprovando"
+    }
+  ],
+  "exercicios": {
+    "instrucao": "Movimento do bispo",
+    "itens": [
+      {
+        "tipo": "casa",
+        "fen": "7k/8/8/8/4B3/8/8/7K w - - 0 1",
+        "pergunta": "Toque numa casa onde o bispo pode ir",
+        "resposta": ["f3", "g2", "f5", "g6", "h7", "d3", "c2", "b1", "d5", "c6", "b7", "a8"],
+        "dica": "Pense em um X saindo do bispo."
+      },
+      {
+        "tipo": "autoral",
+        "fen": "7k/8/8/5r2/8/8/8/1B5K w - - 0 1",
+        "pergunta": "Capture a torre preta",
+        "solucao": ["b1f5"],
+        "dica": "Siga a diagonal que sobe para a direita."
+      },
+      {
+        "tipo": "multipla",
+        "pergunta": "O bispo em e4 está numa casa clara. Ele pode chegar em uma casa escura?",
+        "opcoes": ["Sim", "Não", "Só capturando", "Só no fim da partida"],
+        "correta": 1,
+        "explicacao": "O bispo nunca troca de cor.",
+        "fen": "7k/8/8/8/4B3/8/8/7K w - - 0 1"
+      },
+      {
+        "tipo": "casa",
+        "fen": "7k/8/5p2/8/3B4/2P5/8/7K w - - 0 1",
+        "pergunta": "Toque numa casa onde o bispo pode ir",
+        "resposta": ["e3", "f2", "g1", "e5", "f6", "c5", "b6", "a7"],
+        "dica": "O peão branco atrapalha; o preto pode ser capturado."
+      },
+      {
+        "tipo": "autoral",
+        "fen": "6k1/8/8/8/8/8/1q6/B6K w - - 0 1",
+        "pergunta": "Capture a dama preta",
+        "solucao": ["a1b2"],
+        "dica": "Ela está logo ali, na diagonal."
+      }
+    ]
+  },
+  "avaliacao": [
+    {
+      "tipo": "multipla",
+      "pergunta": "Como o bispo se move?",
+      "opcoes": ["Em linha reta", "Na diagonal", "Em L", "Uma casa por vez"],
+      "correta": 1,
+      "explicacao": "Diagonal, quantas casas quiser."
+    },
+    {
+      "tipo": "casa",
+      "fen": "7k/8/8/2B5/8/8/8/7K w - - 0 1",
+      "pergunta": "Toque numa casa onde o bispo pode ir",
+      "resposta": ["d4", "e3", "f2", "g1", "d6", "e7", "f8", "b4", "a3", "b6", "a7"],
+      "dica": "As quatro diagonais que saem de c5."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Um bispo que começa numa casa escura...",
+      "opcoes": ["Fica sempre em casas escuras", "Alterna entre claras e escuras", "Vai para as claras depois de capturar", "Pode escolher a cor"],
+      "correta": 0,
+      "explicacao": "O bispo nunca troca de cor."
+    },
+    {
+      "tipo": "autoral",
+      "fen": "7k/8/8/8/4n3/8/8/1B5K w - - 0 1",
+      "pergunta": "Capture o cavalo preto",
+      "solucao": ["b1e4"],
+      "explicacao": "Diagonal de b1 até e4."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Quantos bispos cada lado tem no começo?",
+      "opcoes": ["1", "2", "3", "4"],
+      "correta": 1,
+      "explicacao": "Dois: um de casas claras e um de casas escuras."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "O bispo pode pular outras peças?",
+      "opcoes": ["Sim", "Não", "Só peões", "Só peças amigas"],
+      "correta": 1,
+      "explicacao": "Só o cavalo pula."
+    }
+  ]
+}

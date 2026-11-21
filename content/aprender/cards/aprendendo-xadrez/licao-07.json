@@ -1,0 +1,196 @@
+{
+  "id": "licao-07",
+  "titulo": "O Peão",
+  "abertura": "O peão é pequeno, mas é a alma do xadrez. Ele tem regras só dele.",
+  "teoria": [
+    {
+      "fen": "inicial",
+      "texto": "Agora o soldado do tabuleiro: o **peão**. Cada lado começa com oito, na segunda fileira.",
+      "pose": "apresentando",
+      "destaques": [
+        {
+          "casas": ["a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2"],
+          "cor": "amarelo"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/8/8/8/8/4P3/7K w - - 0 1",
+      "texto": "O peão anda **para frente**, uma casa. Mas no primeiro lance dele, pode andar **duas**.",
+      "destaques": [
+        {
+          "casas": ["e3", "e4"],
+          "cor": "verde"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/8/8/8/8/4P3/7K w - - 0 1",
+      "texto": "Sua vez: avance o peão duas casas, até ==e4==.",
+      "pose": "curioso",
+      "interativo": {
+        "lance": "e2e4",
+        "acerto": "Isso! Primeiro lance, duas casas."
+      }
+    },
+    {
+      "fen": "7k/8/8/8/4P3/8/8/7K w - - 0 1",
+      "texto": "Depois do primeiro lance, é **uma casa por vez**. E atenção: o peão **nunca anda para trás**.",
+      "pose": "atencao",
+      "destaques": [
+        {
+          "casas": ["e5"],
+          "cor": "verde"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/8/4p3/4P3/8/8/7K w - - 0 1",
+      "texto": "Se tiver uma peça na frente, o peão fica **travado**: ele não captura para frente.",
+      "pose": "atencao",
+      "destaques": [
+        {
+          "casas": ["e5"],
+          "cor": "vermelho"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/8/3n1r2/4P3/8/8/7K w - - 0 1",
+      "texto": "O peão **captura na diagonal**, uma casa à frente. Daqui ele pode tomar o cavalo ou a torre.",
+      "pose": "surpreso",
+      "setas": [
+        {
+          "de": "e4",
+          "para": "d5",
+          "cor": "vermelho"
+        },
+        {
+          "de": "e4",
+          "para": "f5",
+          "cor": "vermelho"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/8/3n1r2/4P3/8/8/7K w - - 0 1",
+      "texto": "Capture a **torre**, que vale mais.",
+      "pose": "curioso",
+      "interativo": {
+        "lance": "e4f5",
+        "acerto": "Boa escolha! A torre vale mais que o cavalo."
+      }
+    },
+    {
+      "fen": "7k/8/8/3pP3/8/8/8/7K w - d6 0 1",
+      "texto": "Uma regra especial: o **en passant**. O peão preto acabou de andar duas casas e parou ao lado do branco. O branco pode capturá-lo como se ele tivesse andado só uma.",
+      "pose": "surpreso",
+      "setas": [
+        {
+          "de": "e5",
+          "para": "d6",
+          "cor": "vermelho"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/8/3pP3/8/8/8/7K w - d6 0 1",
+      "texto": "Capture en passant: leve o peão de ==e5== para ==d6==.",
+      "pose": "curioso",
+      "interativo": {
+        "lance": "e5d6",
+        "acerto": "Isso! O peão preto sai do tabuleiro, mesmo sem estar em d6."
+      }
+    },
+    {
+      "fen": "7k/8/8/8/4P3/8/8/7K w - - 0 1",
+      "texto": "Resumo: para frente, duas casas no primeiro lance, captura na diagonal e nunca volta. Bora praticar?",
+      "pose": "aprovando"
+    }
+  ],
+  "exercicios": {
+    "instrucao": "Movimento do peão",
+    "itens": [
+      {
+        "tipo": "casa",
+        "fen": "7k/8/8/8/8/8/3P4/7K w - - 0 1",
+        "pergunta": "Toque numa casa onde o peão pode ir",
+        "resposta": ["d3", "d4"],
+        "dica": "É o primeiro lance dele."
+      },
+      {
+        "tipo": "autoral",
+        "fen": "7k/8/8/2b1n3/3P4/8/8/7K w - - 0 1",
+        "pergunta": "Capture o cavalo preto",
+        "solucao": ["d4e5"],
+        "dica": "O peão captura na diagonal."
+      },
+      {
+        "tipo": "multipla",
+        "pergunta": "O peão em d4 pode avançar?",
+        "opcoes": ["Sim, para d5", "Não, está travado"],
+        "correta": 1,
+        "explicacao": "O peão não captura para frente.",
+        "fen": "7k/8/8/3p4/3P4/8/8/7K w - - 0 1"
+      },
+      {
+        "tipo": "autoral",
+        "fen": "7k/8/8/5Pp1/8/8/8/7K w - g6 0 1",
+        "pergunta": "Capture en passant",
+        "solucao": ["f5g6"],
+        "dica": "O peão preto acabou de andar duas casas."
+      },
+      {
+        "tipo": "multipla",
+        "pergunta": "O peão pode andar para trás?",
+        "opcoes": ["Sim", "Não", "Só capturando", "Só no fim"],
+        "correta": 1,
+        "explicacao": "Nunca. Cada avanço é para sempre."
+      }
+    ]
+  },
+  "avaliacao": [
+    {
+      "tipo": "multipla",
+      "pergunta": "Como o peão anda?",
+      "opcoes": ["Para frente", "Para qualquer lado", "Na diagonal", "Em L"],
+      "correta": 0,
+      "explicacao": "Sempre para frente."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Como o peão captura?",
+      "opcoes": ["Para frente", "Na diagonal, uma casa à frente", "Para trás", "Em L"],
+      "correta": 1,
+      "explicacao": "Na diagonal, uma casa à frente."
+    },
+    {
+      "tipo": "casa",
+      "fen": "7k/8/8/8/8/8/6P1/7K w - - 0 1",
+      "pergunta": "Toque numa casa onde o peão pode ir",
+      "resposta": ["g3", "g4"],
+      "dica": "Primeiro lance: uma ou duas casas."
+    },
+    {
+      "tipo": "autoral",
+      "fen": "7k/8/8/8/8/1q1r4/2P5/7K w - - 0 1",
+      "pergunta": "Capture a dama preta",
+      "solucao": ["c2b3"],
+      "explicacao": "Diagonal para a esquerda."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Quando o peão pode andar duas casas?",
+      "opcoes": ["Sempre", "No primeiro lance dele", "Quando captura", "Nunca"],
+      "correta": 1,
+      "explicacao": "Só no primeiro lance de cada peão."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Como se chama a captura especial de peão?",
+      "opcoes": ["Roque", "En passant", "Promoção", "Xeque"],
+      "correta": 1,
+      "explicacao": "En passant: \"de passagem\"."
+    }
+  ]
+}

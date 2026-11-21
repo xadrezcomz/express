@@ -1,0 +1,198 @@
+{
+  "id": "licao-04",
+  "titulo": "A Dama",
+  "abertura": "A dama é a peça mais poderosa do tabuleiro. E você já sabe metade do segredo dela.",
+  "teoria": [
+    {
+      "fen": "7k/8/8/8/3Q4/8/8/7K w - - 0 1",
+      "texto": "Chegou a peça mais poderosa: a **dama**.",
+      "pose": "apresentando"
+    },
+    {
+      "fen": "7k/8/8/8/3Q4/8/8/7K w - - 0 1",
+      "texto": "O segredo é simples: a dama anda como a **torre** e como o **bispo** juntos. Linha reta ou diagonal, quantas casas quiser.",
+      "destaques": [
+        {
+          "casas": ["e4", "f4", "g4", "h4", "c4", "b4", "a4", "d3", "d2", "d1", "d5", "d6", "d7", "d8", "e3", "f2", "g1", "e5", "f6", "g7", "h8", "c3", "b2", "a1", "c5", "b6", "a7"],
+          "cor": "verde"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/8/8/3Q4/8/8/7K w - - 0 1",
+      "texto": "São oito direções. Do centro, ela alcança **27 casas**!",
+      "pose": "surpreso",
+      "setas": [
+        {
+          "de": "d4",
+          "para": "d8",
+          "cor": "azul"
+        },
+        {
+          "de": "d4",
+          "para": "d1",
+          "cor": "azul"
+        },
+        {
+          "de": "d4",
+          "para": "a4",
+          "cor": "azul"
+        },
+        {
+          "de": "d4",
+          "para": "g4",
+          "cor": "azul"
+        },
+        {
+          "de": "d4",
+          "para": "a7",
+          "cor": "azul"
+        },
+        {
+          "de": "d4",
+          "para": "g7",
+          "cor": "azul"
+        },
+        {
+          "de": "d4",
+          "para": "a1",
+          "cor": "azul"
+        },
+        {
+          "de": "d4",
+          "para": "g1",
+          "cor": "azul"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/8/8/3Q4/8/8/7K w - - 0 1",
+      "texto": "Sua vez: leve a dama até ==g7==, na diagonal.",
+      "pose": "curioso",
+      "interativo": {
+        "lance": "d4g7",
+        "acerto": "Isso! Diagonal, como um bispo."
+      }
+    },
+    {
+      "fen": "7k/8/8/8/3Q4/8/8/7K w - - 0 1",
+      "texto": "Agora até ==a4==, em linha reta.",
+      "pose": "curioso",
+      "interativo": {
+        "lance": "d4a4",
+        "acerto": "Perfeito! Reta, como uma torre."
+      }
+    },
+    {
+      "fen": "7k/8/1p6/8/3Q1P2/8/8/7K w - - 0 1",
+      "texto": "Ela também **não pula** ninguém, e captura do mesmo jeito que anda.",
+      "pose": "atencao",
+      "destaques": [
+        {
+          "casas": ["e4", "c4", "b4", "a4", "d3", "d2", "d1", "d5", "d6", "d7", "d8", "e3", "f2", "g1", "e5", "f6", "g7", "h8", "c3", "b2", "a1", "c5", "b6"],
+          "cor": "verde"
+        }
+      ]
+    },
+    {
+      "fen": "inicial",
+      "texto": "Na posição inicial, lembra da regra? **Dama na sua cor**: a branca em d1, numa casa clara, e a preta em d8, numa casa escura.",
+      "pose": "atencao",
+      "destaques": [
+        {
+          "casas": ["d1", "d8"],
+          "cor": "amarelo"
+        }
+      ]
+    },
+    {
+      "fen": "7k/8/8/8/3Q4/8/8/7K w - - 0 1",
+      "texto": "Por ser tão forte, a dama vale muito. Cuidado para não perdê-la cedo! Bora praticar?",
+      "pose": "aprovando"
+    }
+  ],
+  "exercicios": {
+    "instrucao": "Movimento da dama",
+    "itens": [
+      {
+        "tipo": "casa",
+        "fen": "7k/8/8/8/2Q5/8/8/7K w - - 0 1",
+        "pergunta": "Toque numa casa onde a dama pode ir",
+        "resposta": ["d4", "e4", "f4", "g4", "h4", "b4", "a4", "c3", "c2", "c1", "c5", "c6", "c7", "c8", "d3", "e2", "f1", "d5", "e6", "f7", "g8", "b3", "a2", "b5", "a6"],
+        "dica": "Linhas retas e diagonais."
+      },
+      {
+        "tipo": "autoral",
+        "fen": "6k1/8/8/8/8/8/8/Q2r3K w - - 0 1",
+        "pergunta": "Capture a torre preta",
+        "solucao": ["a1d1"],
+        "dica": "Ela está na mesma fileira."
+      },
+      {
+        "tipo": "autoral",
+        "fen": "7k/8/5n2/8/8/8/8/Q6K w - - 0 1",
+        "pergunta": "Capture o cavalo preto",
+        "solucao": ["a1f6"],
+        "dica": "Siga a grande diagonal."
+      },
+      {
+        "tipo": "casa",
+        "fen": "7k/8/1P6/8/3Q4/8/5p2/7K w - - 0 1",
+        "pergunta": "Toque numa casa onde a dama pode ir",
+        "resposta": ["e4", "f4", "g4", "h4", "c4", "b4", "a4", "d3", "d2", "d1", "d5", "d6", "d7", "d8", "e3", "f2", "e5", "f6", "g7", "h8", "c3", "b2", "a1", "c5"],
+        "dica": "O peão branco trava; o preto pode ser capturado."
+      },
+      {
+        "tipo": "multipla",
+        "pergunta": "Qual peça se move como torre e bispo juntos?",
+        "opcoes": ["O rei", "A dama", "O cavalo", "O peão"],
+        "correta": 1,
+        "explicacao": "A dama soma os dois movimentos."
+      }
+    ]
+  },
+  "avaliacao": [
+    {
+      "tipo": "multipla",
+      "pergunta": "A dama se move como...",
+      "opcoes": ["Só a torre", "Só o bispo", "Torre e bispo juntos", "O cavalo"],
+      "correta": 2,
+      "explicacao": "Linha reta e diagonal."
+    },
+    {
+      "tipo": "casa",
+      "fen": "7k/8/8/8/5Q2/8/8/7K w - - 0 1",
+      "pergunta": "Toque numa casa onde a dama pode ir",
+      "resposta": ["g4", "h4", "e4", "d4", "c4", "b4", "a4", "f3", "f2", "f1", "f5", "f6", "f7", "f8", "g3", "h2", "g5", "h6", "e3", "d2", "c1", "e5", "d6", "c7", "b8"],
+      "dica": "Oito direções saindo de f4."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Onde começa a dama branca?",
+      "opcoes": ["d1, numa casa clara", "e1, numa casa escura", "d8", "c1"],
+      "correta": 0,
+      "explicacao": "Dama na sua cor: branca em d1."
+    },
+    {
+      "tipo": "autoral",
+      "fen": "6k1/8/2b5/8/8/8/8/6KQ w - - 0 1",
+      "pergunta": "Capture o bispo preto",
+      "solucao": ["h1c6"],
+      "explicacao": "Diagonal longa de h1 até c6."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Do centro de um tabuleiro vazio, quantas casas a dama alcança?",
+      "opcoes": ["14", "13", "27", "8"],
+      "correta": 2,
+      "explicacao": "14 como torre mais 13 como bispo."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "A dama pode pular peças?",
+      "opcoes": ["Sim", "Não"],
+      "correta": 1,
+      "explicacao": "Nem a dama pula. Só o cavalo."
+    }
+  ]
+}

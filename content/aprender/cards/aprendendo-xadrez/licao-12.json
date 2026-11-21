@@ -1,0 +1,212 @@
+{
+  "id": "licao-12",
+  "titulo": "Treino: Mate em 1",
+  "abertura": "Toda partida tem um objetivo só: o xeque-mate. Hoje você aprende a dar o golpe final, num lance.",
+  "importar": {
+    "temas": ["mateIn1"],
+    "rating": [600, 1000],
+    "popularidade": 80,
+    "jogadas": 500
+  },
+  "teoria": [
+    {
+      "fen": "6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1", "pose": "apresentando",
+      "texto": "No xadrez, ninguém precisa capturar todas as peças do outro. O objetivo é um só: dar **xeque-mate** no rei."
+    },
+    {
+      "fen": "4k3/8/8/8/8/8/8/R3K3 w - - 0 1",
+      "animacao": ["a1a8"],
+      "destaques": [
+        {
+          "casas": ["d7", "e7", "f7"],
+          "cor": "verde"
+        }
+      ],
+      "setas": [
+        {
+          "de": "a8",
+          "para": "e8",
+          "cor": "vermelho"
+        }
+      ],
+      "texto": "A torre foi até a8 e agora ataca o rei. Isso é **xeque**. Mas calma: o rei ainda pode fugir para as casas verdes."
+    },
+    {
+      "fen": "6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1", "pose": "surpreso",
+      "animacao": ["a1a8"],
+      "setas": [
+        {
+          "de": "a8",
+          "para": "g8",
+          "cor": "vermelho"
+        }
+      ],
+      "texto": "Agora olhe esta: a torre dá xeque e o rei **não tem para onde ir**. Os próprios peões trancam a saída. Isso é **xeque-mate**. Fim de jogo!"
+    },
+    {
+      "fen": "R5k1/5ppp/8/8/8/8/8/6K1 b - - 1 1", "pose": "atencao",
+      "texto": "Para escapar de um xeque existem três saídas: **fugir** com o rei, **bloquear** o caminho com outra peça ou **capturar** quem dá o xeque. Mate é quando nenhuma das três funciona."
+    },
+    {
+      "fen": "6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1", "pose": "curioso",
+      "interativo": {
+        "lance": "a1a8",
+        "acerto": "Xeque-mate! Esse tem até nome: **mate do corredor**."
+      },
+      "texto": "Sua vez de dar esse mate. A torre está louca para chegar na última fileira."
+    },
+    {
+      "fen": "6k1/8/6K1/8/8/8/8/3Q4 w - - 0 1", "pose": "curioso",
+      "interativo": {
+        "lance": "d1d8",
+        "acerto": "Mate! O rei branco tapou as casas da frente, e a dama fechou a última fileira."
+      },
+      "texto": "A dama adora dar mate, principalmente com o rei ajudando por perto. Ache o mate com a dama."
+    },
+    {
+      "fen": "6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1", "pose": "pensativo",
+      "texto": "O segredo para achar um mate: primeiro olhe **para onde o rei inimigo pode fugir**. Depois procure um lance que dê xeque e feche todas essas casas."
+    },
+    {
+      "fen": "6k1/8/6K1/8/8/8/8/3Q4 w - - 0 1", "pose": "aprovando",
+      "texto": "Agora você vai treinar com **posições de partidas reais**, tiradas do Lichess. Em cada uma existe um lance que dá mate. Bora achar?"
+    }
+  ],
+  "exercicios": {
+    "instrucao": "Mate em 1",
+    "itens": [
+      {
+        "tipo": "lichess",
+        "puzzleId": "LF7RP",
+        "fen": "r3r1k1/pp2PBp1/2pQ1p1p/3p3P/5P2/6PK/P4q2/2R1R3 b - - 0 33",
+        "lances": ["g8f7", "d6e6"],
+        "rating": 920,
+        "temas": ["endgame", "mate", "mateIn1", "oneMove"]
+      },
+      {
+        "tipo": "lichess",
+        "puzzleId": "okpsM",
+        "fen": "4r2b/pp3p1R/3p3k/7q/3prP2/7Q/PPP4P/6RK b - - 3 31",
+        "lances": ["h6h7", "h3h5"],
+        "rating": 655,
+        "temas": ["endgame", "hangingPiece", "mate", "mateIn1", "oneMove"]
+      },
+      {
+        "tipo": "lichess",
+        "puzzleId": "mOYF7",
+        "fen": "8/8/kp4R1/8/K7/P7/1r6/8 w - - 4 62",
+        "lances": ["g6g4", "b6b5"],
+        "rating": 871,
+        "temas": ["endgame", "mate", "mateIn1", "oneMove", "rookEndgame"]
+      },
+      {
+        "tipo": "lichess",
+        "puzzleId": "GZRik",
+        "fen": "5rk1/1b5p/p2p2p1/1p2P3/3P3Q/4n1N1/PPB2qPK/R1B5 w - - 2 25",
+        "lances": ["c1e3", "f2g2"],
+        "rating": 997,
+        "temas": ["mate", "mateIn1", "middlegame", "oneMove"]
+      },
+      {
+        "tipo": "lichess",
+        "puzzleId": "j1qfL",
+        "fen": "1n3rk1/1rp1qppp/p3p3/1p1n2N1/3P1B2/6P1/PPQ1PP1P/R2R2K1 b - - 1 18",
+        "lances": ["d5f4", "c2h7"],
+        "rating": 786,
+        "temas": ["kingsideAttack", "mate", "mateIn1", "middlegame", "oneMove"]
+      },
+      {
+        "tipo": "lichess",
+        "puzzleId": "P6hpX",
+        "fen": "r2qk2r/ppp2p2/2p2n2/2P4p/4P1b1/2P2Q2/PP4PP/RNB1KB1R w KQkq - 1 11",
+        "lances": ["f3f2", "d8d1"],
+        "rating": 653,
+        "temas": ["mate", "mateIn1", "oneMove", "opening"]
+      },
+      {
+        "tipo": "lichess",
+        "puzzleId": "N14fh",
+        "fen": "rn3rBk/pp2qpp1/8/2b3N1/6bP/P5n1/1PQ2pPK/RNB5 b - - 3 18",
+        "lances": ["f2f1q", "c2h7"],
+        "rating": 723,
+        "temas": ["mate", "mateIn1", "middlegame", "oneMove"]
+      },
+      {
+        "tipo": "lichess",
+        "puzzleId": "WqOWI",
+        "fen": "1rb2k1r/p1N1ppbp/1pn3p1/2p1P1N1/8/4P1P1/PPP3BP/2KR3R b - - 0 15",
+        "lances": ["c6e5", "d1d8"],
+        "rating": 956,
+        "temas": ["mate", "mateIn1", "middlegame", "oneMove"]
+      }
+    ]
+  },
+  "avaliacao": [
+    {
+      "tipo": "multipla",
+      "pergunta": "O que é xeque?",
+      "opcoes": ["O rei sendo atacado", "Uma peça sendo capturada", "O fim da partida", "Um peão chegando na última fileira"],
+      "correta": 0,
+      "explicacao": "Xeque é o ataque ao rei. A partida continua: o rei só precisa se salvar."
+    },
+    {
+      "tipo": "lichess",
+      "pergunta": "Mate em 1",
+      "puzzleId": "3zgBX",
+      "fen": "6rk/7p/R2p1r2/1pbPpp2/8/5Pq1/1PQ3PP/R6K w - - 0 34",
+      "lances": ["c2c5", "g3g2"],
+      "rating": 908,
+      "temas": ["endgame", "master", "mate", "mateIn1", "oneMove"]
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "O que é xeque-mate?",
+      "opcoes": ["Xeque com o rei podendo fugir", "Xeque sem nenhuma forma de escapar", "Capturar a dama", "Ficar sem lances para jogar"],
+      "correta": 1,
+      "explicacao": "Mate é o xeque sem saída. Acabou a partida."
+    },
+    {
+      "tipo": "lichess",
+      "pergunta": "Mate em 1",
+      "puzzleId": "ktTfa",
+      "fen": "r2r2k1/6pp/3PNp2/p2p4/8/6Q1/1q4PP/5R1K b - - 0 27",
+      "lances": ["b2b6", "g3g7"],
+      "rating": 740,
+      "temas": ["endgame", "mate", "mateIn1", "oneMove"]
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Quais são as três formas de sair de um xeque?",
+      "opcoes": ["Fugir, bloquear ou capturar", "Só fugir com o rei", "Pedir empate", "Mover qualquer peça"],
+      "correta": 0,
+      "explicacao": "Fugir com o rei, bloquear o caminho ou capturar quem está dando o xeque."
+    },
+    {
+      "tipo": "lichess",
+      "pergunta": "Mate em 1",
+      "puzzleId": "hofcV",
+      "fen": "r3kbnr/pp3ppp/8/2pN4/2B1P2q/3P1n2/PPPQ3P/R1B2K1R w kq - 0 12",
+      "lances": ["d2g2", "h4e1"],
+      "rating": 849,
+      "temas": ["mate", "mateIn1", "oneMove", "opening"]
+    },
+    {
+      "tipo": "lichess",
+      "pergunta": "Mate em 1",
+      "puzzleId": "l66l7",
+      "fen": "1r3rk1/ppp2ppp/4p3/7q/4P1n1/1QN3b1/PP2BP2/3R1RK1 w - - 0 18",
+      "lances": ["e2g4", "h5h2"],
+      "rating": 847,
+      "temas": ["mate", "mateIn1", "middlegame", "oneMove"]
+    },
+    {
+      "tipo": "lichess",
+      "pergunta": "Mate em 1",
+      "puzzleId": "xNIHZ",
+      "fen": "r3nb1k/pp4r1/2pp3Q/4p3/1PPqnp2/5B2/P2BR1PP/2R4K b - - 0 27",
+      "lances": ["g7h7", "h6f8"],
+      "rating": 979,
+      "temas": ["hangingPiece", "kingsideAttack", "mate", "mateIn1", "middlegame", "oneMove"]
+    }
+  ]
+}

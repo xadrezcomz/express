@@ -1,0 +1,168 @@
+{
+  "id": "licao-10",
+  "titulo": "Xeque-mate",
+  "abertura": "Como transformar um xeque em vitória, com quatro finais reais de um dos maiores jogadores da história.",
+  "teoria": [
+    {
+      "fen": "6k1/3Q4/3p3K/3Pp3/6Pn/p7/8/5q2 w - - 0 1",
+      "texto": "Você ganha uma partida dando **xeque-mate**: atacar o rei de um jeito que torne impossível salvá-lo.",
+      "pose": "apresentando"
+    },
+    {
+      "fen": "6k1/3Q4/3p3K/3Pp3/6Pn/p7/8/5q2 w - - 0 1",
+      "texto": "Três saídas precisam estar fechadas ao mesmo tempo: **fugir**, **bloquear** e **capturar** quem ataca.",
+      "pose": "explicando"
+    },
+    {
+      "fen": "3K4/8/3k3b/8/6q1/8/8/8 b - - 0 1",
+      "texto": "Final 1: Carlsen, de pretas, contra Grischuk, em 2016. Há vários xeques, mas só um é mate. A dama vai para a ==8ª fileira==.",
+      "pose": "curioso",
+      "lado": "b",
+      "interativo": {
+        "lance": "g4g8",
+        "acerto": "Xeque-mate! O rei preto vigia as casas de fuga e a dama fecha a fileira."
+      }
+    },
+    {
+      "fen": "3K2q1/8/3k3b/8/8/8/8/8 w - - 1 2",
+      "texto": "Repare: o **rei preto** faz um trabalho importante, tirando as casas de fuga do rei branco.",
+      "pose": "pensativo",
+      "lado": "b",
+      "destaques": [
+        {
+          "casas": ["c7", "d7", "e7"],
+          "cor": "vermelho"
+        }
+      ]
+    },
+    {
+      "fen": "6k1/p4rp1/7p/8/P3Q2n/1BP2P1q/KP3b2/3R4 w - - 0 1",
+      "texto": "Final 2: Carlsen, de brancas, numa partida relâmpago contra Bacrot, em 2012. Normalmente é preciso mais de uma peça para dar mate. Como?",
+      "pose": "curioso",
+      "interativo": {
+        "lance": "d1d8",
+        "acerto": "Xeque-mate! A torre ataca pela 8ª fileira e a dama vigia h7."
+      }
+    },
+    {
+      "fen": "3R2k1/p4rp1/7p/8/P3Q2n/1BP2P1q/KP3b2/8 b - - 1 1",
+      "texto": "E a torre preta não pode bloquear em f8: ela está **cravada** pelo bispo de b3, que atacaria o rei.",
+      "pose": "atencao",
+      "setas": [
+        {
+          "de": "b3",
+          "para": "g8",
+          "cor": "vermelho"
+        }
+      ]
+    },
+    {
+      "fen": "7k/pBp2R1b/4Q2p/4p3/1P5p/2P4q/P2r1P2/6K1 b - - 0 1",
+      "texto": "Final 3: Carlsen, de pretas, contra Hagberg, em 2001. Qual lance encerra a partida?",
+      "pose": "curioso",
+      "lado": "b",
+      "interativo": {
+        "lance": "d2d1",
+        "acerto": "Xeque-mate! A torre ataca pela 1ª fileira e a dama vigia a fuga."
+      }
+    },
+    {
+      "fen": "6k1/3Q4/3p3K/3Pp3/6Pn/p7/8/5q2 w - - 0 1",
+      "texto": "Final 4: Carlsen, de brancas, contra Olszewski, em 2003. Muitos xeques, um só mate: coloque a dama **ao lado do rei**.",
+      "pose": "curioso",
+      "interativo": {
+        "lance": "d7g7",
+        "acerto": "Xeque-mate! A dama colada no rei, protegida pelo rei branco."
+      }
+    },
+    {
+      "fen": "6k1/6Q1/3p3K/3Pp3/6Pn/p7/8/5q2 b - - 1 1",
+      "texto": "Dama colada ao rei inimigo é letal, **desde que esteja protegida**. Diante de um xeque, pergunte: ele pode fugir? Bloquear? Capturar?",
+      "pose": "aprovando"
+    }
+  ],
+  "exercicios": {
+    "instrucao": "Mate em 1",
+    "itens": [
+      {
+        "tipo": "autoral",
+        "fen": "6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1",
+        "pergunta": "Dê xeque-mate",
+        "solucao": ["a1a8"],
+        "dica": "A última fileira está fechada pelos peões."
+      },
+      {
+        "tipo": "autoral",
+        "fen": "7k/8/6K1/8/8/8/8/1Q6 w - - 0 1",
+        "pergunta": "Dê xeque-mate",
+        "solucao": ["b1b8"],
+        "dica": "O rei branco já vigia as casas da frente."
+      },
+      {
+        "tipo": "autoral",
+        "fen": "k7/8/1K6/8/8/8/8/7R w - - 0 1",
+        "pergunta": "Dê xeque-mate",
+        "solucao": ["h1h8"],
+        "dica": "O rei branco tira as fugas do rei preto."
+      },
+      {
+        "tipo": "autoral",
+        "fen": "6k1/8/6K1/8/8/8/8/R7 w - - 0 1",
+        "pergunta": "Dê xeque-mate",
+        "solucao": ["a1a8"],
+        "dica": "Torre na última fileira."
+      },
+      {
+        "tipo": "autoral",
+        "fen": "k7/8/1K6/8/8/8/8/3Q4 w - - 0 1",
+        "pergunta": "Dê xeque-mate",
+        "solucao": ["d1d8"],
+        "dica": "A dama na última fileira, com o rei branco ajudando."
+      }
+    ]
+  },
+  "avaliacao": [
+    {
+      "tipo": "multipla",
+      "pergunta": "Quais são as três saídas de um xeque?",
+      "opcoes": ["Fugir, bloquear ou capturar", "Só fugir", "Pedir empate", "Mover qualquer peça"],
+      "correta": 0,
+      "explicacao": "Mate é quando as três estão fechadas."
+    },
+    {
+      "tipo": "autoral",
+      "fen": "6k1/5ppp/8/8/8/8/5PPP/3R2K1 w - - 0 1",
+      "pergunta": "Dê xeque-mate",
+      "solucao": ["d1d8"],
+      "explicacao": "Mate do corredor."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "O que acontece com o rei no xeque-mate?",
+      "opcoes": ["É capturado", "A partida acaba sem ele ser capturado", "Volta para e1", "Vira outra peça"],
+      "correta": 1,
+      "explicacao": "O rei nunca chega a ser capturado."
+    },
+    {
+      "tipo": "autoral",
+      "fen": "k7/2K5/8/8/8/8/8/1Q6 w - - 0 1",
+      "pergunta": "Dê xeque-mate",
+      "solucao": ["b1b7"],
+      "explicacao": "A dama colada no rei, protegida pelo rei branco."
+    },
+    {
+      "tipo": "multipla",
+      "pergunta": "Dama colada ao rei inimigo é mate quando...",
+      "opcoes": ["Ela está protegida", "Ela está sozinha", "É o primeiro lance", "Sempre"],
+      "correta": 0,
+      "explicacao": "Sem proteção, o rei simplesmente a captura."
+    },
+    {
+      "tipo": "autoral",
+      "fen": "k7/8/K7/8/8/8/8/7R w - - 0 1",
+      "pergunta": "Dê xeque-mate",
+      "solucao": ["h1h8"],
+      "explicacao": "O rei branco cobre as fugas."
+    }
+  ]
+}
