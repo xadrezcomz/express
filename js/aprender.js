@@ -315,6 +315,16 @@
       window.scrollTo({ top: Math.max(0, alvo), behavior: 'smooth' });
     }
   }
+  // O lance vale como a resposta esperada? Além do lance exato, vale o lance equivalente:
+  // capturar na mesma casa (com qualquer peça) ou levar o mesmo tipo de peça à mesma casa.
+  // (Nos puzzles do Lichess continua valendo só o lance exato ou um mate.)
+  function vale(pos, l, esperado) {
+    if (X.uci(l) === esperado) return true;
+    var e = X.deUCI(pos, esperado);
+    if (!e || l.para !== e.para) return false;
+    if (e.promo && l.promo !== e.promo) return false;
+    return e.captura || e.enPassant ? !!(l.captura || l.enPassant) : l.peca === e.peca;
+  }
   function vez(cor) { return '<i class="bolinha' + (cor === 'b' ? ' pretas' : '') + '"></i>' + (cor === 'b' ? 'Pretas jogam' : 'Brancas jogam'); }
   function selo(moldura) {
     var s = el('div', 'tab-certo', '✓');
@@ -395,7 +405,7 @@
         var antesDoLance = T.estado(), certoDa = X.deUCI(antesDoLance, it.lance), daMate = certoDa && X.ehMate(X.joga(antesDoLance, certoDa));
         T.modo('lance', { cor: antesDoLance.vez, aoTentar: function (l) {
           var depoisDoLance = X.joga(T.estado(), l);
-          if (X.uci(l) === it.lance || (daMate && X.ehMate(depoisDoLance))) { T.aplica(l); acertou(); }
+          if (vale(T.estado(), l, it.lance) || (daMate && X.ehMate(depoisDoLance))) { T.aplica(l); acertou(); }
           else { T.erra(l); errou(sorteia(ERROS)); }
         } });
       }
@@ -473,8 +483,8 @@
       if (item.tipo === 'casa') {
         quem.innerHTML = '';
         T.posicao(fen(item.fen), item.lado || 'w');
-        prof.fala(j === 0 ? 'Bora! Toque na casa certa.' : 'Próximo. Toque na casa certa.', 'curioso');
-        T.modo('casa', { aoTocar: tocou });
+        prof.fala(item.origem ? 'Toque na casa certa, ou arraste a peça até lá.' : (j === 0 ? 'Bora! Toque na casa certa.' : 'Próximo. Toque na casa certa.'), 'curioso');
+        T.modo('casa', { aoTocar: tocou, origem: item.origem });
         return;
       }
       linha = item.tipo === 'lichess' ? item.lances : item.solucao;
@@ -490,7 +500,7 @@
     function suaVez() { T.modo('lance', { cor: T.estado().vez, aoTentar: tentou }); }
     function tentou(l) {
       var antes = T.estado(), esperado = linha[passo], depoisDoLance = X.joga(antes, l);
-      if (X.uci(l) === esperado || X.ehMate(depoisDoLance)) {
+      if ((item.tipo === 'lichess' ? X.uci(l) === esperado : vale(antes, l, esperado)) || X.ehMate(depoisDoLance)) {
         T.aplica(l);
         if (X.ehMate(depoisDoLance) || passo + 1 >= linha.length) { acertou(); return; }
         passo++;
@@ -649,7 +659,7 @@
       if (q.tipo === 'casa') {
         T.posicao(fen(q.fen), q.lado || 'w');
         prof.fala('Sem dica agora: uma tentativa só. Capricha!', 'curioso');
-        T.modo('casa', { aoTocar: function (c) {
+        T.modo('casa', { origem: q.origem, aoTocar: function (c) {
           T.modo('nenhum');
           var ok = (q.resposta || []).indexOf(c) >= 0;
           T.marcaCasas(ok ? 'certa' : 'errou', [c]);
@@ -672,7 +682,7 @@
       }
       function tentou(l) {
         var antes = T.estado(), depoisDoLance = X.joga(antes, l);
-        if (X.uci(l) === linha[passo] || X.ehMate(depoisDoLance)) {
+        if ((q.tipo === 'lichess' ? X.uci(l) === linha[passo] : vale(antes, l, linha[passo])) || X.ehMate(depoisDoLance)) {
           T.aplica(l);
           if (X.ehMate(depoisDoLance) || passo + 1 >= linha.length) {
             T.modo('nenhum'); selo(P.moldura);

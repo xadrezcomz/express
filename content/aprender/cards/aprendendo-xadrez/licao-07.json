@@ -117,7 +117,8 @@
         "fen": "7k/8/8/8/8/8/3P4/7K w - - 0 1",
         "pergunta": "Toque numa casa onde o peão pode ir",
         "resposta": ["d3", "d4"],
-        "dica": "É o primeiro lance dele."
+        "dica": "É o primeiro lance dele.",
+        "origem": "d2"
       },
       {
         "tipo": "autoral",
@@ -170,7 +171,8 @@
       "fen": "7k/8/8/8/8/8/6P1/7K w - - 0 1",
       "pergunta": "Toque numa casa onde o peão pode ir",
       "resposta": ["g3", "g4"],
-      "dica": "Primeiro lance: uma ou duas casas."
+      "dica": "Primeiro lance: uma ou duas casas.",
+      "origem": "g2"
     },
     {
       "tipo": "autoral",

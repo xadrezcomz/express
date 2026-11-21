@@ -5,12 +5,12 @@
   "abertura": "A dama é a peça mais poderosa do tabuleiro. E você já sabe metade do segredo dela.",
   "teoria": [
     {
-      "fen": "7k/8/8/8/3Q4/8/8/7K w - - 0 1",
+      "fen": "1k6/8/8/8/3Q4/8/7K/8 w - - 0 1",
       "texto": "Chegou a peça mais poderosa: a **dama**.",
       "pose": "apresentando"
     },
     {
-      "fen": "7k/8/8/8/3Q4/8/8/7K w - - 0 1",
+      "fen": "1k6/8/8/8/3Q4/8/7K/8 w - - 0 1",
       "texto": "O segredo é simples: a dama anda como a **torre** e como o **bispo** juntos. Linha reta ou diagonal, quantas casas quiser.",
       "destaques": [
         {
@@ -20,7 +20,7 @@
       ]
     },
     {
-      "fen": "7k/8/8/8/3Q4/8/8/7K w - - 0 1",
+      "fen": "1k6/8/8/8/3Q4/8/7K/8 w - - 0 1",
       "texto": "São oito direções. Do centro, ela alcança **27 casas**!",
       "pose": "surpreso",
       "setas": [
@@ -41,7 +41,7 @@
         },
         {
           "de": "d4",
-          "para": "g4",
+          "para": "h4",
           "cor": "azul"
         },
         {
@@ -51,7 +51,7 @@
         },
         {
           "de": "d4",
-          "para": "g7",
+          "para": "h8",
           "cor": "azul"
         },
         {
@@ -67,7 +67,7 @@
       ]
     },
     {
-      "fen": "7k/8/8/8/3Q4/8/8/7K w - - 0 1",
+      "fen": "1k6/8/8/8/3Q4/8/7K/8 w - - 0 1",
       "texto": "Sua vez: leve a dama até ==g7==, na diagonal.",
       "pose": "curioso",
       "interativo": {
@@ -76,7 +76,7 @@
       }
     },
     {
-      "fen": "7k/8/8/8/3Q4/8/8/7K w - - 0 1",
+      "fen": "1k6/8/8/8/3Q4/8/7K/8 w - - 0 1",
       "texto": "Agora até ==a4==, em linha reta.",
       "pose": "curioso",
       "interativo": {
@@ -90,7 +90,7 @@
       "pose": "atencao",
       "destaques": [
         {
-          "casas": ["e4", "c4", "b4", "a4", "d3", "d2", "d1", "d5", "d6", "d7", "d8", "e3", "f2", "g1", "e5", "f6", "g7", "h8", "c3", "b2", "a1", "c5", "b6"],
+          "casas": ["e4", "c4", "b4", "a4", "d3", "d2", "d1", "d5", "d6", "d7", "d8", "e3", "f2", "g1", "e5", "f6", "g7", "c3", "b2", "a1", "c5", "b6"],
           "cor": "verde"
         }
       ]
@@ -107,7 +107,7 @@
       ]
     },
     {
-      "fen": "7k/8/8/8/3Q4/8/8/7K w - - 0 1",
+      "fen": "1k6/8/8/8/3Q4/8/7K/8 w - - 0 1",
       "texto": "Por ser tão forte, a dama vale muito. Cuidado para não perdê-la cedo! Bora praticar?",
       "pose": "aprovando"
     }
@@ -120,7 +120,8 @@
         "fen": "7k/8/8/8/2Q5/8/8/7K w - - 0 1",
         "pergunta": "Toque numa casa onde a dama pode ir",
         "resposta": ["d4", "e4", "f4", "g4", "h4", "b4", "a4", "c3", "c2", "c1", "c5", "c6", "c7", "c8", "d3", "e2", "f1", "d5", "e6", "f7", "g8", "b3", "a2", "b5", "a6"],
-        "dica": "Linhas retas e diagonais."
+        "dica": "Linhas retas e diagonais.",
+        "origem": "c4"
       },
       {
         "tipo": "autoral",
@@ -140,8 +141,9 @@
         "tipo": "casa",
         "fen": "7k/8/1P6/8/3Q4/8/5p2/7K w - - 0 1",
         "pergunta": "Toque numa casa onde a dama pode ir",
-        "resposta": ["e4", "f4", "g4", "h4", "c4", "b4", "a4", "d3", "d2", "d1", "d5", "d6", "d7", "d8", "e3", "f2", "e5", "f6", "g7", "h8", "c3", "b2", "a1", "c5"],
-        "dica": "O peão branco trava; o preto pode ser capturado."
+        "resposta": ["e4", "f4", "g4", "h4", "c4", "b4", "a4", "d3", "d2", "d1", "d5", "d6", "d7", "d8", "e3", "f2", "e5", "f6", "g7", "c3", "b2", "a1", "c5"],
+        "dica": "O peão branco trava; o preto pode ser capturado.",
+        "origem": "d4"
       },
       {
         "tipo": "multipla",
@@ -165,7 +167,8 @@
       "fen": "7k/8/8/8/5Q2/8/8/7K w - - 0 1",
       "pergunta": "Toque numa casa onde a dama pode ir",
       "resposta": ["g4", "h4", "e4", "d4", "c4", "b4", "a4", "f3", "f2", "f1", "f5", "f6", "f7", "f8", "g3", "h2", "g5", "h6", "e3", "d2", "c1", "e5", "d6", "c7", "b8"],
-      "dica": "Oito direções saindo de f4."
+      "dica": "Oito direções saindo de f4.",
+      "origem": "f4"
     },
     {
       "tipo": "multipla",

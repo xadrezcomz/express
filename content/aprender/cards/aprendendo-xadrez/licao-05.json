@@ -83,7 +83,8 @@
         "fen": "8/8/8/8/2K5/8/8/7k w - - 0 1",
         "pergunta": "Toque numa casa onde o rei pode ir",
         "resposta": ["d4", "b4", "c3", "c5", "d3", "d5", "b3", "b5"],
-        "dica": "Só uma casinha, para qualquer lado."
+        "dica": "Só uma casinha, para qualquer lado.",
+        "origem": "c4"
       },
       {
         "tipo": "autoral",
@@ -97,7 +98,8 @@
         "fen": "8/8/8/4r3/2K5/8/8/7k w - - 0 1",
         "pergunta": "Toque numa casa segura para o rei",
         "resposta": ["d4", "b4", "c3", "d3", "b3"],
-        "dica": "A torre preta ataca a coluna e e a fileira 5."
+        "dica": "A torre preta ataca a coluna e e a fileira 5.",
+        "origem": "c4"
       },
       {
         "tipo": "multipla",
@@ -129,7 +131,8 @@
       "fen": "8/8/8/5K2/8/8/8/k7 w - - 0 1",
       "pergunta": "Toque numa casa onde o rei pode ir",
       "resposta": ["g5", "e5", "f4", "f6", "g4", "g6", "e4", "e6"],
-      "dica": "As oito casas em volta."
+      "dica": "As oito casas em volta.",
+      "origem": "f5"
     },
     {
       "tipo": "multipla",
@@ -143,7 +146,8 @@
       "fen": "8/8/8/8/3K4/8/8/6rk w - - 0 1",
       "pergunta": "Toque numa casa segura para o rei",
       "resposta": ["e4", "c4", "d3", "d5", "e3", "e5", "c3", "c5"],
-      "dica": "A torre preta só ataca a coluna g e a fileira 1."
+      "dica": "A torre preta só ataca a coluna g e a fileira 1.",
+      "origem": "d4"
     },
     {
       "tipo": "multipla",
