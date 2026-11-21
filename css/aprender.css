@@ -1,0 +1,211 @@
+/* ==========================================================================
+   A seção Aprender (aprender/index.html). Usa a base de css/estilo.css: cores,
+   botões e o tabuleiro em ladrilhos. Aqui ficam só as telas da seção e os extras
+   do tabuleiro de lição (setas, destaques, nomes de casas, promoção).
+   ========================================================================== */
+.pagina-aprender{background:
+  radial-gradient(70% 40% at 100% 0%,rgba(160,107,255,.18),transparent 70%),
+  radial-gradient(60% 40% at 0% 30%,rgba(46,230,255,.08),transparent 70%),var(--fundo)}
+.aprender{width:min(72rem,100% - 2*clamp(14px,4vw,48px));margin-inline:auto;
+  padding:calc(var(--topo) + clamp(18px,4vw,40px)) 0 clamp(48px,8vw,90px);min-height:100svh}
+.apr-carregando{color:var(--suave);text-align:center;padding:30vh 0}
+.aprender h1{font-size:clamp(1.875rem,7vw,2.75rem);margin-bottom:.3em}
+.aprender .sub a{color:var(--ciano)}
+.apr-volta{display:inline-flex;align-items:center;min-height:44px;font-weight:700;color:var(--ciano);text-decoration:none;margin-bottom:6px}
+
+/* ------------------------------------------------------------- catálogo */
+.apr-cabeca{margin-bottom:26px}
+.apr-continuar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:30px;
+  padding:16px 18px;border-radius:18px;background:linear-gradient(120deg,rgba(255,211,107,.16),rgba(23,16,66,.8));border:1px solid rgba(255,211,107,.5)}
+.apr-continuar .olho{margin:0 0 .2em;color:var(--ouro)}
+.apr-continuar-titulo{font-family:var(--titulo);font-weight:700;font-size:1.25rem;color:#fff}
+.apr-colecao{margin-bottom:34px}
+.apr-colecao h2{font-size:clamp(1.375rem,5vw,1.75rem);margin-bottom:14px}
+/* celular: os cards passam de lado (carrossel); telas largas: grade */
+.apr-grade{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 12px;margin:0 -2px;-webkit-overflow-scrolling:touch}
+.apr-grade .apr-card{flex:0 0 min(62vw,240px);scroll-snap-align:start}
+@media (min-width:700px){
+  .apr-grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));overflow:visible}
+}
+.apr-card{display:flex;flex-direction:column;gap:8px;color:var(--texto);text-decoration:none;border-radius:18px;padding:8px 8px 12px;
+  background:linear-gradient(165deg,#241a6e,#120b33 80%);border:1px solid var(--linha);transition:transform .2s ease,border-color .2s ease}
+.apr-card:hover{transform:translateY(-4px);border-color:var(--ciano)}
+.apr-card h3{font-size:1.1875rem;padding:0 4px}
+.apr-card-info{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:0 4px;color:var(--suave);font-size:1rem}
+.apr-capa{aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:#0d0730}
+.apr-capa img{width:100%;height:100%;object-fit:cover;display:block}
+.apr-capa-falsa{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;text-align:center;
+  background:radial-gradient(80% 60% at 50% 35%,rgba(46,230,255,.28),transparent 70%),linear-gradient(165deg,#3a2c9c,#0d0730)}
+.apr-capa-falsa img{width:52%;height:auto;filter:drop-shadow(0 0 22px rgba(46,230,255,.7))}
+.apr-capa-falsa b{font-family:var(--titulo);font-size:clamp(1.125rem,4.5vw,1.5rem);line-height:1.15;color:#fff}
+.apr-bolinhas{display:inline-flex;gap:5px}
+.apr-bolinhas i{width:11px;height:11px;border-radius:50%;border:2px solid var(--linha2)}
+.apr-bolinhas i.andamento{border-color:var(--ouro);background:linear-gradient(90deg,var(--ouro) 50%,transparent 50%)}
+.apr-bolinhas i.concluida{border-color:var(--verde);background:var(--verde)}
+.apr-zerar{display:block;margin:30px auto 0;background:none;border:0;min-height:44px;color:var(--suave);font-size:.9375rem;text-decoration:underline;cursor:pointer}
+.apr-vazio{display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;padding:10vh 0}
+.apr-vazio .prof-avatar{width:150px}
+
+/* ------------------------------------------------------------- página do card */
+.apr-card-topo{display:grid;gap:18px;align-items:end;margin-bottom:26px}
+.apr-card-topo .apr-capa{width:min(46vw,220px)}
+@media (min-width:700px){.apr-card-topo{grid-template-columns:240px 1fr}.apr-card-topo .apr-capa{width:100%}}
+.apr-licoes{display:grid;gap:12px;counter-reset:licao}
+.apr-licao{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;background:rgba(23,16,66,.75);border:1px solid var(--linha)}
+.apr-licao.proxima{border-color:var(--ouro);box-shadow:0 0 30px -12px rgba(255,211,107,.6)}
+.apr-licao.concluida{border-color:rgba(124,255,90,.45)}
+.apr-licao-num{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;font-family:var(--titulo);font-weight:700;font-size:1.25rem;
+  background:rgba(160,107,255,.22);border:1px solid var(--linha2)}
+.apr-licao.concluida .apr-licao-num{background:rgba(124,255,90,.2);border-color:var(--verde)}
+.apr-licao-texto{flex:1;min-width:0}
+.apr-licao-texto h2{font-size:1.25rem;margin-bottom:4px}
+.apr-licao-etapas{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.9375rem;color:var(--suave)}
+.apr-licao-etapas .feita{color:#bff5b4;font-weight:700}
+.apr-licao .botao{flex:none}
+@media (max-width:520px){.apr-licao{flex-wrap:wrap}.apr-licao .botao{width:100%}}
+
+/* ------------------------------------------------------------- a lição */
+.licao-topo{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.licao-topo span{font-family:var(--titulo);font-weight:700;color:var(--suave)}
+.licao-etapas{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:16px;padding:5px;border-radius:16px;background:rgba(23,16,66,.8);border:1px solid var(--linha)}
+.licao-etapas a{display:flex;align-items:center;justify-content:center;gap:4px;min-height:44px;padding:0 6px;border-radius:12px;text-align:center;
+  font-family:var(--titulo);font-weight:700;font-size:clamp(.875rem,3.4vw,1rem);line-height:1.1;color:var(--suave);text-decoration:none}
+.licao-etapas a.atual{background:linear-gradient(180deg,#ffe08a,#ffb53d);color:#241300}
+.licao-etapas a i{font-style:normal;color:var(--verde)}
+.licao-etapas a.atual i{color:#1f6d10}
+
+.licao-capa{display:grid;gap:20px;justify-items:center;text-align:center;padding:10px 0 20px}
+.licao-capa .prof-avatar{width:min(52vw,230px)}
+.licao-capa-texto{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:34rem}
+.licao-capa-texto .sub{margin-bottom:6px}
+.licao-capa-etapas{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:8px}
+.licao-capa-etapas span{padding:.3em .9em;border-radius:99px;font-weight:600;font-size:.9375rem;background:rgba(120,100,230,.22);border:1px solid var(--linha)}
+@media (min-width:800px){
+  .licao-capa{grid-template-columns:auto 1fr;justify-items:start;text-align:left;align-items:center;gap:40px}
+  .licao-capa-texto{align-items:flex-start}
+  .licao-capa-etapas{justify-content:flex-start}
+}
+
+/* o palco: tabuleiro e, ao lado (ou embaixo no celular), faixa, professor e botões */
+.palco{display:grid;gap:14px;align-items:start}
+.palco-tab{display:flex;justify-content:center}
+.palco .tab-moldura{width:min(100%,560px,max(280px,calc(100svh - var(--topo) - 300px)));margin:0 auto;position:relative}
+.palco-lado{display:flex;flex-direction:column;gap:12px;min-width:0}
+/* celular: a lição ocupa menos altura para tabuleiro, professor e botões caberem juntos na tela */
+@media (max-width:899px){
+  .aprender:has(.licao-corpo){padding-top:calc(var(--topo) + 8px)}
+  .licao-topo{margin-bottom:2px}
+  .licao-topo span{font-size:.9375rem}
+  .licao-etapas{margin-bottom:10px}
+  .palco{gap:10px}
+  .palco-lado{gap:10px}
+  .prof-avatar{width:76px}
+  .prof-balao{margin-bottom:6px;padding:11px 14px}
+}
+@media (min-width:900px){
+  .palco{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:30px;align-items:center}
+  .palco .tab-moldura{width:min(100%,560px,max(320px,calc(100svh - var(--topo) - 230px)))}
+}
+
+/* o professor e o balão (a ponta sempre aponta para o avatar) */
+.prof{display:flex;align-items:flex-end;gap:12px}
+.prof-avatar{flex:none;width:clamp(84px,22vw,130px);height:auto;aspect-ratio:4/5;object-fit:contain;filter:drop-shadow(0 10px 18px rgba(0,0,0,.45))}
+.prof-avatar.grande{width:min(46vw,220px)}
+.prof-balao{position:relative;flex:1;min-width:0;margin-bottom:14px;padding:14px 16px;border-radius:18px 18px 18px 6px;
+  background:#fff;color:#1b1250;font-size:clamp(1.0625rem,4vw,1.1875rem);line-height:1.45;font-weight:500;
+  box-shadow:0 16px 36px -18px #000}
+.prof-balao::before{content:'';position:absolute;left:-10px;bottom:10px;width:20px;height:20px;background:#fff;
+  clip-path:polygon(0 100%,100% 0,100% 100%);border-radius:0 0 4px 0}
+.prof-balao b{color:#3a24b8}
+.prof-balao mark{background:linear-gradient(180deg,transparent 52%,rgba(255,211,107,.9) 52%);color:#1b1250;font-weight:700;padding:0 .1em}
+.prof-balao.fala{animation:fala .35s ease}
+@keyframes fala{from{opacity:.2;transform:translateY(6px)}}
+
+/* teoria: contador, barra e navegação */
+.passo-contador{font-family:var(--titulo);font-weight:700;color:var(--suave);font-size:1rem}
+.passo-barra{height:6px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}
+.passo-barra i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--ciano),var(--ouro));transition:width .3s ease}
+.passo-nav{display:grid;grid-template-columns:64px 1fr;gap:10px}
+.passo-nav .botao{min-height:54px}
+.passo-volta{font-size:1.5rem;padding:0}
+.botao.pulsa{animation:pulsa 1.4s ease-in-out infinite}
+@keyframes pulsa{50%{box-shadow:0 0 0 6px rgba(255,211,107,.25),0 8px 26px -8px rgba(255,170,50,.7)}}
+
+/* exercícios: trilha de bolinhas, faixa de instrução e botões */
+.ex-trilha{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:14px}
+.ex-trilha li{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;font-family:var(--titulo);font-weight:700;font-size:.9375rem;
+  color:var(--suave);background:rgba(23,16,66,.8);border:2px solid var(--linha2)}
+.ex-trilha li.atual{border-color:#fff;color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.18)}
+.ex-trilha li.certo{background:#2f9a4a;border-color:var(--verde);color:#fff}
+.ex-trilha li.errado{background:#8c2a45;border-color:#ff4f78;color:#fff}
+.ex-faixa{display:flex;flex-direction:column;gap:6px;padding:12px 16px;border-radius:16px;background:rgba(23,16,66,.85);border:1px solid var(--linha2)}
+.ex-instrucao{font-family:var(--titulo);font-weight:700;font-size:clamp(1.25rem,5vw,1.5rem);color:#fff}
+.ex-vez{display:flex;align-items:center;gap:10px;font-weight:600;color:var(--suave)}
+.ex-vez:empty{display:none}
+.ex-vez .bolinha{width:18px;height:18px}
+.ex-acoes{display:flex;flex-wrap:wrap;gap:10px}
+.ex-acoes .botao{flex:1 1 9rem;min-height:52px}
+.tab-certo{position:absolute;left:50%;top:50%;z-index:9;width:38%;aspect-ratio:1;display:grid;place-items:center;pointer-events:none;
+  border-radius:50%;background:rgba(47,154,74,.92);box-shadow:0 0 0 6px rgba(124,255,90,.35),0 20px 40px -10px #000;
+  font-size:clamp(3rem,16vw,6rem);font-weight:800;color:#fff;transform:translate(-50%,-50%);animation:certo 1.25s ease forwards}
+@keyframes certo{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}18%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}30%{transform:translate(-50%,-50%) scale(1)}78%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
+
+/* resumos (fim dos exercícios e da avaliação) */
+.resumo{display:grid;gap:20px;justify-items:center;text-align:center;padding:16px 0}
+.resumo-texto{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:36rem}
+.resumo-texto h2{font-size:clamp(1.75rem,7vw,2.5rem)}
+.resumo-botoes{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:6px;width:100%}
+.resumo-botoes .botao{flex:1 1 14rem}
+.resumo-curso{margin-top:8px;color:var(--suave)}
+.resumo-curso a{color:var(--ciano);font-weight:700}
+@media (min-width:800px){
+  .resumo{grid-template-columns:auto 1fr;justify-items:start;text-align:left;align-items:center;gap:40px}
+  .resumo-texto{align-items:flex-start}
+  .resumo-botoes{justify-content:flex-start}
+}
+
+/* avaliação final */
+.av-topo{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
+.av-topo .olho{margin:0}
+.av-conta{font-family:var(--titulo);font-weight:700;color:var(--suave)}
+.av-topo + .passo-barra{margin-bottom:18px}
+.av-multipla{display:flex;flex-direction:column;gap:14px;max-width:40rem;margin:10px auto 0}
+.av-pergunta{font-size:clamp(1.5rem,6vw,2rem);line-height:1.2}
+.av-opcoes{display:grid;gap:10px}
+.av-opcao{display:flex;align-items:center;gap:14px;min-height:58px;padding:10px 16px;border-radius:16px;text-align:left;cursor:pointer;
+  font-size:1.125rem;font-weight:600;color:#fff;background:rgba(23,16,66,.85);border:2px solid var(--linha2);transition:border-color .2s ease,background .2s ease}
+.av-opcao b{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:rgba(160,107,255,.3);font-family:var(--titulo)}
+.av-opcao:hover:not(:disabled){border-color:var(--ciano)}
+.av-opcao:disabled{cursor:default}
+.av-opcao.certa{background:rgba(47,154,74,.35);border-color:var(--verde)}
+.av-opcao.certa b{background:var(--verde);color:#0b2a12}
+.av-opcao.errada{background:rgba(140,42,69,.45);border-color:#ff4f78}
+.av-explicacao{padding:12px 16px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--linha);font-size:1.0625rem}
+.av-explicacao b{color:var(--ouro)}
+.av-multipla > .botao,.palco-lado > .botao{min-height:54px}
+.av-nota{font-size:clamp(3rem,14vw,4.5rem)!important;color:var(--ouro);line-height:1}
+.resumo.aprovado .av-nota{color:var(--verde)}
+.av-acertos{font-family:var(--titulo);font-weight:700;font-size:1.25rem;color:#fff}
+.av-revisao{margin-top:20px;display:grid;gap:10px}
+.av-revisao h3{font-size:1.375rem}
+.av-revisao-item{padding:14px 16px;border-radius:16px;background:rgba(23,16,66,.8);border:1px solid rgba(255,79,120,.45);display:grid;gap:6px;color:var(--suave)}
+.av-revisao-pergunta{font-weight:700;color:#fff}
+.av-revisao-item b{color:#fff}
+
+/* ------------------------------------------------------------- extras do tabuleiro de lição */
+.tabuleiro.interativo{touch-action:none}
+.tab-marcas,.tab-setas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.tab-destaque{position:absolute;width:12.5%;height:12.5%;padding:1.5px}
+.tab-destaque::after{content:'';position:absolute;inset:1.5px;border-radius:14%;background:rgba(var(--rgb),.42);box-shadow:inset 0 0 0 3px rgba(var(--rgb),.95)}
+.tab-rotulo{position:absolute;width:12.5%;height:12.5%;display:grid;place-items:center;font-family:var(--titulo);font-weight:700;
+  font-size:clamp(.75rem,3.4vw,1.25rem);color:#fff;text-shadow:0 1px 3px rgba(13,7,48,.9)}
+.tab-rotulo.clara{color:#3a24b8;text-shadow:none}
+.casa.certa::after{background:rgba(53,208,127,.6);box-shadow:inset 0 0 0 3px var(--verde)}
+.tab-promo{position:absolute;top:0;z-index:8;width:12.5%;display:flex;flex-direction:column;gap:2px;padding:2px;border-radius:10px;
+  background:rgba(13,7,48,.95);box-shadow:0 10px 30px -6px #000}
+.tab-promo-peca{aspect-ratio:1;border:0;border-radius:8px;cursor:pointer;background:center/84% no-repeat rgba(255,255,255,.1)}
+.tab-promo-peca:hover{background-color:rgba(46,230,255,.3)}
+
+@media (prefers-reduced-motion:reduce){
+  .prof-balao.fala,.botao.pulsa,.tab-certo{animation:none}
+}

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aprender | Xadrez Express</title>
+<meta name="description" content="Lições gratuitas de xadrez, passo a passo, com o professor Fhellipe: teoria no tabuleiro, exercícios e avaliação final.">
+<meta name="theme-color" content="#0a0620">
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="Aprenda xadrez passo a passo | Xadrez Express">
+<meta property="og:description" content="Lições gratuitas com o professor Fhellipe: teoria no tabuleiro, exercícios e avaliação final.">
+<meta property="og:url" content="https://xadrezcomz.github.io/express/aprender/">
+<meta property="og:image" content="https://xadrezcomz.github.io/express/img/compartilhar-2.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" type="image/svg+xml" href="../img/logo.svg">
+<link rel="preload" href="../fontes/chakrapetch-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../fontes/exo2-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../fontes/fontes.css">
+<link rel="stylesheet" href="../css/estilo.css">
+<link rel="stylesheet" href="../css/aprender.css">
+</head>
+<body class="pagina-aprender">
+
+<header class="topo" id="topo">
+  <a class="marca" href="../" aria-label="Xadrez Express, página inicial">
+    <img src="../img/logo.svg" alt="" width="36" height="36">
+    <span>Xadrez <b>Express</b></span>
+  </a>
+  <nav class="menu" id="menu" aria-label="Seções">
+    <a class="menu-aprender" href="#/" aria-current="page">Aprender</a>
+    <a href="../#puzzle">Desafio do dia</a>
+    <a href="../#partida">Partida do dia</a>
+    <a href="../#frase">Frase do dia</a>
+    <a href="../#curso">O curso</a>
+  </nav>
+  <a class="botao botao-p" href="../#curso">O curso</a>
+  <button type="button" class="menu-abre" aria-controls="menu" aria-expanded="false" aria-label="Abrir o menu"><span></span></button>
+</header>
+
+<main class="aprender" id="app" aria-live="polite">
+  <p class="apr-carregando">Carregando as lições…</p>
+</main>
+
+<footer class="rodape">
+  <div class="miolo">
+    <a class="marca" href="../">
+      <img src="../img/logo.svg" alt="" width="36" height="36" loading="lazy">
+      <span>Xadrez <b>Express</b></span>
+    </a>
+    <p><a class="rodape-insta" href="https://www.instagram.com/xadrezcomz/" target="_blank" rel="noopener">Siga @xadrezcomz no Instagram</a></p>
+    <p class="credito">Exercícios de partidas reais: banco aberto do <a href="https://lichess.org/training" target="_blank" rel="noopener">Lichess</a> (CC0)</p>
+  </div>
+</footer>
+
+<script src="../js/xadrez.js" defer></script>
+<script src="../js/tabuleiro.js" defer></script>
+<script src="../js/menu.js" defer></script>
+<script src="../js/aprender.js" defer></script>
+</body>
+</html>

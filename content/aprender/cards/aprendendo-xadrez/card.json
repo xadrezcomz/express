@@ -1,0 +1,8 @@
+{
+  "titulo": "Aprendendo Xadrez",
+  "descricao": "Do tabuleiro ao primeiro xeque-mate. Lições curtas, com o professor do seu lado em cada passo.",
+  "licoes": [
+    { "id": "licao-01", "titulo": "O Tabuleiro" },
+    { "id": "licao-02", "titulo": "Mate em 1" }
+  ]
+}
