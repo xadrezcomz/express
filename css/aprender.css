@@ -99,7 +99,7 @@
   .licao-etapas{margin-bottom:10px}
   .palco{gap:10px}
   .palco-lado{gap:10px}
-  .prof-avatar{width:76px}
+  .prof-avatar{width:88px}
   .prof-balao{margin-bottom:6px;padding:11px 14px}
 }
 @media (min-width:900px){
@@ -109,8 +109,8 @@
 
 /* o professor e o balão (a ponta sempre aponta para o avatar) */
 .prof{display:flex;align-items:flex-end;gap:12px}
-.prof-avatar{flex:none;width:clamp(84px,22vw,130px);height:auto;aspect-ratio:4/5;object-fit:contain;filter:drop-shadow(0 10px 18px rgba(0,0,0,.45))}
-.prof-avatar.grande{width:min(46vw,220px)}
+.prof-avatar{flex:none;width:clamp(84px,22vw,140px);height:auto;aspect-ratio:1;object-fit:contain;filter:drop-shadow(0 10px 18px rgba(0,0,0,.45))}
+.prof-avatar.grande{width:min(56vw,260px)}
 .prof-balao{position:relative;flex:1;min-width:0;margin-bottom:14px;padding:14px 16px;border-radius:18px 18px 18px 6px;
   background:#fff;color:#1b1250;font-size:clamp(1.0625rem,4vw,1.1875rem);line-height:1.45;font-weight:500;
   box-shadow:0 16px 36px -18px #000}
