@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
-<!-- Avatar provisório do professor, até chegarem as imagens de verdade (explicando.png etc.) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-30 60 460 460" width="440" height="440">
+<!-- Avatar provisório do professor, até chegarem as imagens de verdade (explicando.webp etc.) -->
 <defs>
 <linearGradient id="camisa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6c57e0"/><stop offset="1" stop-color="#3a2c9c"/></linearGradient>
 <linearGradient id="pele" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d2b0"/><stop offset="1" stop-color="#e5b38b"/></linearGradient>

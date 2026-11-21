@@ -83,7 +83,22 @@ Lances em UCI: casa de saída + casa de chegada (`e2e4`), com a peça no fim na 
 }
 ```
 
-- `pose`: `explicando` (padrão), `apontando`, `comemorando` ou `pensando`.
+- `pose`: a expressão do professor naquele passo (sem `pose`, vale `explicando`):
+
+  | pose | quando usar |
+  |---|---|
+  | `apresentando` | abertura da lição e boas-vindas |
+  | `comemorando` | acertos e conquistas |
+  | `curioso` | perguntas e desafios ("sua vez") |
+  | `explicando` | regras importantes (a padrão) |
+  | `surpreso` | jogadas inesperadas e curiosidades |
+  | `pensativo` | análise de posições e problemas |
+  | `atencao` | alertas e erros comuns |
+  | `aprovando` | elogios e encerramento |
+  | `curso` | o professor segurando o peão: quando se fala do curso |
+
+  Nos exercícios e na avaliação o site escolhe sozinho: `curioso` na pergunta, `comemorando` no acerto,
+  `atencao` no erro, `pensativo` na dica, e `curso` na tela de lição concluída.
 - Cores de destaques e setas: `verde`, `vermelho`, `azul`, `amarelo`, `roxo`, `rosa`.
 - `rotulos`: escreve o nome dentro das casas. `"todas"` mostra o mapa inteiro.
 - `animacao`: lances jogados sozinhos ao entrar no passo; destaques e setas aparecem depois deles.
@@ -145,9 +160,9 @@ Temas úteis: `mateIn1`, `mateIn2`, `fork`, `pin`, `skewer`, `hangingPiece`, `en
 
 ## Avatar e capas
 
-- Avatar: `assets/aprender/avatar/explicando.png` (o padrão) e, se quiser, `apontando.png`,
-  `comemorando.png` e `pensando.png`. PNG com fundo transparente, proporção 4:5 (por exemplo 400 × 500).
-  Pose que faltar usa a padrão; enquanto não houver nenhuma, aparece `placeholder.svg`.
+- Avatar: uma imagem por expressão em `assets/aprender/avatar/{pose}.webp` (a tabela de poses está
+  acima), quadrada (440 × 440), com fundo transparente e o professor apoiado na borda de baixo.
+  Pose que faltar usa `explicando.webp`; sem nenhuma, aparece `placeholder.svg`.
 - Capas: `assets/aprender/capas/{card}.webp` (ou PNG, com o nome em `capa`), proporção 3:4,
   por exemplo 600 × 800. O título fica embaixo da imagem, então a capa não precisa de texto.
 

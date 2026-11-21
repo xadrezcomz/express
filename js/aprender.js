@@ -76,19 +76,25 @@
   }
 
   // ---------------------------------------------------------------- avatar e capas
-  // Tenta a pose pedida, depois a padrão (explicando.png) e, sem nenhuma, o desenho provisório.
+  // As expressões do professor (assets/aprender/avatar/{pose}.webp):
+  //   apresentando  abertura e boas-vindas        comemorando  acertos e conquistas
+  //   curioso       perguntas e desafios           explicando   regras importantes (a padrão)
+  //   surpreso      jogadas inesperadas            pensativo    análise de posições e dicas
+  //   atencao       alertas e erros                aprovando    elogios e encerramento
+  //   curso         segurando o peão: quando se fala do curso
+  // Pose que faltar usa a padrão; sem nenhuma imagem, o desenho provisório.
   var faltam = {};
   function poeAvatar(img, pose) {
     var lista = [pose, 'explicando'].filter(function (p, i, a) { return p && !faltam[p] && a.indexOf(p) === i; });
     (function tenta(k) {
       if (k >= lista.length) { img.onerror = null; img.src = ASSETS + 'avatar/placeholder.svg'; return; }
       img.onerror = function () { faltam[lista[k]] = true; tenta(k + 1); };
-      img.src = ASSETS + 'avatar/' + lista[k] + '.png';
+      img.src = ASSETS + 'avatar/' + lista[k] + '.webp';
     })(0);
   }
   function avatar(pose, classe) {
     var img = el('img', 'prof-avatar' + (classe ? ' ' + classe : ''));
-    img.alt = 'Professor Fhellipe'; img.width = 400; img.height = 500; img.decoding = 'async';
+    img.alt = 'Professor Fhellipe'; img.width = 440; img.height = 440; img.decoding = 'async';
     poeAvatar(img, pose || 'explicando');
     return img;
   }
@@ -128,7 +134,7 @@
   function falha(texto) {
     app.innerHTML = '';
     var c = el('div', 'apr-vazio');
-    c.appendChild(avatar('pensando'));
+    c.appendChild(avatar('pensativo'));
     c.appendChild(el('p', '', texto));
     c.appendChild(el('a', 'botao botao-vidro', 'Voltar para o Aprender'));
     c.lastChild.href = '#/';
@@ -255,7 +261,7 @@
 
   function capaLicao(ctx) {
     var p = daLicao(ctx.slug, ctx.id), c = el('div', 'licao-capa');
-    c.appendChild(avatar('explicando', 'grande'));
+    c.appendChild(avatar('apresentando', 'grande'));
     var texto = el('div', 'licao-capa-texto', '<p class="olho">Lição ' + ctx.n + '</p><h1>' + esc(ctx.L.titulo) + '</h1>' +
       (ctx.L.abertura ? '<p class="sub">' + formata(ctx.L.abertura) + '</p>' : '') +
       '<p class="licao-capa-etapas"><span>Teoria</span><span>Exercícios</span><span>Avaliação Final</span></p>');
@@ -347,7 +353,7 @@
       }
       function errou(texto) {
         errosNoPasso++;
-        prof.fala(it.erro || texto, 'pensando');
+        prof.fala(it.erro || texto, 'atencao');
         // travou duas vezes: o professor mostra o caminho
         if (errosNoPasso >= 2) {
           if (it.casa) T.marcaCasas('dica', [it.casa]);
@@ -421,7 +427,7 @@
       if (item.tipo === 'casa') {
         quem.innerHTML = '';
         T.posicao(fen(item.fen), item.lado || 'w');
-        prof.fala(j === 0 ? 'Bora! Toque na casa certa.' : 'Próximo. Toque na casa certa.');
+        prof.fala(j === 0 ? 'Bora! Toque na casa certa.' : 'Próximo. Toque na casa certa.', 'curioso');
         T.modo('casa', { aoTocar: tocou });
         return;
       }
@@ -430,7 +436,7 @@
       quem.innerHTML = vez(cor);
       T.posicao(item.fen, cor);
       T.modo('nenhum');
-      prof.fala(item.tipo === 'lichess' ? 'O adversário acabou de jogar. Agora é você.' : 'Sua vez. Ache o lance.');
+      prof.fala(item.tipo === 'lichess' ? 'O adversário acabou de jogar. Agora é você.' : 'Sua vez. Ache o lance.', 'curioso');
       if (item.tipo === 'lichess') {
         depois(function () { if (meu === vezDoItem) T.joga(linha[0], function () { passo = 1; suaVez(); }); }, 650);
       } else suaVez();
@@ -460,7 +466,7 @@
     function errou(texto) {
       erros++;
       if (!resultados[fila[pos]]) { resultados[fila[pos]] = 'errado'; marcaTrilha(); }
-      prof.fala(texto || sorteia(ERROS), 'pensando');
+      prof.fala(texto || sorteia(ERROS), 'atencao');
     }
     function acertou() {
       terminou = true;
@@ -474,13 +480,13 @@
     function dica() {
       dicas++;
       if (item.tipo === 'casa') {
-        if (dicas === 1 && item.dica) prof.fala(item.dica, 'pensando');
-        else { T.marcaCasas('dica', item.resposta); prof.fala('Olha a casa piscando.', 'apontando'); }
+        if (dicas === 1 && item.dica) prof.fala(item.dica, 'pensativo');
+        else { T.marcaCasas('dica', item.resposta); prof.fala('Olha a casa piscando.', 'explicando'); }
         return;
       }
       var e = linha[passo];
-      if (dicas === 1) { T.marcaCasas('dica', [e.slice(0, 2)]); prof.fala(item.dica || 'Olha bem para esta peça.', 'apontando'); }
-      else { T.desenho({ setas: [{ de: e.slice(0, 2), para: e.slice(2, 4), cor: 'verde' }] }); prof.fala('A seta mostra o caminho.', 'apontando'); }
+      if (dicas === 1) { T.marcaCasas('dica', [e.slice(0, 2)]); prof.fala(item.dica || 'Olha bem para esta peça.', 'pensativo'); }
+      else { T.desenho({ setas: [{ de: e.slice(0, 2), para: e.slice(2, 4), cor: 'verde' }] }); prof.fala('A seta mostra o caminho.', 'explicando'); }
     }
     function verSolucao() {
       viu = true; resultados[fila[pos]] = 'errado';
@@ -490,7 +496,7 @@
       T.modo('nenhum');
       if (item.tipo === 'casa') {
         T.marcaCasas('certa', item.resposta);
-        prof.fala('Era ' + (item.resposta.length > 1 ? 'qualquer uma destas: ' : 'esta: ') + '==' + item.resposta.join('==, ==') + '==.', 'apontando');
+        prof.fala('Era ' + (item.resposta.length > 1 ? 'qualquer uma destas: ' : 'esta: ') + '==' + item.resposta.join('==, ==') + '==.', 'explicando');
         return;
       }
       var inicio = X.deFEN(item.fen), cor = item.tipo === 'lichess' ? oposto(inicio.vez) : inicio.vez, lances = linha.slice(), texto = [];
@@ -501,7 +507,7 @@
         if (!(item.tipo === 'lichess' && k === 0)) texto.push(Tabuleiro.lancePT(p, l));
         p = X.joga(p, l);
       });
-      prof.fala('Olha só: ==' + texto.join(' ') + '==', 'apontando');
+      prof.fala('Olha só: ==' + texto.join(' ') + '==', 'explicando');
       (function anima() {
         if (meu !== vezDoItem || !lances.length) return;
         depois(function () { if (meu === vezDoItem) T.joga(lances.shift(), anima); }, 700);
@@ -520,7 +526,7 @@
       sai();
       ctx.corpo.innerHTML = '';
       var c = el('div', 'resumo');
-      c.appendChild(avatar(certos === fila.length ? 'comemorando' : 'explicando', 'grande'));
+      c.appendChild(avatar(certos === fila.length ? 'comemorando' : (certos >= fila.length / 2 ? 'aprovando' : 'pensativo'), 'grande'));
       var t = el('div', 'resumo-texto', '<p class="olho">Exercícios</p><h2>' + certos + ' de ' + fila.length + ' de primeira</h2>' +
         '<p class="sub">' + (certos === fila.length ? 'Perfeito! Você está pronto para a avaliação.' :
           (certos >= fila.length / 2 ? 'Mandou bem! Quer refazer os que errou antes da avaliação?' : 'Errar faz parte. Refazer os que errou ajuda a fixar.')) + '</p>');
@@ -584,13 +590,13 @@
       mostraTabuleiro(P);
       if (q.tipo === 'casa') {
         T.posicao(fen(q.fen), q.lado || 'w');
-        prof.fala('Sem dica agora: uma tentativa só. Capricha!');
+        prof.fala('Sem dica agora: uma tentativa só. Capricha!', 'curioso');
         T.modo('casa', { aoTocar: function (c) {
           T.modo('nenhum');
           var ok = (q.resposta || []).indexOf(c) >= 0;
           T.marcaCasas(ok ? 'certa' : 'errou', [c]);
           if (!ok) T.marcaCasas('dica', q.resposta);
-          prof.fala((ok ? '**Certo!** ' : '**Não é essa.** A resposta era ==' + q.resposta.join('== ou ==') + '==. ') + (q.explicacao || ''), ok ? 'comemorando' : 'explicando');
+          prof.fala((ok ? '**Certo!** ' : '**Não é essa.** A resposta era ==' + q.resposta.join('== ou ==') + '==. ') + (q.explicacao || ''), ok ? 'comemorando' : 'atencao');
           registra(ok, q.resposta.join(' ou '));
         } });
         return;
@@ -600,7 +606,7 @@
       var cor = q.tipo === 'lichess' ? oposto(inicio.vez) : inicio.vez, passo = 0;
       quem.innerHTML = vez(cor);
       T.posicao(q.fen, cor);
-      prof.fala('Sem dica agora: uma tentativa só. Capricha!');
+      prof.fala('Sem dica agora: uma tentativa só. Capricha!', 'curioso');
       function suaVez() { T.modo('lance', { cor: cor, aoTentar: tentou }); }
       function respostaCerta() {
         var p = T.estado(), l = X.deUCI(p, linha[passo]);
@@ -624,7 +630,7 @@
         var certo = respostaCerta(), e = linha[passo];
         T.modo('nenhum');
         T.erra(l, function () { if (meu === vezDaQuestao) T.desenho({ setas: [{ de: e.slice(0, 2), para: e.slice(2, 4), cor: 'verde' }] }); });
-        prof.fala('**Não é esse.** A jogada era ==' + certo + '==. ' + (q.explicacao || ''), 'explicando');
+        prof.fala('**Não é esse.** A jogada era ==' + certo + '==. ' + (q.explicacao || ''), 'atencao');
         registra(false, certo);
       }
       if (q.tipo === 'lichess') depois(function () { if (meu === vezDaQuestao) T.joga(linha[0], function () { passo = 1; suaVez(); }); }, 650);
@@ -639,7 +645,7 @@
       anota(ctx.slug, ctx.id, { avaliacao: { nota: Math.max(nota, antes.nota || 0), aprovada: aprovada || !!antes.aprovada } });
       ctx.corpo.innerHTML = '';
       var c = el('div', 'resumo' + (aprovada ? ' aprovado' : ''));
-      c.appendChild(avatar(aprovada ? 'comemorando' : 'explicando', 'grande'));
+      c.appendChild(avatar(aprovada ? 'curso' : 'pensativo', 'grande'));
       var prox = ctx.card.licoes[ctx.n];
       var t = el('div', 'resumo-texto', '<p class="olho">Avaliação Final</p><h2 class="av-nota">' + nota + '%</h2>' +
         '<p class="av-acertos">' + acertos + ' de ' + Q.length + ' certas</p>' +
