@@ -23,7 +23,7 @@
   <div class="peca" id="peca"></div>
   <div class="marca"><img src="../img/logo.svg" width="88" height="88" alt=""><span>Xadrez <i>Express</i></span></div>
   <div class="texto">
-    <div class="num">Módulo <b id="num"></b></div>
+    <div class="num"><span id="tipo">Módulo</span> <b id="num"></b></div>
     <div class="titulo" id="titulo"></div>
   </div>
 </div>
@@ -34,6 +34,7 @@ function monta(d) {
   var cores = pintaCor(d.cor), arte = document.getElementById('arte');
   estrelas(document.getElementById('estrelas'), 'modulo' + d.numero);
   document.getElementById('num').textContent = d.numero;
+  if (d.tipo) document.getElementById('tipo').textContent = d.tipo;
   var t = document.getElementById('titulo');
   t.textContent = d.titulo;
   cabe(t, 132, 70, 430);

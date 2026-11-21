@@ -1,7 +1,8 @@
 // A lista de módulos e aulas do curso. É o ÚNICO arquivo a mexer para trocar um título,
 // uma peça, uma cor ou a duração. Depois de mudar: node capas/gera.js
 //
-// Módulo:  numero   o número que aparece na capa ("MÓDULO 0"), igual ao da Hotmart
+// Módulo:  tipo     opcional: a palavra da capa ('Módulo' se não tiver; 'Bônus' nos bônus)
+//          numero   o número que aparece na capa ("MÓDULO 0"), igual ao da Hotmart
 //          titulo   o título do módulo
 //          peca     wk wq wr wb wn wp (brancas), bk bq br bb bn bp (pretas), 'foguete' ou 'tabuleiro'
 //          cor      opcional: ciano, ouro, rosa, roxo ou laranja. Sem ela, as cores
@@ -104,4 +105,6 @@ module.exports = [
       { rotulo: 'Lição 41', titulo: 'Seu Próximo Passo no Xadrez', peca: 'foguete' },
     ],
   },
+  // os módulos bônus ficam no outro arquivo
+  ...require('./lista-bonus.js'),
 ];

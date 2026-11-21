@@ -24,10 +24,11 @@ const fatia = t => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').repl
   // a fila de capas
   const fila = [];
   lista.forEach((m, i) => {
-    const cor = m.cor || ORDEM[i % ORDEM.length], base = 'modulo-' + String(m.numero).padStart(2, '0');   // o arquivo sempre com dois dígitos, para ficar em ordem
-    if (so && so !== m.numero) return;
-    fila.push({ tipo: 'modulo', arquivo: base + '.jpg', dados: { numero: m.numero, titulo: m.titulo, peca: m.peca, cor } });
-    (m.aulas || []).forEach(a => fila.push({ tipo: 'aula', arquivo: base + '-' + fatia(a.rotulo) + '.jpg',
+    const cor = m.cor || ORDEM[i % ORDEM.length], base = fatia(m.tipo || 'Módulo') + '-' + String(m.numero).padStart(2, '0');   // o arquivo sempre com dois dígitos, para ficar em ordem
+    if (so && so !== base && so !== m.numero) return;   // 'modulo-03', 'bonus-07' ou só o número de um módulo
+    m.grupo = m.tipo ? fatia(m.tipo) : 'modulos';
+    fila.push({ tipo: 'modulo', arquivo: base + '.jpg', grupo: m.grupo, dados: { tipo: m.tipo, numero: m.numero, titulo: m.titulo, peca: m.peca, cor } });
+    (m.aulas || []).forEach(a => fila.push({ tipo: 'aula', grupo: m.grupo, arquivo: base + '-' + fatia(a.rotulo) + '.jpg',
       dados: { rotulo: a.rotulo, titulo: a.titulo, peca: a.peca || m.peca, cor, duracao: a.duracao, semente: m.numero + a.rotulo } }));
   });
   const fazer = amostra ? [fila.find(c => c.tipo === 'modulo'), fila.find(c => c.tipo === 'aula')].filter(Boolean) : fila;
@@ -62,17 +63,20 @@ const fatia = t => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').repl
       passou ? '  ACIMA DO LIMITE!' : '  ok', estourou ? '  TÍTULO NÃO COUBE!' : '');
   }
 
-  // a folha de miniaturas
+  // as folhas de miniaturas: uma para os módulos (folha-miniaturas.jpg) e uma para os bônus (folha-bonus.jpg)
   if (!amostra) {
-    const feitas = fila.map(c => c.arquivo);     // na ordem do curso: o módulo e, depois, as aulas dele
-    const todas = feitas.filter(a => fs.existsSync(path.join(SAIDA, a)));
-    await pag.setContent('<style>body{margin:0;padding:24px;background:#07041a;color:#f4f1ff;font:600 15px sans-serif;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;width:1600px;box-sizing:border-box}' +
-      'img{width:100%;border-radius:10px;display:block;margin-bottom:6px}</style>' +
-      todas.map(a => '<div><img src="' + url + 'saida/' + a + '">' + a + '</div>').join(''));
-    await pag.setViewportSize({ width: 1600, height: 100 });
-    await pag.waitForLoadState('networkidle');
-    await pag.screenshot({ path: path.join(SAIDA, 'folha-miniaturas.jpg'), type: 'jpeg', quality: 85, fullPage: true });
-    console.log('folha-miniaturas.jpg (' + todas.length + ' capas)');
+    const grupos = [...new Set(fila.map(c => c.grupo))];
+    for (const g of grupos) {
+      const todas = fila.filter(c => c.grupo === g).map(c => c.arquivo).filter(a => fs.existsSync(path.join(SAIDA, a)));
+      const nome = g === 'modulos' ? 'folha-miniaturas.jpg' : 'folha-' + g + '.jpg', colunas = todas.length > 60 ? 6 : 4;
+      await pag.setViewportSize({ width: 1600, height: 100 });
+      await pag.setContent('<style>body{margin:0;padding:24px;background:#07041a;color:#f4f1ff;font:600 ' + (colunas > 4 ? 12 : 15) + 'px sans-serif;display:grid;grid-template-columns:repeat(' + colunas + ',1fr);gap:16px;width:1600px;box-sizing:border-box}' +
+        'img{width:100%;border-radius:8px;display:block;margin-bottom:5px}</style>' +
+        todas.map(a => '<div><img src="' + url + 'saida/' + a + '">' + a + '</div>').join(''));
+      await pag.waitForLoadState('networkidle');
+      await pag.screenshot({ path: path.join(SAIDA, nome), type: 'jpeg', quality: 85, fullPage: true });
+      console.log(nome + ' (' + todas.length + ' capas)');
+    }
   }
   await nav.close(); srv.close();
   if (erro) process.exit(1);
