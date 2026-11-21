@@ -5,12 +5,12 @@
   "abertura": "O cavalo é a peça mais diferente do xadrez: anda em L e é o único que pula.",
   "teoria": [
     {
-      "fen": "7k/8/8/8/3N4/8/8/7K w - - 0 1",
+      "fen": "1k6/8/8/8/3N4/8/7K/8 w - - 0 1",
       "texto": "Agora a peça mais curiosa do tabuleiro: o **cavalo**.",
       "pose": "apresentando"
     },
     {
-      "fen": "7k/8/8/8/3N4/8/8/7K w - - 0 1",
+      "fen": "1k6/8/8/8/3N4/8/7K/8 w - - 0 1",
       "texto": "Ele anda em **L**: duas casas numa direção e mais uma para o lado.",
       "destaques": [
         {
@@ -20,29 +20,24 @@
       ]
     },
     {
-      "fen": "7k/8/8/8/3N4/8/8/7K w - - 0 1",
-      "texto": "Do centro, o cavalo alcança **8 casas**. Olhe o L de d4 até e6.",
+      "fen": "1k6/8/8/8/3N4/8/7K/8 w - - 0 1",
+      "texto": "Do centro, o cavalo alcança **8 casas**. Por exemplo, um L de d4 até e6: duas casas para cima e uma para o lado.",
       "setas": [
         {
           "de": "d4",
-          "para": "d6",
-          "cor": "azul"
-        },
-        {
-          "de": "d6",
           "para": "e6",
           "cor": "azul"
         }
       ],
       "destaques": [
         {
-          "casas": ["e6"],
+          "casas": ["e2", "f3", "c2", "b3", "e6", "f5", "c6", "b5"],
           "cor": "verde"
         }
       ]
     },
     {
-      "fen": "7k/8/8/8/3N4/8/8/7K w - - 0 1",
+      "fen": "1k6/8/8/8/3N4/8/7K/8 w - - 0 1",
       "texto": "Sua vez: leve o cavalo até ==f5==.",
       "pose": "curioso",
       "interativo": {
@@ -71,7 +66,7 @@
       }
     },
     {
-      "fen": "7k/8/8/8/3N4/8/8/7K w - - 0 1",
+      "fen": "1k6/8/8/8/3N4/8/7K/8 w - - 0 1",
       "texto": "Um detalhe: a cada salto o cavalo **troca de cor**. Saiu de uma casa escura, cai numa clara, e vice-versa.",
       "pose": "atencao",
       "destaques": [
@@ -112,7 +107,8 @@
         "fen": "7k/8/8/8/4N3/8/8/7K w - - 0 1",
         "pergunta": "Toque numa casa onde o cavalo pode ir",
         "resposta": ["f2", "g3", "d2", "c3", "f6", "g5", "d6", "c5"],
-        "dica": "Duas casas numa direção e uma para o lado."
+        "dica": "Duas casas numa direção e uma para o lado.",
+        "origem": "e4"
       },
       {
         "tipo": "autoral",
@@ -126,7 +122,8 @@
         "fen": "7k/8/8/8/8/8/8/6NK w - - 0 1",
         "pergunta": "Toque numa casa onde o cavalo pode ir",
         "resposta": ["h3", "f3", "e2"],
-        "dica": "Perto da borda, sobram poucas casas."
+        "dica": "Perto da borda, sobram poucas casas.",
+        "origem": "g1"
       },
       {
         "tipo": "autoral",
@@ -157,7 +154,8 @@
       "fen": "7k/8/8/5N2/8/8/8/7K w - - 0 1",
       "pergunta": "Toque numa casa onde o cavalo pode ir",
       "resposta": ["g3", "h4", "e3", "d4", "g7", "h6", "e7", "d6"],
-      "dica": "Oito casas em L."
+      "dica": "Oito casas em L.",
+      "origem": "f5"
     },
     {
       "tipo": "multipla",

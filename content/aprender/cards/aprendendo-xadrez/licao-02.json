@@ -5,12 +5,12 @@
   "abertura": "Agora as peças entram em cena. A primeira é a torre: forte, direta e sem curvas.",
   "teoria": [
     {
-      "fen": "7k/8/8/8/3R4/8/8/7K w - - 0 1",
+      "fen": "1k6/8/8/8/3R4/8/7K/8 w - - 0 1",
       "texto": "Hora de conhecer as peças! Começamos pela **torre**: forte, direta e sem curvas.",
       "pose": "apresentando"
     },
     {
-      "fen": "7k/8/8/8/3R4/8/8/7K w - - 0 1",
+      "fen": "1k6/8/8/8/3R4/8/7K/8 w - - 0 1",
       "texto": "A torre anda em **linha reta**: pelas colunas e pelas fileiras, quantas casas quiser.",
       "destaques": [
         {
@@ -20,7 +20,7 @@
       ]
     },
     {
-      "fen": "7k/8/8/8/3R4/8/8/7K w - - 0 1",
+      "fen": "1k6/8/8/8/3R4/8/7K/8 w - - 0 1",
       "texto": "Para cima, para baixo e para os lados. Daqui de d4 ela alcança **14 casas**.",
       "setas": [
         {
@@ -40,13 +40,13 @@
         },
         {
           "de": "d4",
-          "para": "g4",
+          "para": "h4",
           "cor": "azul"
         }
       ]
     },
     {
-      "fen": "7k/8/8/8/3R4/8/8/7K w - - 0 1",
+      "fen": "1k6/8/8/8/3R4/8/7K/8 w - - 0 1",
       "texto": "Sua vez: leve a torre até a casa ==d8==.",
       "pose": "curioso",
       "interativo": {
@@ -85,18 +85,18 @@
       ]
     },
     {
-      "fen": "7k/8/8/8/8/8/8/R6K w - - 0 1",
+      "fen": "7k/8/8/8/8/8/7K/R7 w - - 0 1",
       "texto": "Curiosidade: num tabuleiro vazio, a torre alcança sempre **14 casas**, esteja no canto ou no centro.",
       "pose": "surpreso",
       "destaques": [
         {
-          "casas": ["b1", "c1", "d1", "e1", "f1", "a2", "a3", "a4", "a5", "a6", "a7", "a8"],
+          "casas": ["b1", "c1", "d1", "e1", "f1", "g1", "h1", "a2", "a3", "a4", "a5", "a6", "a7", "a8"],
           "cor": "verde"
         }
       ]
     },
     {
-      "fen": "7k/8/8/8/3R4/8/8/7K w - - 0 1",
+      "fen": "1k6/8/8/8/3R4/8/7K/8 w - - 0 1",
       "texto": "Resumo: linha reta, quantas casas quiser, sem pular ninguém. Bora praticar?",
       "pose": "aprovando"
     }
@@ -109,7 +109,8 @@
         "fen": "7k/8/8/8/2R5/8/8/7K w - - 0 1",
         "pergunta": "Toque numa casa onde a torre pode ir",
         "resposta": ["d4", "e4", "f4", "g4", "h4", "b4", "a4", "c3", "c2", "c1", "c5", "c6", "c7", "c8"],
-        "dica": "Olhe a coluna c e a fileira 4."
+        "dica": "Olhe a coluna c e a fileira 4.",
+        "origem": "c4"
       },
       {
         "tipo": "autoral",
@@ -123,7 +124,8 @@
         "fen": "7k/8/8/2p5/8/2R1P3/8/7K w - - 0 1",
         "pergunta": "Toque numa casa onde a torre pode ir",
         "resposta": ["d3", "b3", "a3", "c2", "c1", "c4", "c5"],
-        "dica": "O peão branco trava a fileira; o preto pode ser capturado."
+        "dica": "O peão branco trava a fileira; o preto pode ser capturado.",
+        "origem": "c3"
       },
       {
         "tipo": "autoral",
@@ -154,7 +156,8 @@
       "fen": "7k/8/8/4R3/8/8/8/7K w - - 0 1",
       "pergunta": "Toque numa casa onde a torre pode ir",
       "resposta": ["f5", "g5", "h5", "d5", "c5", "b5", "a5", "e4", "e3", "e2", "e1", "e6", "e7", "e8"],
-      "dica": "Qualquer casa da coluna e ou da fileira 5."
+      "dica": "Qualquer casa da coluna e ou da fileira 5.",
+      "origem": "e5"
     },
     {
       "tipo": "multipla",

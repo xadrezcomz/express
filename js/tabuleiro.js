@@ -153,7 +153,8 @@
     // ---------------------------------------------------------------- quem pode mexer
     //   'nenhum'  só mostra
     //   'lance'   { cor: 'w'|'b', aoTentar(lance) }  o lance legal é entregue; quem chama decide se aplica ou erra
-    //   'casa'    { aoTocar(casa) }                  devolve o nome da casa tocada
+    //   'casa'    { aoTocar(casa), origem }          devolve o nome da casa tocada; com `origem`, a peça
+    //                                                dessa casa pode ser tocada ou arrastada sem contar
     this.modo = function (tipo, opcoes) {
       atual = { tipo: tipo || 'nenhum', op: opcoes || {} };
       escolhida = -1; alvos = []; mostraAlvos();
@@ -217,7 +218,21 @@
       if (ocupado || !elPromo.hidden || atual.tipo === 'nenhum') return;
       var i = casaNoPonto(ev.clientX, ev.clientY);
       if (i < 0) return;
-      if (atual.tipo === 'casa') { if (atual.op.aoTocar) atual.op.aoTocar(nome(i)); return; }
+      if (atual.tipo === 'casa') {
+        // "onde esta peça pode ir?": tocar na peça só a escolhe (não conta como resposta),
+        // e arrastá-la até uma casa vale como tocar nessa casa
+        var org = atual.op.origem ? indice(atual.op.origem) : -1;
+        if (i === org && pecas[i]) {
+          marca('escolhida', [i]);
+          arrasto = { i: i, el: pecas[i], x: ev.clientX, y: ev.clientY, mexeu: false, id: ev.pointerId, toque: ev.pointerType === 'touch', casa: true };
+          try { elTab.setPointerCapture(ev.pointerId); } catch (e) { /* tudo bem */ }
+          ev.preventDefault();
+          return;
+        }
+        marca('escolhida', []);
+        if (atual.op.aoTocar) atual.op.aoTocar(nome(i));
+        return;
+      }
       if (minha(i)) {
         var jaEra = escolhida === i;
         escolhe(i);
@@ -240,6 +255,15 @@
     function solta(ev) {
       if (!arrasto || ev.pointerId !== arrasto.id) return;
       var a = arrasto; arrasto = null;
+      if (a.casa) {
+        a.el.classList.remove('arrastando'); poe(a.el, a.i);
+        if (!a.mexeu) return;
+        marca('escolhida', []);
+        var cc = elTab.getBoundingClientRect().width / 8;
+        var dd = ev.type === 'pointerup' ? casaNoPonto(ev.clientX, ev.clientY - (a.toque ? cc * 0.6 : 0)) : -1;
+        if (dd >= 0 && dd !== a.i && atual.op.aoTocar) atual.op.aoTocar(nome(dd));
+        return;
+      }
       if (!a.mexeu) { if (a.jaEra) escolhe(-1); return; }
       var c = elTab.getBoundingClientRect().width / 8;
       var para = ev.type === 'pointerup' ? casaNoPonto(ev.clientX, ev.clientY - (a.toque ? c * 0.6 : 0)) : -1;

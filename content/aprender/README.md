@@ -15,6 +15,25 @@ assets/aprender/capas/           capas dos cards (3:4)
 Endereços: `aprender/#/` é o catálogo, `aprender/#/{card}` a página do card e
 `aprender/#/{card}/{licao}` a lição (com `/teoria`, `/exercicios` ou `/avaliacao` no fim).
 
+## Regras obrigatórias (valem para toda lição nova)
+
+Antes de publicar, rode **`node ferramentas/valida-aprender.js`**. Ele roda sozinho a cada publicação
+e, se achar um problema, a publicação para: lição errada não vai ao ar.
+
+1. **Setas e destaques mostram a verdade.** Seta de movimento termina numa casa que a peça alcança;
+   para torre, bispo e dama, vai até a última casa daquela direção (nada de seta "encurtada").
+   Seta **vermelha** é a exceção: mostra o que a peça *não* pode fazer.
+2. **Números batem com o tabuleiro.** Se o texto diz "14 casas", as casas destacadas (ou as cobertas
+   pelas setas) somam 14. Os reis, que toda posição precisa ter, ficam fora das linhas da peça explicada.
+3. **Toda resposta válida é aceita.** "Toque numa casa onde a peça pode ir" leva `"origem"` (a casa da
+   peça), e a resposta são **todas** as casas que ela alcança. Com `origem`, tocar na peça não conta como
+   erro, e arrastar a peça até a casa também vale.
+4. **Nada de pergunta ambígua.** "Capture o cavalo" só quando há um único cavalo para capturar.
+   Qualquer peça que capture na mesma casa é aceita, e levar o mesmo tipo de peça à mesma casa também.
+   Em exercício de mate, qualquer mate vale.
+5. **Calcule, não digite.** Casas destacadas e setas de movimento devem sair das regras: veja `vai()` e
+   `raios()` em `ferramentas/gera-licoes-basicas.js`, que gera as lições 2 a 11.
+
 ## colecoes.json
 
 ```json
@@ -130,7 +149,8 @@ Quatro tipos de item:
 - `multipla`: pergunta de escolha. Com `fen` (e, se quiser, `setas` e `destaques`), a posição aparece no
   tabuleiro; sem `fen`, o tabuleiro some. Nos exercícios dá para errar e tentar de novo.
 
-- `casa`: o aluno toca numa casa; `resposta` pode ter várias casas certas.
+- `casa`: o aluno toca numa casa; `resposta` pode ter várias casas certas. Pergunta sobre o movimento
+  de uma peça leva `"origem": "d4"` (regra 3).
 - `autoral`: a `solucao` alterna lance do aluno e resposta do adversário (`["a1a8", "e8d7", "a8d8"]`).
   Quem joga é quem tem a vez na `fen`.
 - `lichess`: vem do banco do Lichess. **Não preencha à mão**: veja abaixo.

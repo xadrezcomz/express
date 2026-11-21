@@ -24,6 +24,9 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      # lição com seta errada, contagem errada ou resposta ambígua não vai ao ar
+      - name: Confere as lições do Aprender
+        run: node ferramentas/valida-aprender.js
       # a oficina dos vídeos das lições não faz parte do site
       - run: rm -rf videos
       - uses: actions/configure-pages@v5
