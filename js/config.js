@@ -13,6 +13,18 @@ window.XE_CONFIG = {
   parcelas: '',            // ex.: 'ou 12x de R$ 9,70'  (opcional)
   instagram: 'https://www.instagram.com/xadrezcomz/',
 
+  // O QUE TEM NO CURSO: aparece no cartão do curso (números, módulos e bônus).
+  // Só entra no cartão o que estiver preenchido; nada de número inventado.
+  curso: {
+    modulos: [
+      { titulo: 'Conhecendo o tabuleiro e as peças', aulas: 7, extras: 2 },
+      // { titulo: 'Nome do módulo', aulas: 10 },
+    ],
+    bonus: [
+      // { titulo: 'Nome do bônus', texto: 'Uma frase dizendo o que a pessoa ganha.' },
+    ]
+  },
+
   // TEMA DE DATA: a "roupa" do site (Natal, Carnaval, Páscoa...). As datas e a
   // lista dos temas estão em js/temas.js.
   //   'auto'  o tema entra e sai sozinho nas datas certas

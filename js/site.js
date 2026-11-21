@@ -61,6 +61,30 @@
     }
   } else { botao.href = insta; }
 
+  // ---------------------------------------------------------------- o que tem no curso
+  var C = CFG.curso || {}, mods = (C.modulos || []).filter(function (m) { return m.titulo; }), bonus = (C.bonus || []).filter(function (b) { return b.titulo; });
+  function plural(n, um, varios) { return n + ' ' + (n === 1 ? um : varios); }
+  if (mods.length) {
+    var totalAulas = mods.reduce(function (s, m) { return s + (Number(m.aulas) || 0); }, 0);
+    var totalExtras = mods.reduce(function (s, m) { return s + (Number(m.extras) || 0); }, 0);
+    var numeros = [];
+    if (totalAulas) numeros.push(['🎬', plural(totalAulas, 'aula', 'aulas')]);
+    if (mods.length > 1) numeros.push(['📚', plural(mods.length, 'módulos', 'módulos')]);
+    if (totalExtras) numeros.push(['📄', plural(totalExtras, 'material extra', 'materiais extras')]);
+    if (bonus.length) numeros.push(['🎁', plural(bonus.length, 'bônus', 'bônus')]);
+    id('cursoNumeros').innerHTML = numeros.map(function (n) { return '<span><i aria-hidden="true">' + n[0] + '</i>' + n[1] + '</span>'; }).join('');
+    id('cursoNumeros').hidden = false;
+    id('cursoModulos').innerHTML = mods.map(function (m, i) {
+      var info = [m.aulas ? plural(Number(m.aulas), 'aula', 'aulas') : '', m.extras ? plural(Number(m.extras), 'material extra', 'materiais extras') : ''].filter(Boolean).join(' + ');
+      return '<li><b>' + (i + 1 < 10 ? '0' : '') + (i + 1) + '</b><span>' + m.titulo + (info ? '<small>' + info + '</small>' : '') + '</span></li>';
+    }).join('');
+    id('cursoConteudo').hidden = false;
+  }
+  if (bonus.length) {
+    id('cursoBonusLista').innerHTML = bonus.map(function (b) { return '<li><b>' + b.titulo + '</b>' + (b.texto ? '<span>' + b.texto + '</span>' : '') + '</li>'; }).join('');
+    id('cursoBonus').hidden = false;
+  }
+
   // ---------------------------------------------------------------- cartão do curso
   // inclina seguindo o mouse (ou o dedo) e passa um brilho por cima
   var cartao = id('cursoCartao');
