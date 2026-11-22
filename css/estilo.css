@@ -521,6 +521,8 @@ button{font:inherit;color:inherit}
     #07041a;
   border:1px solid var(--linha2);
 }
+/* no celular a telinha tem altura fixa: a troca de cena não empurra o botão de compra que vem embaixo */
+@media (max-width:799px){.curso-tela{height:350px}.tela-cena{min-height:0;overflow:hidden}}
 .curso-tela{cursor:pointer;-webkit-tap-highlight-color:transparent;justify-content:space-between;gap:14px;padding:16px 18px 18px}
 /* a trilha de cenas, como nos stories */
 .tela-trilha{display:flex;gap:4px;width:100%}
