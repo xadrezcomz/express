@@ -238,7 +238,10 @@ def main():
     base = carrega(pasta, av['base'], tam)
     bocas = {s: carrega(pasta, av['bocas'][s], tam) - base for s in SONS if av['bocas'].get(s)}
     olhos = {k: carrega(pasta, v, tam) - base for k, v in av['olhos'].items()}
-    gestos = {k: carrega(pasta, v, tam) for k, v in av['gestos'].items()}
+    nomes_g = dict(av['gestos'])
+    if cfg.get('reel') and av.get('gestos_reel'):
+        nomes_g.update(av['gestos_reel'])                         # nos Reels, a mão sobe ao lado do rosto
+    gestos = {k: carrega(pasta, v, tam) for k, v in nomes_g.items()}
     reacoes = {k: carrega(pasta, v, tam) for k, v in av['reacoes'].items()}
     mb = mascara(tam, av['regioes']['boca'], esc, 10 * esc)[..., None]
     mo = mascara(tam, av['regioes']['olhos'], esc, 6 * esc)[..., None]

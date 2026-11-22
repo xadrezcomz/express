@@ -287,7 +287,8 @@ function poeChamadaFinal(roteiro, nome) {
 function linhaDoAvatar2(roteiro, av) {
   const reel = roteiro.avatar === 'reel';
   // nos Reels, a mão do dedo e a da explicação caem fora da tela ou sob a legenda do app: só o rosto
-  const tem = n => !(reel && (n === 'dedo' || n === 'explica')) && ((av.gestos && av.gestos[n]) || (av.reacoes && av.reacoes[n]) || n === 'pensa');
+  const gest = Object.assign({}, av.gestos, reel ? av.gestos_reel : {});
+  const tem = n => !!(gest[n] || (av.reacoes && av.reacoes[n]) || n === 'pensa');
   const linha = [];                        // [t, nome, duração, prioridade]
   let ultimoGesto = -9, perguntas = 0;
   roteiro.legendas.forEach((b, k) => {
@@ -301,6 +302,16 @@ function linhaDoAvatar2(roteiro, av) {
     else if (k > 0 && b.ini - ultimoGesto > 7 && b.fim - b.ini > 1.5) g = 'explica';
     if (g && tem(g)) { linha.push([b.ini, g, g === 'comemora' ? 1.8 : dur, 1]); if (g !== 'pensa') ultimoGesto = b.ini; }
   });
+  // nos Reels, ele aponta para o tabuleiro nos lances que a fala destaca (o lance lento, o do [zoom],
+  // capturas e xeques), no máximo um a cada 6 segundos
+  if (tem('aponta')) {
+    let ult = -9;
+    roteiro.eventos.forEach((ev, k) => {
+      if (ev.tipo !== 'lance' || ev.mate) return;
+      const forte = ev.dur || ev.capturada || ev.xeque != null || (k && roteiro.eventos[k - 1].tipo === 'zoom');
+      if (forte && ev.t - ult > 6) { linha.push([Math.max(0, ev.t - 0.3), 'aponta', 1.8, 2]); ult = ev.t; }
+    });
+  }
   roteiro.eventos.forEach(ev => {
     if (ev.tipo === 'lance' && ev.mate && tem('surpreso')) linha.push([ev.t + (ev.dur || roteiro.durLance), 'surpreso', 1.7, 2]);
     else if (ev.tipo === 'mostra' && ev.peca === 'logo' && tem('joinha')) linha.push([ev.t, 'joinha', 2.2, 2]);
@@ -378,7 +389,7 @@ function poeAvatar(roteiro, audio, duracao, saida, nome) {
     const l = linhaDoAvatar2(roteiro, av);
     const cfg = Object.assign({ pasta: path.join(BASE, 'avatar'), fps: QPS, duracao: duracao, audio: audio, semente: h % 100000,
       caixa: AVATAR2.caixa, dx: AVATAR2.dx, entrada: entrada, saida: saida }, l);
-    if (roteiro.avatar === 'reel') { cfg.caixa = AVATAR2.reel.caixa; cfg.dx = AVATAR2.reel.dx; }
+    if (roteiro.avatar === 'reel') { cfg.caixa = AVATAR2.reel.caixa; cfg.dx = AVATAR2.reel.dx; cfg.reel = true; }
     fs.writeFileSync(path.join(tmp, 'avatar.json'), JSON.stringify(cfg));
     console.log('  avatar: ' + (l.linha.map(([t, p]) => p + ' ' + t.toFixed(1) + 's').join(', ') || 'só a pose base'));
     try { roda('python3', [path.join(AQUI, 'avatar2.py'), path.join(tmp, 'avatar.json')]); }

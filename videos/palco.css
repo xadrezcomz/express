@@ -160,3 +160,5 @@ h1.longo{font-size:50px}
 .reel-avatar .legenda::before{content:"";position:absolute;left:-22px;top:120px;border:12px solid transparent;
   border-right:12px solid rgba(255,211,107,.55);border-width:14px 20px 14px 0}
 .reel-avatar .pe{display:none}
+.reel-avatar .legenda{top:1128px;height:206px;font-size:50px}
+.reel-avatar .legenda::before{top:80px}
