@@ -166,3 +166,12 @@
 .tela .t-celular i{position:absolute;left:24px;top:24px;width:541px;height:920px;border-radius:40px;background:#000}
 
 .minus{text-transform:none!important}
+
+/* Reels com o avatar (ver palco.css) */
+.palco3d.reel-avatar .area3d{left:80px;top:410px;width:860px;height:710px}
+.palco3d.reel-avatar .legenda3d{left:400px;right:140px;top:1160px;height:310px;font-size:40px;gap:6px;
+  padding:16px 18px;border-radius:28px;background:rgba(13,7,48,.72);border:3px solid rgba(255,211,107,.55);
+  box-shadow:0 10px 40px rgba(0,0,0,.45);align-content:center;justify-content:flex-start}
+.palco3d.reel-avatar .pe{display:none}
+.palco3d.reel-avatar .sombra-pe{height:860px;background:linear-gradient(0deg,#070417 0%,#070417 50%,rgba(7,4,23,.85) 72%,rgba(7,4,23,0) 100%)}
+.palco3d.reel-avatar .legenda3d{background:rgba(13,7,48,.94)}

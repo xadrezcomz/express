@@ -27,6 +27,7 @@
     if (R.numero) { num.hidden = false; num.querySelector('span').textContent = 'Lição ' + String(R.numero).padStart(2, '0'); }
     tit.textContent = R.titulo;
     tit.classList.toggle('longo', R.titulo.length > 34);
+    if (R.avatar === 'reel') document.getElementById('palco').classList.add('reel-avatar');
     elLegenda.hidden = !R.legenda;
     elCasas.innerHTML = ''; casasEl = [];
     for (var linha = 0; linha < 8; linha++) for (var col = 0; col < 8; col++) {

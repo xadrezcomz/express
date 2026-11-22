@@ -221,7 +221,9 @@ async function geraVideo(arquivoLicao, op) {
 // e pode ser escolhida no roteiro com [avatar pose]; o videos/avatar.py desenha e cola no vídeo.
 const AVATAR = { ancora: [260, 1600], caixa: [0, 1330, 700, 1910], olhos: 54 };
 const AVATAR2 = { caixa: [0, 1440, 470, 1910], dx: -30,
-  bolha: { cx: 203, cy: 1349, r: 115 } };   // nos Reels: a bolha encosta no canto de baixo da zona segura (x 80, y 1480)   // a pose única: encosta embaixo, à esquerda
+  bolha: { cx: 203, cy: 1349, r: 115 },
+  // nos Reels: inteiro, com o rosto na zona segura e o corpo descendo por baixo da legenda do app
+  reel: { caixa: [0, 1110, 700, 1920], dx: -170 } };   // nos Reels: a bolha encosta no canto de baixo da zona segura (x 80, y 1480)   // a pose única: encosta embaixo, à esquerda
 const PECA_POSE = { p: 'peao', r: 'torre', n: 'cavalo', b: 'bispo', q: 'dama', k: 'rei' };
 function linhaDoAvatar(roteiro, poses) {
   const tem = p => poses.includes(p);
@@ -344,11 +346,7 @@ function poeAvatar(roteiro, audio, duracao, saida, nome) {
     const l = linhaDoAvatar2(roteiro, av);
     const cfg = Object.assign({ pasta: path.join(BASE, 'avatar'), fps: QPS, duracao: duracao, audio: audio, semente: h % 100000,
       caixa: AVATAR2.caixa, dx: AVATAR2.dx, entrada: entrada, saida: saida }, l);
-    if (roteiro.avatar === 'reel') {
-      cfg.bolha = AVATAR2.bolha;
-      cfg.janelas = janelasDoReel(roteiro, duracao);
-      console.log('  avatar (reel) aparece: ' + cfg.janelas.map(([a, b]) => a.toFixed(1) + '-' + b.toFixed(1) + 's').join(', '));
-    }
+    if (roteiro.avatar === 'reel') { cfg.caixa = AVATAR2.reel.caixa; cfg.dx = AVATAR2.reel.dx; }
     fs.writeFileSync(path.join(tmp, 'avatar.json'), JSON.stringify(cfg));
     console.log('  avatar: ' + (l.linha.map(([t, p]) => p + ' ' + t.toFixed(1) + 's').join(', ') || 'só a pose base'));
     try { roda('python3', [path.join(AQUI, 'avatar2.py'), path.join(tmp, 'avatar.json')]); }

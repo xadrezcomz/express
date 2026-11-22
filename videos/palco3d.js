@@ -443,7 +443,8 @@ function cameraEm(t) {
 // A faixa da tela onde o tabuleiro deve caber: entre a legenda e o rodapé.
 // (dentro da zona segura dos Reels: x 80–940, y 250–1480; na edição "show", acima do lance escrito)
 const QUADRO = { x0: 80, x1: 940, y0: 590, y1: 1410 };
-const quadroY1 = () => R && R.edicao === 'show' ? 1310 : QUADRO.y1;
+const quadroY1 = () => R && R.avatar === 'reel' ? 1110 : R && R.edicao === 'show' ? 1310 : QUADRO.y1;
+const quadroY0 = () => R && R.avatar === 'reel' ? 420 : QUADRO.y0;   // nos Reels com o avatar, o tabuleiro sobe
 function poeCamera(c) {
   const alvo = new THREE.Vector3(c.cx, TOPO, c.cz);
   const dir = new THREE.Vector3(Math.sin(c.az) * Math.cos(c.el), Math.sin(c.el), Math.cos(c.az) * Math.cos(c.el));
@@ -464,11 +465,11 @@ function poeCamera(c) {
   let perto = 3, longe = 80;
   for (let k = 0; k < 30; k++) {
     const d = (perto + longe) / 2, m = medida(d);
-    if (m.x1 - m.x0 <= QUADRO.x1 - QUADRO.x0 && m.y1 - m.y0 <= quadroY1() - QUADRO.y0) longe = d; else perto = d;
+    if (m.x1 - m.x0 <= QUADRO.x1 - QUADRO.x0 && m.y1 - m.y0 <= quadroY1() - quadroY0()) longe = d; else perto = d;
   }
   const m = medida(longe);
   // e desliza a imagem para a área ficar no meio da faixa
-  const dx = (m.x0 + m.x1) / 2 - (QUADRO.x0 + QUADRO.x1) / 2, dy = (m.y0 + m.y1) / 2 - (QUADRO.y0 + quadroY1()) / 2;
+  const dx = (m.x0 + m.x1) / 2 - (QUADRO.x0 + QUADRO.x1) / 2, dy = (m.y0 + m.y1) / 2 - (quadroY0() + quadroY1()) / 2;
   camera.setViewOffset(1080, 1920, dx, dy, 1080, 1920);
 }
 
@@ -868,6 +869,7 @@ async function prepara(roteiro) {
     document.getElementById('capaSerie').textContent = R.serie || (R.numero ? 'Lição ' + String(R.numero).padStart(2, '0') : 'Xadrez Express');
     document.getElementById('capaTitulo').textContent = R.titulo;
   }
+  if (R.avatar === 'reel') document.getElementById('palco').classList.add('reel-avatar');
   elLegenda.hidden = !R.legenda;
   await document.fonts.load('700 84px "Chakra Petch"');
   await document.fonts.ready;
