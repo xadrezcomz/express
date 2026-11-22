@@ -15,6 +15,9 @@ const RAIZ = path.join(__dirname, '..'), SAIDA = path.join(__dirname, 'saida');
 const ORDEM = ['ciano', 'ouro', 'rosa', 'roxo', 'laranja'];
 const LIMITE = { modulo: 5 * 1024 * 1024, aula: 2 * 1024 * 1024, banner: 5 * 1024 * 1024 };
 const TELA = { modulo: [1920, 1080], aula: [1920, 1080], banner: [1920, 640] };
+// O banner aparece esticado na tela toda do computador (e em telas de alta densidade fica
+// ainda maior), então sai no dobro: 3840x1280, mesma proporção 3:1, e com mais qualidade.
+const ESCALA = { modulo: 1, aula: 1, banner: 2 }, QUALIDADE = { modulo: 88, aula: 88, banner: 94 };
 const TIPOS = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.jpg': 'image/jpeg' };
 const fatia = t => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
@@ -51,20 +54,23 @@ const fatia = t => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').repl
 
   fs.mkdirSync(SAIDA, { recursive: true });
   const nav = await chromium.launch();
-  const pag = await nav.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+  const paginas = {};
+  const paginaDa = async tipo => paginas[ESCALA[tipo]] || (paginas[ESCALA[tipo]] = await nav.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: ESCALA[tipo] }));
+  const pag = await paginaDa('modulo');
   let erro = false;
   for (const c of fazer) {
+    const pag = await paginaDa(c.tipo);
     await pag.setViewportSize({ width: TELA[c.tipo][0], height: TELA[c.tipo][1] });
     await pag.goto(url + 'modelo-' + c.tipo + '.html');
     await pag.evaluate(d => monta(d), c.dados);
     await pag.waitForLoadState('networkidle');
     const estourou = await pag.evaluate(() => { const t = document.getElementById('titulo'); if (!t) return false; return t.scrollHeight > t.parentElement.clientHeight || t.scrollWidth > t.clientWidth; });
     const destino = path.join(SAIDA, c.arquivo);
-    await pag.screenshot({ path: destino, type: 'jpeg', quality: 88 });
+    await pag.screenshot({ path: destino, type: 'jpeg', quality: QUALIDADE[c.tipo] });
     const kb = fs.statSync(destino).size / 1024, passou = fs.statSync(destino).size > LIMITE[c.tipo];
     if (passou || estourou) erro = true;
     c.kb = kb;
-    console.log(c.arquivo.padEnd(40), TELA[c.tipo].join('x'), (kb.toFixed(0) + ' KB').padStart(8),
+    console.log(c.arquivo.padEnd(40), TELA[c.tipo].map(n => n * ESCALA[c.tipo]).join('x'), (kb.toFixed(0) + ' KB').padStart(8),
       passou ? '  ACIMA DO LIMITE!' : '  ok', estourou ? '  TÍTULO NÃO COUBE!' : '');
   }
 

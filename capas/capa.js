@@ -20,7 +20,8 @@ function sorteio(semente) {
 }
 function estrelas(canvas, semente) {
   var r = sorteio(semente), c = canvas.getContext('2d');
-  canvas.width = 1920; canvas.height = 1080;
+  var dpr = window.devicePixelRatio || 1;            // em 2x, as estrelas também saem nítidas
+  canvas.width = 1920 * dpr; canvas.height = 1080 * dpr; c.scale(dpr, dpr);
   for (var i = 0; i < 230; i++) {
     var x = r() * 1920, y = r() * 1080, t = r(), k = r();
     c.globalAlpha = 0.25 + r() * 0.7;
