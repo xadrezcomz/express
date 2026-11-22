@@ -47,7 +47,7 @@
     },
     {
       "fen": "1k6/8/8/8/3R4/8/7K/8 w - - 0 1",
-      "texto": "Sua vez: leve a torre até a casa ==d8==.",
+      "texto": "Sua vez, com as brancas: leve a torre branca até a casa ==d8==.",
       "pose": "curioso",
       "interativo": {
         "lance": "d4d8",
@@ -67,7 +67,7 @@
     },
     {
       "fen": "7k/8/3p4/8/3R1P2/8/8/7K w - - 0 1",
-      "texto": "Capture o peão preto em ==d6==.",
+      "texto": "Agora, com a torre branca, capture o peão preto em ==d6==.",
       "pose": "curioso",
       "interativo": {
         "lance": "d4d6",
@@ -107,7 +107,7 @@
       {
         "tipo": "casa",
         "fen": "7k/8/8/8/2R5/8/8/7K w - - 0 1",
-        "pergunta": "Toque numa casa onde a torre pode ir",
+        "pergunta": "Toque numa casa onde a torre branca pode ir",
         "resposta": ["d4", "e4", "f4", "g4", "h4", "b4", "a4", "c3", "c2", "c1", "c5", "c6", "c7", "c8"],
         "dica": "Olhe a coluna c e a fileira 4.",
         "origem": "c4"
@@ -122,7 +122,7 @@
       {
         "tipo": "casa",
         "fen": "7k/8/8/2p5/8/2R1P3/8/7K w - - 0 1",
-        "pergunta": "Toque numa casa onde a torre pode ir",
+        "pergunta": "Toque numa casa onde a torre branca pode ir",
         "resposta": ["d3", "b3", "a3", "c2", "c1", "c4", "c5"],
         "dica": "O peão branco trava a fileira; o preto pode ser capturado.",
         "origem": "c3"
@@ -130,7 +130,7 @@
       {
         "tipo": "autoral",
         "fen": "6k1/8/8/3n4/8/8/8/R6K w - - 0 1",
-        "pergunta": "Leve a torre até a8 num lance só",
+        "pergunta": "Leve a torre branca até a8 num lance só",
         "solucao": ["a1a8"],
         "dica": "Coluna a, de baixo até em cima."
       },
@@ -154,7 +154,7 @@
     {
       "tipo": "casa",
       "fen": "7k/8/8/4R3/8/8/8/7K w - - 0 1",
-      "pergunta": "Toque numa casa onde a torre pode ir",
+      "pergunta": "Toque numa casa onde a torre branca pode ir",
       "resposta": ["f5", "g5", "h5", "d5", "c5", "b5", "a5", "e4", "e3", "e2", "e1", "e6", "e7", "e8"],
       "dica": "Qualquer casa da coluna e ou da fileira 5.",
       "origem": "e5"

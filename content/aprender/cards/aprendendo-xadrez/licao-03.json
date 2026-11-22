@@ -47,7 +47,7 @@
     },
     {
       "fen": "1k6/8/8/8/3B4/8/7K/8 w - - 0 1",
-      "texto": "Sua vez: leve o bispo até ==a7==.",
+      "texto": "Sua vez, com as brancas: leve o bispo branco até ==a7==.",
       "pose": "curioso",
       "interativo": {
         "lance": "d4a7",
@@ -88,7 +88,7 @@
     },
     {
       "fen": "7k/8/1p6/8/3B4/4P3/8/7K w - - 0 1",
-      "texto": "Capture o peão preto em ==b6==.",
+      "texto": "Agora, com o bispo branco, capture o peão preto em ==b6==.",
       "pose": "curioso",
       "interativo": {
         "lance": "d4b6",
@@ -107,7 +107,7 @@
       {
         "tipo": "casa",
         "fen": "7k/8/8/8/4B3/8/8/7K w - - 0 1",
-        "pergunta": "Toque numa casa onde o bispo pode ir",
+        "pergunta": "Toque numa casa onde o bispo branco pode ir",
         "resposta": ["f3", "g2", "f5", "g6", "h7", "d3", "c2", "b1", "d5", "c6", "b7", "a8"],
         "dica": "Pense em um X saindo do bispo.",
         "origem": "e4"
@@ -121,7 +121,7 @@
       },
       {
         "tipo": "multipla",
-        "pergunta": "O bispo em e4 está numa casa clara. Ele pode chegar em uma casa escura?",
+        "pergunta": "O bispo branco em e4 está numa casa clara. Ele pode chegar em uma casa escura?",
         "opcoes": ["Sim", "Não", "Só capturando", "Só no fim da partida"],
         "correta": 1,
         "explicacao": "O bispo nunca troca de cor.",
@@ -130,7 +130,7 @@
       {
         "tipo": "casa",
         "fen": "7k/8/5p2/8/3B4/2P5/8/7K w - - 0 1",
-        "pergunta": "Toque numa casa onde o bispo pode ir",
+        "pergunta": "Toque numa casa onde o bispo branco pode ir",
         "resposta": ["e3", "f2", "g1", "e5", "f6", "c5", "b6", "a7"],
         "dica": "O peão branco atrapalha; o preto pode ser capturado.",
         "origem": "d4"
@@ -155,7 +155,7 @@
     {
       "tipo": "casa",
       "fen": "7k/8/8/2B5/8/8/8/7K w - - 0 1",
-      "pergunta": "Toque numa casa onde o bispo pode ir",
+      "pergunta": "Toque numa casa onde o bispo branco pode ir",
       "resposta": ["d4", "e3", "f2", "g1", "d6", "e7", "f8", "b4", "a3", "b6", "a7"],
       "dica": "As quatro diagonais que saem de c5.",
       "origem": "c5"

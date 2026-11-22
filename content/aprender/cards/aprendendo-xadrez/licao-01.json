@@ -62,7 +62,7 @@
       "texto": "Toque na casa onde começa o **rei branco**." },
     { "fen": "inicial", "pose": "curioso",
       "interativo": { "lance": "e2e4", "acerto": "Primeiro lance feito, e direto no centro! É assim que muita partida começa." },
-      "texto": "Para fechar, sua primeira jogada: leve o peão de ==e2== até ==e4==." },
+      "texto": "Para fechar, sua primeira jogada, com as brancas: leve o peão branco de ==e2== até ==e4==." },
     { "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1", "pose": "aprovando", "destaques": [{ "casas": ["e4"], "cor": "verde" }],
       "texto": "Pronto! Você já sabe ler o tabuleiro e onde cada peça começa. Bora praticar?" }
   ],
@@ -79,7 +79,7 @@
         "dica": "São quatro casas, bem no meio do tabuleiro." },
       { "tipo": "casa", "fen": "inicial", "pergunta": "Onde começa a dama preta?", "resposta": ["d8"],
         "dica": "Dama na sua cor: a preta começa na casa escura." },
-      { "tipo": "autoral", "fen": "4k3/8/8/8/8/8/8/B3K3 w - - 0 1", "pergunta": "Leve o bispo pela maior diagonal até h8",
+      { "tipo": "autoral", "fen": "4k3/8/8/8/8/8/8/B3K3 w - - 0 1", "pergunta": "Leve o bispo branco pela maior diagonal até h8",
         "solucao": ["a1h8"], "dica": "O bispo anda nas diagonais. A maior delas começa bem onde ele está." }
     ]
   },

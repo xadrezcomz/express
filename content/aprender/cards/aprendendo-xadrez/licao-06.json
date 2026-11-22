@@ -38,7 +38,7 @@
     },
     {
       "fen": "1k6/8/8/8/3N4/8/7K/8 w - - 0 1",
-      "texto": "Sua vez: leve o cavalo até ==f5==.",
+      "texto": "Sua vez, com as brancas: leve o cavalo branco até ==f5==.",
       "pose": "curioso",
       "interativo": {
         "lance": "d4f5",
@@ -58,7 +58,7 @@
     },
     {
       "fen": "7k/8/8/2ppp3/2pNp3/2ppp3/8/7K w - - 0 1",
-      "texto": "Pule por cima dos peões até ==e6==.",
+      "texto": "Com o cavalo branco, pule por cima dos peões até ==e6==.",
       "pose": "curioso",
       "interativo": {
         "lance": "d4e6",
@@ -105,7 +105,7 @@
       {
         "tipo": "casa",
         "fen": "7k/8/8/8/4N3/8/8/7K w - - 0 1",
-        "pergunta": "Toque numa casa onde o cavalo pode ir",
+        "pergunta": "Toque numa casa onde o cavalo branco pode ir",
         "resposta": ["f2", "g3", "d2", "c3", "f6", "g5", "d6", "c5"],
         "dica": "Duas casas numa direção e uma para o lado.",
         "origem": "e4"
@@ -120,7 +120,7 @@
       {
         "tipo": "casa",
         "fen": "7k/8/8/8/8/8/8/6NK w - - 0 1",
-        "pergunta": "Toque numa casa onde o cavalo pode ir",
+        "pergunta": "Toque numa casa onde o cavalo branco pode ir",
         "resposta": ["h3", "f3", "e2"],
         "dica": "Perto da borda, sobram poucas casas.",
         "origem": "g1"
@@ -152,7 +152,7 @@
     {
       "tipo": "casa",
       "fen": "7k/8/8/5N2/8/8/8/7K w - - 0 1",
-      "pergunta": "Toque numa casa onde o cavalo pode ir",
+      "pergunta": "Toque numa casa onde o cavalo branco pode ir",
       "resposta": ["g3", "h4", "e3", "d4", "g7", "h6", "e7", "d6"],
       "dica": "Oito casas em L.",
       "origem": "f5"

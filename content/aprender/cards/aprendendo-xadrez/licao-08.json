@@ -21,7 +21,7 @@
     },
     {
       "fen": "7k/4P3/8/8/8/8/8/K7 w - - 0 1",
-      "texto": "Sua vez: avance o peão até ==e8== e escolha a **dama**.",
+      "texto": "Sua vez, com as brancas: avance o peão branco até ==e8== e escolha a **dama**.",
       "pose": "curioso",
       "interativo": {
         "lance": "e7e8q",
@@ -29,13 +29,13 @@
       }
     },
     {
-      "fen": "4Q2k/8/8/8/8/8/8/K7 b - - 0 1",
-      "texto": "Quase sempre se escolhe a **dama**, porque ela é a mais forte. E dá até para ter duas damas no tabuleiro!",
+      "fen": "k7/8/8/8/8/8/2QQQ3/6K1 b - - 0 1",
+      "texto": "Quase sempre se escolhe a **dama**, porque ela é a mais forte. E não tem limite: cada peão que promove vira mais uma dama. Dá para ter até **nove**: a do começo e mais uma para cada um dos oito peões!",
       "pose": "surpreso"
     },
     {
       "fen": "3r3k/4P3/8/8/8/8/8/K7 w - - 0 1",
-      "texto": "O peão também pode promover **capturando**, na diagonal. Capture a torre em ==d8== e vire dama.",
+      "texto": "O peão também pode promover **capturando**, na diagonal. Com o peão branco, capture a torre preta em ==d8== e vire dama.",
       "pose": "curioso",
       "interativo": {
         "lance": "e7d8q",
@@ -48,7 +48,7 @@
       "pose": "pensativo"
     },
     {
-      "fen": "8/8/8/8/8/8/3p4/7K b - - 0 1",
+      "fen": "8/8/8/8/k7/8/3p4/7K b - - 0 1",
       "texto": "Vale para as pretas também: o peão preto promove ao chegar na **fileira 1**.",
       "pose": "atencao",
       "destaques": [
@@ -70,14 +70,14 @@
       {
         "tipo": "autoral",
         "fen": "7k/1P6/8/8/8/8/8/K7 w - - 0 1",
-        "pergunta": "Promova o peão a dama",
+        "pergunta": "Promova o peão branco a dama",
         "solucao": ["b7b8q"],
         "dica": "Avance até a última fileira."
       },
       {
         "tipo": "casa",
         "fen": "7k/2P5/8/8/8/8/8/K7 w - - 0 1",
-        "pergunta": "Em que casa este peão vai promover?",
+        "pergunta": "Em que casa este peão branco vai promover?",
         "resposta": ["c8"],
         "dica": "Ele anda para frente até a fileira 8.",
         "origem": "c7"
@@ -85,7 +85,7 @@
       {
         "tipo": "autoral",
         "fen": "2r4k/1P6/8/8/8/8/8/K7 w - - 0 1",
-        "pergunta": "Capture a torre e promova a dama",
+        "pergunta": "Capture a torre preta e promova o peão branco a dama",
         "solucao": ["b7c8q"],
         "dica": "O peão captura na diagonal."
       },
@@ -123,21 +123,21 @@
     {
       "tipo": "autoral",
       "fen": "7k/3P4/8/8/8/8/8/K7 w - - 0 1",
-      "pergunta": "Promova o peão a dama",
+      "pergunta": "Promova o peão branco a dama",
       "solucao": ["d7d8q"],
       "explicacao": "Avançou e virou dama."
     },
     {
       "tipo": "multipla",
-      "pergunta": "Pode haver duas damas brancas no tabuleiro?",
-      "opcoes": ["Sim, com a promoção", "Não, nunca"],
-      "correta": 0,
-      "explicacao": "Com a promoção, sim."
+      "pergunta": "Quantas damas um jogador pode ter ao mesmo tempo?",
+      "opcoes": ["Só uma", "No máximo duas", "Até nove"],
+      "correta": 2,
+      "explicacao": "A dama do começo e mais uma para cada peão promovido: até nove."
     },
     {
       "tipo": "autoral",
       "fen": "5n1k/6P1/8/8/8/8/8/K7 w - - 0 1",
-      "pergunta": "Capture o cavalo e promova a dama",
+      "pergunta": "Capture o cavalo preto e promova o peão branco a dama",
       "solucao": ["g7f8q"],
       "explicacao": "Captura na diagonal e promoção."
     },

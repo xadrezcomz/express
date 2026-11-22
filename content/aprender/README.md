@@ -31,7 +31,12 @@ e, se achar um problema, a publicação para: lição errada não vai ao ar.
 4. **Nada de pergunta ambígua.** "Capture o cavalo" só quando há um único cavalo para capturar.
    Qualquer peça que capture na mesma casa é aceita, e levar o mesmo tipo de peça à mesma casa também.
    Em exercício de mate, qualquer mate vale.
-5. **Calcule, não digite.** Casas destacadas e setas de movimento devem sair das regras: veja `vai()` e
+5. **Diga de quem é a peça.** Pergunta ou passo em que o aluno mexe no tabuleiro e cita uma peça diz a
+   cor dela: "o rei **branco**", "a torre **preta**". O site também mostra de quem é a vez e destaca a
+   peça de `origem` com um anel pulsando.
+6. **Um rei de cada cor.** Toda posição com peças tem exatamente um rei branco e um rei preto (o
+   tabuleiro vazio é a exceção). Para mostrar várias peças, use as do outro lado ou tire o rei extra.
+7. **Calcule, não digite.** Casas destacadas e setas de movimento devem sair das regras: veja `vai()` e
    `raios()` em `ferramentas/gera-licoes-basicas.js`, que gera as lições 2 a 11.
 
 ## colecoes.json

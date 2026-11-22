@@ -68,7 +68,7 @@
       pos = X.deFEN(fen || VAZIO);
       if (deQueLado && deQueLado !== lado) { lado = deQueLado; montaCasas(); }
       escolhida = -1; alvos = [];
-      ['veio', 'foi', 'escolhida', 'pode', 'ocupada', 'dica', 'errou', 'certa'].forEach(function (c) { marca(c, []); });
+      ['veio', 'foi', 'escolhida', 'pode', 'ocupada', 'dica', 'errou', 'certa', 'origem'].forEach(function (c) { marca(c, []); });
       montaPecas(); marcaXeque(); self.desenho();
       elPromo.hidden = true;
     };
