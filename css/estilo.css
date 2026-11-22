@@ -142,6 +142,9 @@ button{font:inherit;color:inherit}
   font-style:italic;padding-right:.08em;
   text-shadow:none;
 }
+/* o título do topo diz o resultado; o nome do curso fica no selo e no cabeçalho */
+.hero h1.titulo-beneficio{font-size:clamp(2.5rem,10.5vw,5.75rem);line-height:.98}
+.hero h1.titulo-beneficio span{font-size:1.08em}
 .chamada{font-size:clamp(1.1875rem,4.9vw,1.5rem);line-height:1.4;color:#fff;max-width:30em;text-shadow:0 2px 12px rgba(7,4,26,.9)}
 .chamada b{color:var(--ouro)}
 .acoes{display:flex;flex-direction:column;gap:12px;width:100%;max-width:23rem;margin-top:6px}
@@ -627,6 +630,26 @@ button{font:inherit;color:inherit}
   .curso-cartao{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);align-items:stretch;gap:36px}
   .curso-tela{min-height:380px;align-self:stretch}
 }
+
+/* ------------------------------------------------------------- dúvidas e chamada final */
+.duvidas{background:linear-gradient(180deg,var(--fundo),var(--fundo2))}
+.duvidas .miolo{max-width:48rem}
+.faq{display:grid;gap:10px;margin-top:20px}
+.faq details{border-radius:16px;background:rgba(23,16,66,.8);border:1px solid var(--linha);overflow:hidden}
+.faq details[open]{border-color:var(--linha2)}
+.faq summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:12px 18px;cursor:pointer;
+  font-family:var(--titulo);font-weight:700;font-size:1.125rem;color:#fff;list-style:none}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:'+';flex:none;font-size:1.5rem;color:var(--ouro);transition:transform .2s ease}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{padding:0 18px 16px;color:var(--suave);font-size:1.0625rem}
+.fecho{margin-top:34px;padding:26px 22px;border-radius:24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;
+  background:radial-gradient(80% 70% at 50% 0%,rgba(255,170,60,.22),transparent 70%),linear-gradient(160deg,#2a1d7c,#120b33);
+  border:1px solid rgba(255,211,107,.55);box-shadow:0 0 60px -20px rgba(255,170,60,.5)}
+.fecho-titulo{font-family:var(--titulo);font-weight:700;font-size:clamp(1.5rem,6vw,2rem);line-height:1.15;color:#fff;text-wrap:balance}
+.fecho-preco{color:var(--suave);font-size:1.0625rem}
+.fecho-preco b{color:var(--ouro);font-family:var(--titulo);font-size:1.25rem}
+.fecho .botao{max-width:26rem}
 
 /* ------------------------------------------------------------- rodapé */
 .rodape{padding:40px 0 calc(40px + env(safe-area-inset-bottom));border-top:1px solid var(--linha);background:#07041a;text-align:center}

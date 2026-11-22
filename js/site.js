@@ -39,6 +39,9 @@
     botao.href = CFG.linkCompra; botao.textContent = 'Quero começar agora';
     id('cursoSelo').textContent = 'Disponível';
     id('cursoNota').textContent = 'Acesso liberado na hora, logo depois do pagamento.';
+    // os outros botões de compra da página (por exemplo, o da chamada final)
+    document.querySelectorAll('[data-link-compra]').forEach(function (b) { b.href = CFG.linkCompra; });
+    document.querySelectorAll('[data-preco]').forEach(function (b) { b.textContent = CFG.preco || ''; });
     // garantia, acesso vitalício e compra segura só valem com a venda ligada
     document.querySelectorAll('[data-so-venda]').forEach(function (el) { el.hidden = false; });
     if (CFG.preco) {

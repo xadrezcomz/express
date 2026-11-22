@@ -256,6 +256,7 @@
 
   // O cartão de resultado: fala conforme a pessoa se saiu e leva ao curso.
   function mostraResultado() {
+    if (window.XE_evento) window.XE_evento('desafio/' + (usouAjuda ? 'viu-a-jogada' : (erros ? 'depois-de-errar' : 'primeira')));
     var titulo, texto, botao, ordinais = ['', 'segunda', 'terceira', 'quarta', 'quinta'];
     if (usouAjuda) {
       titulo = 'Essa era difícil mesmo.';

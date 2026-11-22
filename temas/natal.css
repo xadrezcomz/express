@@ -30,6 +30,8 @@ html[data-tema="natal"] .hero h1::before{
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M14 74C20 34 52 6 92 34c-16-4-24 4-22 40z' fill='%23e8283c'/%3E%3Cpath d='M40 30c14-6 28-4 40 4' stroke='%23ff7a86' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3Crect x='6' y='68' width='72' height='20' rx='10' fill='%23fff'/%3E%3Ccircle cx='90' cy='36' r='10' fill='%23fff'/%3E%3C/svg%3E") center/contain no-repeat;
   filter:drop-shadow(0 3px 4px rgba(0,0,0,.4));
 }
+/* com o título de duas linhas ("Xadrez em / 1 minuto por dia"), o gorro vai para o X do começo */
+html[data-tema="natal"] .hero h1.titulo-beneficio::before{transform:translate(-2.83em,-.42em) rotate(-16deg)}
 html[data-tema="natal"] .selo{background:rgba(60,12,34,.75)}
 
 /* neve acumulada em cima dos cartões */
