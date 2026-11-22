@@ -74,6 +74,13 @@ O site usa o conjunto próprio do Xadrez Express, em `img/pecas-express/`. Os de
 `ferramentas/gera-pecas-express.py` (formas e cores ficam no começo do arquivo). O conjunto
 anterior (Cburnett, CC BY-SA 3.0) continua guardado em `img/pecas/`, sem uso.
 
+## Oferta por tempo limitado
+
+Em `js/config.js`, o bloco `oferta` (nome, link, preço e data `ate`) vale até o fim do dia `ate`: o site usa
+o link e o preço da oferta, mostra o preço normal riscado e a contagem regressiva no topo, no cartão e na
+chamada final. Depois dessa data, volta sozinho ao link e ao preço normais. Para conferir antes:
+`?dia=2026-12-01` no endereço.
+
 ## Medição de vendas
 
 `js/medicao.js` conta visitas e cliques no GoatCounter (https://xadrezcomz.goatcounter.com, sem cookies).

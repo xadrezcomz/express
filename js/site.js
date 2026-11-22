@@ -49,7 +49,7 @@
       id('cursoPrecoPor').textContent = CFG.preco;
       id('cursoPrecoDe').textContent = CFG.precoDe || '';
       id('cursoParcelas').textContent = CFG.parcelas || '';
-      id('barraPreco').textContent = CFG.preco;
+      id('barraPreco').innerHTML = (CFG.precoDe ? '<s>' + CFG.precoDe + '</s> ' : '') + CFG.preco;
     }
     // a barra fixa do celular aparece depois do topo e some quando o cartão do curso está na tela
     var barra = id('barraCompra'); barra.hidden = false; id('barraBotao').href = CFG.linkCompra; id('barraBotao').target = '_blank'; id('barraBotao').rel = 'noopener';
@@ -61,6 +61,24 @@
       new IntersectionObserver(function (e) { vendoCurso = e[0].isIntersecting; ajustaBarra(); }, { threshold: 0.2 }).observe(id('cursoCartao'));
     }
   } else { botao.href = insta; }
+
+  // ---------------------------------------------------------------- oferta por tempo limitado
+  // (ligada em js/config.js: nome, preço riscado, preço da oferta e contagem regressiva)
+  var OF = CFG.ofertaAtiva;
+  if (OF && CFG.linkCompra) {
+    document.querySelectorAll('[data-oferta]').forEach(function (e) { e.hidden = false; });
+    document.querySelectorAll('[data-oferta-nome]').forEach(function (e) { e.textContent = OF.nome; });
+    document.querySelectorAll('[data-oferta-de]').forEach(function (e) { e.textContent = OF.precoNormal; });
+    document.querySelectorAll('[data-oferta-por]').forEach(function (e) { e.textContent = CFG.preco; });
+    var falta = function () {
+      var ms = OF.fim - Date.now();
+      if (ms <= 0) return 'algumas horas';
+      var min = Math.floor(ms / 60000), d = Math.floor(min / 1440), h = Math.floor(min / 60) % 24, m = min % 60;
+      return d ? d + (d === 1 ? ' dia' : ' dias') + ' e ' + h + ' h' : (h ? h + ' h e ' + m + ' min' : m + ' min');
+    };
+    var mostraFalta = function () { document.querySelectorAll('[data-oferta-tempo]').forEach(function (e) { e.textContent = falta(); }); };
+    mostraFalta(); setInterval(mostraFalta, 30000);
+  }
 
   // ---------------------------------------------------------------- o que tem no curso
   // Números, módulos e bônus vêm de "curso" em js/config.js; só aparece o que estiver preenchido.
@@ -140,7 +158,7 @@
   );
   if (bonus.length) CENAS.push({ visual: '<span class="cena-presente">🎁</span>', numero: bonus.length, titulo: bonus.length === 1 ? 'módulo bônus' : 'módulos bônus',
     texto: (aulasBonus ? '+' + aulasBonus + ' aulas: ' : '') + 'aberturas, armadilhas, finais e muito mais.' });
-  if (CFG.linkCompra && CFG.preco) CENAS.push({ classe: 'preco', titulo: CFG.preco, sobre: 'Tudo isso por',
+  if (CFG.linkCompra && CFG.preco) CENAS.push({ classe: 'preco', titulo: CFG.preco, sobre: OF ? OF.nome + ': de <s>' + OF.precoNormal + '</s> por' : 'Tudo isso por',
     texto: (totalAulas >= 20 ? 'Menos de R$ ' + (Math.ceil(valor / totalAulas * 100) / 100).toFixed(2).replace('.', ',') + ' por aula. ' : '') + '7 dias de garantia.' });
   CENAS.push({ classe: 'fim', visual: '<span class="cena-raio">⚡</span>', titulo: 'Comece hoje', texto: 'Acesso vitalício, no celular, quando quiser.' });
 

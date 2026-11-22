@@ -8,8 +8,18 @@
 // ============================================================================
 window.XE_CONFIG = {
   linkCompra: 'https://pay.hotmart.com/F108444972P?off=qxxyc3yo&bid=1794535357552',
-  preco: 'R$ 29,90',       // aparece grande no cartão do curso e na barra do celular
+  preco: 'R$ 49,90',       // aparece grande no cartão do curso e na barra do celular
   precoDe: '',             // ex.: 'R$ 197'     (aparece riscado; opcional)
+
+  // OFERTA POR TEMPO LIMITADO: até o fim do dia `ate`, o site usa o link e o preço da
+  // oferta, mostra o preço normal riscado e a contagem regressiva. Depois, volta sozinho
+  // ao link e ao preço normais acima. Sem oferta: apague o bloco ou deixe `ate` no passado.
+  oferta: {
+    nome: 'Black Friday',
+    link: 'https://pay.hotmart.com/F108444972P?off=vi1i89hy',
+    preco: 'R$ 29,90',
+    ate: '2026-11-30'
+  },
   parcelas: '',            // ex.: 'ou 12x de R$ 9,70'  (opcional)
   instagram: 'https://www.instagram.com/xadrezcomz/',
 
@@ -48,3 +58,16 @@ window.XE_CONFIG = {
   tema: 'black-friday',
   temaAte: '2026-11-30'
 };
+
+// Liga a oferta enquanto ela vale (para testar outra data: ?dia=2026-12-01 no endereço).
+(function (c) {
+  var o = c.oferta, m = /[?&]dia=(\d{4})-(\d{2})-(\d{2})/.exec(location.search), hoje = new Date();
+  if (m) hoje = new Date(+m[1], +m[2] - 1, +m[3], 12);
+  if (!o || !o.ate || !o.link) return;
+  var p = o.ate.split('-'), fim = new Date(+p[0], +p[1] - 1, +p[2], 23, 59, 59);
+  if (hoje > fim) return;
+  c.ofertaAtiva = { nome: o.nome, fim: fim.getTime(), precoNormal: c.preco };
+  c.precoDe = c.preco;
+  c.preco = o.preco;
+  c.linkCompra = o.link;
+})(window.XE_CONFIG);

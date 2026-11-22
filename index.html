@@ -61,6 +61,8 @@
       <a class="botao botao-vidro" href="#puzzle">Aceitar o desafio de hoje</a>
     </div>
     <p class="garantias" data-so-venda hidden><span>Acesso vitalício</span><span>7 dias de garantia</span></p>
+    <p class="oferta-topo" data-oferta hidden><b data-oferta-nome></b>: de <s data-oferta-de></s> por <b data-oferta-por></b> · termina em <span data-oferta-tempo></span></p>
+    <p class="prova-social">Do <b>@xadrezcomz</b>, o maior perfil de xadrez do Brasil · <b>+150 mil</b> seguidores</p>
   </div>
 
   <a class="hero-desce" href="#como" aria-label="Ver como funciona"><span></span></a>
@@ -129,6 +131,24 @@
   </div>
 </section>
 
+<!-- ============================================================ QUEM ENSINA -->
+<section class="secao professor" id="professor">
+  <div class="miolo prof-miolo">
+    <img class="prof-foto" src="assets/aprender/avatar/apresentando.webp" alt="Prof. Fhellipe Augusto" width="440" height="440" loading="lazy">
+    <div class="prof-texto">
+      <p class="olho">Quem ensina</p>
+      <h2>Prof. Fhellipe Augusto</h2>
+      <p class="sub">Criador do <b>@xadrezcomz</b>, o maior perfil dedicado ao xadrez do Brasil.</p>
+      <ul class="prof-numeros">
+        <li><b>18 anos</b><span>ensinando xadrez</span></li>
+        <li><b>+150 mil</b><span>seguidores no Instagram</span></li>
+        <li><b>+800</b><span>alunos em aulas presenciais</span></li>
+      </ul>
+      <p class="prof-formacao">🎓 Pós-graduado em <b>Xadrez Técnico e Pedagógico</b> e em <b>Xadrez na Educação</b>.</p>
+    </div>
+  </div>
+</section>
+
 <!-- ============================================================ O CURSO -->
 <!-- O cartão de venda. O link de compra e os preços ficam em js/config.js:
      quando o link for preenchido, este cartão vira o botão de compra. -->
@@ -166,6 +186,7 @@
             <s id="cursoPrecoDe"></s>
             <b id="cursoPrecoPor"></b>
             <small id="cursoParcelas"></small>
+            <small class="oferta-tempo" data-oferta hidden>⏳ Oferta de <span data-oferta-nome></span> termina em <b data-oferta-tempo></b></small>
           </div>
           <p class="curso-por-aula" id="cursoPorAula" hidden></p>
 
@@ -337,7 +358,8 @@
 
     <div class="fecho" data-so-venda hidden>
       <p class="fecho-titulo">Comece hoje. Em 1 minuto você já aprendeu algo novo.</p>
-      <p class="fecho-preco"><b data-preco></b> · acesso vitalício · 7 dias de garantia</p>
+      <p class="fecho-preco"><s data-oferta-de></s> <b data-preco></b> · acesso vitalício · 7 dias de garantia</p>
+      <p class="oferta-tempo" data-oferta hidden>⏳ <span data-oferta-nome></span> termina em <b data-oferta-tempo></b></p>
       <a class="botao botao-ouro botao-g" data-link-compra data-origem="final" href="#curso" target="_blank" rel="noopener">Quero começar agora</a>
     </div>
   </div>
