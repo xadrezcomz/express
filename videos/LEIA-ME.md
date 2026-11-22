@@ -230,6 +230,23 @@ Ele ocupa a faixa de baixo da tela, abaixo do tabuleiro (até 10 px da borda, pa
 progresso continuar à vista). Nos Reels essa faixa fica por baixo do nome do perfil e da legenda
 do Instagram: use o avatar nas aulas do curso.
 
+### O avatar de uma pose só (o padrão)
+
+Se a pasta `avatar/` tiver um `avatar.json`, vale o avatar de uma pose só (`videos/avatar2.py`),
+que se mexe em vez de trocar de desenho. São várias imagens do mesmo desenho, do mesmo tamanho
+e com o rosto no mesmo lugar, em que só muda um pedaço:
+
+- `base`: a pose de descanso, de boca fechada;
+- `bocas`: uma por som (A, E, I, O, U, M, F e um sorriso para as pausas). A fala vira sons letra
+  a letra, no tempo de cada palavra, e só a região da boca é trocada, com uma passagem suave;
+- `olhos`: meio fechado e fechado (a piscada, às vezes dupla) e olhando para baixo (nas perguntas);
+- `gestos`: o braço explicando (de tempos em tempos), o dedo levantado ("atenção", "importante",
+  "regra") e o joinha ("até lá", `[mostra logo]`); a boca e os olhos continuam animados;
+- `reacoes`: comemorando ("parabéns", "muito bem") e surpreso (no xeque-mate), por pouco tempo.
+
+O corpo respira, a cabeça balança de leve e acena nas palavras em `*destaque*`.
+`[avatar dedo]` (ou `explica`, `joinha`, `pensa`, `comemora`, `surpreso`) força um gesto.
+
 ## Postar no Instagram
 
 `node videos/posta.js NOME` converte `videos/prontos/NOME.mp4` para o formato de Reels do Instagram,

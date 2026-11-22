@@ -220,6 +220,7 @@ async function geraVideo(arquivoLicao, op) {
 // A pose muda sozinha conforme a fala (pergunta, atenção, xeque-mate, a peça apresentada, o "até lá")
 // e pode ser escolhida no roteiro com [avatar pose]; o videos/avatar.py desenha e cola no vídeo.
 const AVATAR = { ancora: [260, 1600], caixa: [0, 1330, 700, 1910], olhos: 54 };
+const AVATAR2 = { caixa: [0, 1440, 470, 1910], dx: -30 };   // a pose única: encosta embaixo, à esquerda
 const PECA_POSE = { p: 'peao', r: 'torre', n: 'cavalo', b: 'bispo', q: 'dama', k: 'rei' };
 function linhaDoAvatar(roteiro, poses) {
   const tem = p => poses.includes(p);
@@ -262,8 +263,66 @@ function linhaDoAvatar(roteiro, poses) {
   });
   return linha;
 }
+// o avatar de uma pose só (avatar/avatar.json): os gestos e reações entram por pouco tempo,
+// por cima da pose base, e a cabeça acena nas palavras em *destaque*
+function linhaDoAvatar2(roteiro, av) {
+  const tem = n => (av.gestos && av.gestos[n]) || (av.reacoes && av.reacoes[n]) || n === 'pensa';
+  const linha = [];                        // [t, nome, duração, prioridade]
+  let ultimoGesto = -9, perguntas = 0;
+  roteiro.legendas.forEach((b, k) => {
+    const txt = b.palavras.map(p => p.texto).join(' ');
+    const dur = Math.max(1.6, Math.min(3.2, b.fim - b.ini));
+    let g = null;
+    if (/(até lá|até a próxima)/i.test(txt)) g = 'joinha';
+    else if (/(parabéns|muito bem|isso aí|acertou|conseguiu|vencemos)/i.test(txt)) g = 'comemora';
+    else if (/(atenção|cuidado|importante|regra|nunca|sempre|lembre)/i.test(txt)) g = 'dedo';
+    else if (/\?$/.test(txt.trim())) g = 'pensa';
+    else if (k > 0 && b.ini - ultimoGesto > 7 && b.fim - b.ini > 1.5) g = 'explica';
+    if (g && tem(g)) { linha.push([b.ini, g, g === 'comemora' ? 1.8 : dur, 1]); if (g !== 'pensa') ultimoGesto = b.ini; }
+  });
+  roteiro.eventos.forEach(ev => {
+    if (ev.tipo === 'lance' && ev.mate && tem('surpreso')) linha.push([ev.t + (ev.dur || roteiro.durLance), 'surpreso', 1.7, 2]);
+    else if (ev.tipo === 'mostra' && ev.peca === 'logo' && tem('joinha')) linha.push([ev.t, 'joinha', 2.2, 2]);
+    else if (ev.tipo === 'tela' && ev.modelo === 'alerta' && tem('dedo')) linha.push([ev.t, 'dedo', 2.2, 2]);
+    else if (ev.tipo === 'avatar') {
+      if (!tem(ev.pose)) throw new Error('[avatar ' + ev.pose + ']: os gestos são ' + Object.keys(av.gestos || {}).concat(Object.keys(av.reacoes || {}), ['pensa']).join(', '));
+      linha.push([ev.t, ev.pose, 2.4, 3]);
+    }
+  });
+  // sem sobrepor: um gesto mais forte corta o mais fraco
+  linha.sort((a, b) => a[0] - b[0]);
+  const fim = [];
+  linha.forEach(g => {
+    const ult = fim[fim.length - 1];
+    if (ult && g[0] < ult[0] + ult[2]) {
+      if (g[3] > ult[3]) { ult[2] = Math.max(0.5, g[0] - ult[0]); if (ult[2] < 0.8) fim.pop(); fim.push(g); }
+      return;
+    }
+    fim.push(g);
+  });
+  const acenos = [];
+  roteiro.legendas.forEach(b => b.palavras.forEach(p => { if (p.destaque) acenos.push(p.ini); }));
+  return { linha: fim.map(g => g.slice(0, 3)), acenos: acenos.filter((t, i) => !i || t - acenos[i - 1] > 0.8) };
+}
 function poeAvatar(roteiro, audio, duracao, saida, nome) {
   if (!roteiro.avatar) return;
+  const umaPose = path.join(BASE, 'avatar', 'avatar.json');
+  if (fs.existsSync(umaPose)) {
+    const av = JSON.parse(fs.readFileSync(umaPose, 'utf8'));
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'xe-avatar-'));
+    const entrada = path.join(tmp, 'sem-avatar.mp4');
+    fs.renameSync(saida, entrada);
+    let h = 0; for (const ch of nome) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    const l = linhaDoAvatar2(roteiro, av);
+    const cfg = Object.assign({ pasta: path.join(BASE, 'avatar'), fps: QPS, duracao: duracao, audio: audio, semente: h % 100000,
+      caixa: AVATAR2.caixa, dx: AVATAR2.dx, entrada: entrada, saida: saida }, l);
+    fs.writeFileSync(path.join(tmp, 'avatar.json'), JSON.stringify(cfg));
+    console.log('  avatar: ' + (l.linha.map(([t, p]) => p + ' ' + t.toFixed(1) + 's').join(', ') || 'só a pose base'));
+    try { roda('python3', [path.join(AQUI, 'avatar2.py'), path.join(tmp, 'avatar.json')]); }
+    catch (e) { fs.renameSync(entrada, saida); throw e; }
+    fs.rmSync(tmp, { recursive: true, force: true });
+    return;
+  }
   const pasta = path.join(BASE, 'avatar'), marc = path.join(pasta, 'poses.json');
   if (!fs.existsSync(marc)) { console.log('  ⚠ avatar: não achei ' + marc + '; o vídeo sai sem o avatar'); return; }
   const poses = Object.keys(JSON.parse(fs.readFileSync(marc, 'utf8'))).filter(k => !k.startsWith('_') && fs.existsSync(path.join(pasta, k + '.png')));
