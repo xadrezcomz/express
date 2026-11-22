@@ -521,14 +521,38 @@ button{font:inherit;color:inherit}
     #07041a;
   border:1px solid var(--linha2);
 }
-.tela-topo{align-self:flex-start;display:flex;align-items:center;gap:8px;font-family:var(--titulo);font-weight:700;font-size:1rem;color:#fff;letter-spacing:.06em;text-transform:uppercase}
-.tela-ponto{width:10px;height:10px;border-radius:50%;background:#ff5a5a;box-shadow:0 0 10px #ff5a5a;animation:pisca 1.4s ease-in-out infinite}
-.tela-peca{width:104px;height:104px;background:center/contain no-repeat;filter:drop-shadow(0 0 22px rgba(46,230,255,.75));transition:opacity .3s ease,transform .3s ease}
-.tela-peca.troca{opacity:0;transform:scale(.8) rotate(-8deg)}
-.tela-titulo{font-family:var(--titulo);font-weight:700;font-size:1.25rem;color:#fff;text-align:center;min-height:2.6em;display:flex;align-items:center}
-.tela-barra{width:100%;height:8px;border-radius:99px;background:rgba(255,255,255,.16);overflow:hidden}
-.tela-barra i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--ciano),var(--ouro))}
-.tela-tempo{width:100%;display:flex;justify-content:space-between;font-size:.9375rem;color:var(--suave);font-variant-numeric:tabular-nums}
+.curso-tela{cursor:pointer;-webkit-tap-highlight-color:transparent;justify-content:space-between;gap:14px;padding:16px 18px 18px}
+/* a trilha de cenas, como nos stories */
+.tela-trilha{display:flex;gap:4px;width:100%}
+.tela-trilha i{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.2);overflow:hidden}
+.tela-trilha b{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ciano),var(--ouro))}
+.tela-marca{display:flex;align-items:center;gap:8px;font-family:var(--titulo);font-weight:700;font-size:1rem;color:#fff;opacity:.85}
+.tela-marca b{color:var(--ouro)}
+.tela-marca img{width:22px;height:22px}
+.tela-cena{flex:1;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;min-height:250px}
+.tela-cena > *{opacity:0}
+.tela-cena.entra > *{animation:cena-entra .55s cubic-bezier(.2,.8,.3,1) forwards}
+.tela-cena.entra > :nth-child(2){animation-delay:.08s}
+.tela-cena.entra > :nth-child(3){animation-delay:.16s}
+.tela-cena.entra > :nth-child(4){animation-delay:.24s}
+@keyframes cena-entra{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+.cena-logo{width:108px;height:108px;filter:drop-shadow(0 0 28px rgba(255,190,80,.7));margin-bottom:6px}
+.cena-peca{width:96px;height:96px;filter:drop-shadow(0 0 24px rgba(46,230,255,.8));margin-bottom:4px}
+.cena-presente,.cena-raio{font-size:3.5rem;line-height:1;filter:drop-shadow(0 0 20px rgba(255,190,80,.8))}
+.cena-sobre{font-family:var(--titulo);font-weight:700;font-size:.9375rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ciano)}
+.cena-numero{font-family:var(--titulo);font-weight:700;font-size:clamp(4.5rem,22vw,6.5rem);line-height:.9;font-variant-numeric:tabular-nums;
+  background:linear-gradient(180deg,#fff2c4,#ffc43d 55%,#ff7a2e);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 24px rgba(255,170,60,.5))}
+.cena-titulo{font-family:var(--titulo);font-weight:700;font-size:clamp(1.5rem,6vw,1.875rem);line-height:1.1;color:#fff;text-wrap:balance}
+.cena-texto{font-size:1.0625rem;line-height:1.4;color:var(--suave);max-width:20em;text-wrap:balance}
+.tela-cena.abre .cena-titulo{font-size:clamp(1.875rem,8vw,2.375rem);text-transform:uppercase}
+.tela-cena.preco .cena-titulo{font-size:clamp(3rem,14vw,4rem);color:var(--ouro)}
+.tela-cena.preco .cena-texto{color:#fff}
+.tela-cena.fim .cena-titulo{color:var(--ouro)}
+.cena-lista{display:grid;gap:5px;margin:0 0 6px;padding:0;list-style:none;text-align:left;width:min(100%,19rem)}
+.cena-lista li{display:flex;align-items:center;gap:10px;font-weight:600;font-size:.9375rem;color:#fff;
+  opacity:0;animation:cena-entra .4s ease forwards;animation-delay:calc(var(--i) * .12s + .1s)}
+.cena-lista b{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:7px;font-family:var(--titulo);font-size:.875rem;color:#241300;background:linear-gradient(180deg,#ffe08a,#ffb53d)}
 .curso-corpo{position:relative;display:flex;flex-direction:column;gap:14px}
 .curso-selo{
   align-self:flex-start;padding:.3em 1em;border-radius:99px;font-family:var(--titulo);font-weight:700;font-size:1rem;
@@ -599,8 +623,7 @@ button{font:inherit;color:inherit}
 .curso-nota b{color:#fff}
 @media (min-width:800px){
   .curso-cartao{grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);align-items:stretch;gap:36px}
-  .curso-tela{min-height:380px}
-  .tela-peca{width:150px;height:150px}
+  .curso-tela{min-height:380px;align-self:stretch}
 }
 
 /* ------------------------------------------------------------- rodapé */
@@ -627,6 +650,7 @@ body.tem-barra .rodape{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   .revela{opacity:1;transform:none;transition:none}
-  .hero-desce span,.desce span,.tela-ponto,.casa.dica::after{animation:none}
+  .hero-desce span,.desce span,.casa.dica::after{animation:none}
+  .tela-cena > *,.cena-lista li{opacity:1;animation:none !important}
   .curso-cartao{transform:none !important}
 }

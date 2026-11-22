@@ -121,45 +121,68 @@
     cartao.addEventListener('pointermove', mexe);
     cartao.addEventListener('pointerleave', function () { cartao.style.setProperty('--rx', '0deg'); cartao.style.setProperty('--ry', '0deg'); });
   }
-  // a "telinha" do cartão: uma amostra de como são as lições, trocando sozinha
-  // (as oito lições do Módulo 1, na ordem em que estão no curso)
-  var AMOSTRAS = [
-    ['img/tabuleiro.svg', 'O tabuleiro: onde tudo começa'],
-    ['img/pecas-express/wp.svg', 'Cada peça no seu lugar'],
-    ['img/pecas-express/wr.svg', 'A torre: força em linha reta'],
-    ['img/pecas-express/wb.svg', 'O bispo: o dono das diagonais'],
-    ['img/pecas-express/wn.svg', 'O cavalo: o único que salta'],
-    ['img/pecas-express/wq.svg', 'A dama: a peça mais poderosa'],
-    ['img/pecas-express/wk.svg', 'O rei: quem decide a partida'],
-    ['img/pecas-express/wp.svg', 'O peão: pequeno, mas decisivo']
+  // A telinha do cartão: um comercial curto do curso, em cenas que passam como stories.
+  // Os números saem de "curso" em js/config.js; tocar na telinha pula para a próxima cena.
+  var tela = document.querySelector('.curso-tela'), elCena = id('telaCena'), elTrilha = id('telaTrilha');
+  function peca(n) { return '<img class="cena-peca" src="img/pecas-express/' + n + '.svg" alt="" width="96" height="96">'; }
+  var CENAS = [
+    { classe: 'abre', visual: '<img class="cena-logo" src="img/logo.svg" alt="" width="120" height="120">', titulo: 'Xadrez Express', texto: 'O jeito mais rápido de evoluir no xadrez.' }
   ];
-  var amostra = 0, tPeca = id('telaPeca'), tBarra = id('telaBarra'), vendoTela = false, inicioTela = 0;
-  function poeAmostra() {
-    var a = AMOSTRAS[amostra];
-    tPeca.style.backgroundImage = 'url(' + a[0] + ')';
-    id('telaTitulo').textContent = a[1];
-    id('telaNumero').textContent = (amostra + 1 < 10 ? '0' : '') + (amostra + 1);
+  if (totalAulas) CENAS.push({ numero: totalAulas, titulo: 'aulas', texto: 'de 30 segundos a 1 minuto. Cabe em qualquer intervalo.' });
+  if (mods.length) CENAS.push({ visual: '<ol class="cena-lista">' + mods.map(function (m, i) { return '<li style="--i:' + i + '"><b>' + (i + 1) + '</b>' + m.titulo + '</li>'; }).join('') + '</ol>',
+    titulo: plural(mods.length, 'módulo', 'módulos'), texto: 'Do zero até a sua primeira partida.' });
+  CENAS.push(
+    { classe: 'habilidade', visual: peca('wn'), sobre: 'Você vai aprender', titulo: 'Achar golpes', texto: 'Garfo, cravada, espeto e ataque descoberto.' },
+    { classe: 'habilidade', visual: peca('wq'), sobre: 'Você vai aprender', titulo: 'Dar xeque-mate', texto: 'Mate do corredor, do pastor, com dama e com torre.' },
+    { classe: 'habilidade', visual: peca('wp'), sobre: 'Você vai aprender', titulo: 'Começar bem', texto: 'Controlar o centro, desenvolver as peças e proteger o rei.' },
+    { classe: 'habilidade', visual: peca('wk'), sobre: 'Você vai aprender', titulo: 'Ganhar os finais', texto: 'Oposição, regra do quadrado e promoção.' }
+  );
+  if (bonus.length) CENAS.push({ visual: '<span class="cena-presente">🎁</span>', numero: bonus.length, titulo: bonus.length === 1 ? 'módulo bônus' : 'módulos bônus',
+    texto: (aulasBonus ? '+' + aulasBonus + ' aulas: ' : '') + 'aberturas, armadilhas, finais e muito mais.' });
+  if (CFG.linkCompra && CFG.preco) CENAS.push({ classe: 'preco', titulo: CFG.preco, sobre: 'Tudo isso por',
+    texto: (totalAulas >= 20 ? 'Menos de R$ ' + (Math.ceil(valor / totalAulas * 100) / 100).toFixed(2).replace('.', ',') + ' por aula. ' : '') + '7 dias de garantia.' });
+  CENAS.push({ classe: 'fim', visual: '<span class="cena-raio">⚡</span>', titulo: 'Comece hoje', texto: 'Acesso vitalício, no celular, quando quiser.' });
+
+  var cena = -1, inicioCena = 0, vendoTela = false, DURA = 3400;
+  elTrilha.innerHTML = CENAS.map(function () { return '<i><b></b></i>'; }).join('');
+  var segmentos = elTrilha.children;
+  function contaAte(el, alvo) {
+    var t0 = performance.now();
+    (function passo(agora) {
+      var q = Math.min(1, (agora - t0) / 900);
+      el.textContent = Math.round(alvo * (1 - Math.pow(1 - q, 3)));
+      if (q < 1) requestAnimationFrame(passo);
+    })(t0);
   }
-  function giraTela(agora) {
+  function mostraCena(k) {
+    cena = (k + CENAS.length) % CENAS.length;
+    var c = CENAS[cena];
+    elCena.className = 'tela-cena ' + (c.classe || '');
+    elCena.innerHTML = (c.visual || '') + (c.sobre ? '<p class="cena-sobre">' + c.sobre + '</p>' : '') +
+      (c.numero ? '<p class="cena-numero" data-alvo="' + c.numero + '">' + c.numero + '</p>' : '') +
+      '<p class="cena-titulo">' + c.titulo + '</p><p class="cena-texto">' + c.texto + '</p>';
+    void elCena.offsetWidth; elCena.classList.add('entra');
+    var num = elCena.querySelector('.cena-numero');
+    if (num && !CALMO) contaAte(num, c.numero);
+    Array.prototype.forEach.call(segmentos, function (s, i) { s.firstChild.style.width = i < cena ? '100%' : '0'; });
+    inicioCena = performance.now();
+  }
+  function rodaTela(agora) {
     if (!vendoTela) return;
-    if (!inicioTela) inicioTela = agora;
-    var q = (agora - inicioTela) / 4200;
-    if (q >= 1) {
-      inicioTela = agora; q = 0; amostra = (amostra + 1) % AMOSTRAS.length;
-      tPeca.classList.add('troca');
-      setTimeout(function () { poeAmostra(); tPeca.classList.remove('troca'); }, 300);
-    }
-    tBarra.style.width = (q * 100).toFixed(1) + '%';
-    requestAnimationFrame(giraTela);
+    var q = (agora - inicioCena) / DURA;
+    if (q >= 1) { mostraCena(cena + 1); q = 0; }
+    segmentos[cena].firstChild.style.width = (q * 100).toFixed(1) + '%';
+    requestAnimationFrame(rodaTela);
   }
-  if (tPeca) {
-    poeAmostra();
+  if (tela && elCena) {
+    mostraCena(0);
+    tela.addEventListener('click', function () { mostraCena(cena + 1); });
     if (!CALMO && 'IntersectionObserver' in window) {
       new IntersectionObserver(function (e) {
         var antes = vendoTela; vendoTela = e[0].isIntersecting;
-        if (vendoTela && !antes) { inicioTela = 0; requestAnimationFrame(giraTela); }
-      }, { threshold: 0.1 }).observe(cartao);
-    } else tBarra.style.width = '35%';
+        if (vendoTela && !antes) { inicioCena = performance.now(); requestAnimationFrame(rodaTela); }
+      }, { threshold: 0.2 }).observe(tela);
+    } else mostraCena(1);
   }
 
   // ---------------------------------------------------------------- entradas suaves
