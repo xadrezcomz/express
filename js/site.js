@@ -233,6 +233,22 @@
   // chegou de outra página com #curso no endereço (por exemplo, da seção Aprender)
   if (location.hash === '#curso') window.addEventListener('load', function () { setTimeout(function () { irAoCurso(false); confere(); }, 50); });
 
+  // ---------------------------------------------------------------- aulas de amostra
+  // O vídeo só é baixado quando a pessoa toca; tocar num faz o outro parar.
+  var aulas = document.querySelectorAll('.aula');
+  aulas.forEach(function (fig) {
+    var v = fig.querySelector('video'), bt = fig.querySelector('.aula-play');
+    v.controls = false;
+    bt.addEventListener('click', function () {
+      aulas.forEach(function (o) { var ov = o.querySelector('video'); if (ov !== v) ov.pause(); });
+      v.controls = true; v.play();
+      if (window.XE_evento) window.XE_evento('aula/' + fig.getAttribute('data-aula'));
+    });
+    v.addEventListener('play', function () { fig.classList.add('tocando'); aulas.forEach(function (o) { var ov = o.querySelector('video'); if (ov !== v) ov.pause(); }); });
+    v.addEventListener('pause', function () { fig.classList.remove('tocando'); });
+    v.addEventListener('ended', function () { fig.classList.remove('tocando'); });
+  });
+
   // ---------------------------------------------------------------- entradas suaves
   var revelar = document.querySelectorAll('.revela');
   if ('IntersectionObserver' in window) {
