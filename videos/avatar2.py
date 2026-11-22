@@ -254,8 +254,13 @@ def main():
         fr_tela = np.asarray(fr_tela).astype(np.float32)
         ax = int(frente.get('acima_x', 0) * esc)
         def braco(pose):
-            d = (np.abs(pose[..., :3] - base[..., :3]).max(2) > 28) | (np.abs(pose[..., 3] - base[..., 3]) > 40)
-            d = ndimage.binary_dilation(d, iterations=max(2, int(6 * esc)))
+            # só a pele (mão e antebraço) que o gesto acrescenta: a camisa muda de leve entre as poses
+            # e não deve apagar o suporte
+            r, g, b = pose[..., 0], pose[..., 1], pose[..., 2]
+            pele = (r > 110) & (r > g + 12) & (g > b) & (r - b > 35) & (pose[..., 3] > 128)
+            d = pele & (np.abs(pose[..., :3] - base[..., :3]).max(2) > 40)
+            d = ndimage.binary_opening(d, iterations=2)
+            d = ndimage.binary_dilation(d, iterations=max(1, int(2 * esc)))
             m = ndimage.gaussian_filter(d.astype(np.float32), 1.5 * esc + 0.5)
             m[:, :ax] = 0
             return m
