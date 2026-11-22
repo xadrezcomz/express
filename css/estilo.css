@@ -67,7 +67,7 @@ button{font:inherit;color:inherit}
 .marca b{color:var(--ouro)}
 .marca img{width:36px;height:36px}
 .menu{display:none;margin-left:auto;gap:6px}
-.menu a{color:var(--texto);text-decoration:none;font-weight:600;padding:.55em .85em;border-radius:10px}
+.menu a{color:var(--texto);text-decoration:none;font-weight:600;padding:.55em .85em;border-radius:10px;white-space:nowrap}
 .menu a:hover{background:rgba(160,107,255,.22)}
 .topo .botao{margin-left:auto}
 .topo .botao-p{background:linear-gradient(180deg,#ffe08a,#ffb53d);color:#241300}
@@ -84,7 +84,7 @@ button{font:inherit;color:inherit}
 .topo.menu-aberto .menu-abre span{background:transparent}
 .topo.menu-aberto .menu-abre span::before{transform:translateY(7px) rotate(45deg)}
 .topo.menu-aberto .menu-abre span::after{transform:translateY(-7px) rotate(-45deg)}
-@media (max-width:799px){
+@media (max-width:1059px){
   .topo.menu-aberto .menu{
     display:flex;flex-direction:column;gap:2px;position:absolute;top:100%;left:0;right:0;margin:0;
     padding:8px max(14px,env(safe-area-inset-right)) 14px max(14px,env(safe-area-inset-left));
@@ -94,9 +94,16 @@ button{font:inherit;color:inherit}
 }
 @media (min-width:800px){
   :root{--topo:68px}
+}
+/* o menu inteiro só aparece quando cabe numa linha; antes disso fica atrás do botão de três linhas */
+@media (min-width:1060px){
   .menu{display:flex}
   .topo .botao{margin-left:6px}
   .menu-abre{display:none}
+}
+@media (min-width:1060px) and (max-width:1259px){
+  .menu{gap:2px}
+  .menu a{padding:.55em .6em}
 }
 
 /* ------------------------------------------------------------- início (hero) */
