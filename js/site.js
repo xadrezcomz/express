@@ -129,8 +129,9 @@
   // ---------------------------------------------------------------- cartão do curso
   // inclina seguindo o mouse (ou o dedo) e passa um brilho por cima
   var cartao = id('cursoCartao');
-  if (cartao && !CALMO) {
+  if (cartao && !CALMO && window.matchMedia('(hover:hover) and (min-width:800px)').matches) {
     var mexe = function (ev) {
+      if (ev.pointerType !== 'mouse') return;
       var r = cartao.getBoundingClientRect(), x = (ev.clientX - r.left) / r.width, y = (ev.clientY - r.top) / r.height;
       cartao.style.setProperty('--ry', ((x - 0.5) * 9).toFixed(2) + 'deg');
       cartao.style.setProperty('--rx', ((0.5 - y) * 7).toFixed(2) + 'deg');
@@ -250,6 +251,14 @@
     aulaTela.querySelector('.aula-fecha').addEventListener('click', fechaAula);
     aulaTela.addEventListener('click', function (ev) { if (ev.target === aulaTela) fechaAula(); });
     document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') fechaAula(); });
+  }
+
+  // ---------------------------------------------------------------- enfeites parados fora da tela
+  if ('IntersectionObserver' in window) {
+    var vigia = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { e.target.classList.toggle('fora', !e.isIntersecting); });
+    });
+    document.querySelectorAll('.secao,.hero').forEach(function (s) { vigia.observe(s); });
   }
 
   // ---------------------------------------------------------------- entradas suaves
