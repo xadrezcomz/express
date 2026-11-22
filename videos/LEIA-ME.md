@@ -228,7 +228,10 @@ O avatar é colado no vídeo pronto e leva uns 40 segundos a mais por minuto de 
 
 Ele ocupa a faixa de baixo da tela, abaixo do tabuleiro (até 10 px da borda, para a barrinha de
 progresso continuar à vista). Nos Reels essa faixa fica por baixo do nome do perfil e da legenda
-do Instagram: use o avatar nas aulas do curso.
+do Instagram: lá use `avatar: reel`. Ele vira uma bolha redonda (com aro amarelo) no canto de
+baixo da zona segura, e só aparece quando não tampa a explicação: na abertura, até o tabuleiro
+começar a ser usado; enquanto um cartaz (`[mostra ...]`) ou uma tela cobre o tabuleiro; e no
+fecho, depois do último lance. Ela entra crescendo e sai encolhendo.
 
 ### O avatar de uma pose só (o padrão)
 

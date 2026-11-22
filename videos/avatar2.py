@@ -205,12 +205,35 @@ def main():
     pasta, fps = cfg['pasta'], cfg['fps']
     av = json.load(open(os.path.join(pasta, 'avatar.json')))
     n = int(math.ceil(cfg['duracao'] * fps))
-    bx0, by0, bx1, by1 = cfg['caixa']
-    CW, CH = bx1 - bx0, by1 - by0
     orig = Image.open(os.path.join(pasta, av['base'] + '.png')).size
-    esc = CH / orig[1] * cfg.get('altura_rel', 1.0)
-    tam = (int(orig[0] * esc), int(orig[1] * esc))
-    ox, oy = int(cfg.get('dx', 0)), CH - tam[1]                    # o desenho encosta embaixo
+    bolha = cfg.get('bolha')
+    if bolha:
+        # nos Reels: uma bolha redonda dentro da zona segura, que aparece e some (janelas)
+        bcx, bcy, R = bolha['cx'], bolha['cy'], bolha['r']
+        M = 14
+        bx0, by0, bx1, by1 = bcx - R - M, bcy - R - M, bcx + R + M, bcy + R + M
+        CW, CH = bx1 - bx0, by1 - by0
+        foco = bolha.get('foco', [627, 520, 860])                   # o centro e o tamanho do recorte (rosto e ombros)
+        esc = 2 * R / foco[2]
+        tam = (int(orig[0] * esc), int(orig[1] * esc))
+        ox, oy = int(R + M - foco[0] * esc), int(R + M - foco[1] * esc)
+        yy, xx = np.mgrid[0:CH, 0:CW]
+        dist = np.sqrt((xx - R - M) ** 2 + (yy - R - M) ** 2)
+        disco = np.clip(R - dist + 0.5, 0, 1)
+        anel = np.clip(R + 6 - dist + 0.5, 0, 1) - disco
+        fundo = np.zeros((CH, CW, 4), np.float32)
+        t_ = np.clip((yy - (M)) / (2 * R), 0, 1)[..., None]
+        fundo[..., :3] = np.array([92, 64, 220]) * (1 - t_) + np.array([24, 14, 64]) * t_   # roxo da marca, em degradê
+        fundo[..., 3] = disco * 255
+        aro = np.zeros((CH, CW, 4), np.float32); aro[..., :3] = [255, 211, 107]; aro[..., 3] = anel * 255
+        sombra = np.zeros((CH, CW, 4), np.float32); sombra[..., 3] = np.clip((R + 13 - dist) / 9, 0, 1) * 90
+        janelas = cfg.get('janelas', [])
+    else:
+        bx0, by0, bx1, by1 = cfg['caixa']
+        CW, CH = bx1 - bx0, by1 - by0
+        esc = CH / orig[1] * cfg.get('altura_rel', 1.0)
+        tam = (int(orig[0] * esc), int(orig[1] * esc))
+        ox, oy = int(cfg.get('dx', 0)), CH - tam[1]                # o desenho encosta embaixo
 
     base = carrega(pasta, av['base'], tam)
     bocas = {s: carrega(pasta, av['bocas'][s], tam) - base for s in SONS if av['bocas'].get(s)}
@@ -255,8 +278,19 @@ def main():
                              '-map', '[v]', '-map', '0:a', '-c:v', 'libx264', '-preset', 'fast', '-crf', '18', '-pix_fmt', 'yuv420p',
                              '-c:a', 'copy', '-movflags', '+faststart', cfg['saida']], stdin=subprocess.PIPE)
     cx, cy = tam[0] / 2, tam[1]                                     # gira em volta da base do peito
+    vazio = bytes(CW * CH * 4)
+    def visivel(t):
+        v = 0.0
+        for t0, t1 in janelas:
+            if t0 - 0.05 <= t <= t1 + 0.05:
+                v = max(v, min(1, (t - t0) / 0.35, (t1 - t) / 0.25))
+        return max(0.0, v)
     for i in range(n):
         t = i / fps
+        if bolha:
+            vis = visivel(t)
+            if vis <= 0:
+                proc.stdin.write(vazio); continue
         nome, f = corpo_em(t)
         img = base
         reacao = nome in reacoes
@@ -293,6 +327,24 @@ def main():
         quadro = quadro.rotate(ang, resample=Image.BICUBIC, center=(cx, cy))
         tela = Image.new('RGBA', (CW, CH), (0, 0, 0, 0))
         tela.paste(quadro, (ox, oy), quadro)
+        if bolha:
+            pess = np.asarray(tela).astype(np.float32)
+            pess[..., 3] *= disco                                   # recorta o desenho no círculo
+            camadas = [sombra, fundo, pess, aro]
+            out = np.zeros((CH, CW, 4), np.float32)
+            for c in camadas:                                       # "por cima" (alfa)
+                a_c = c[..., 3:4] / 255
+                out[..., :3] = c[..., :3] * a_c + out[..., :3] * (1 - a_c)
+                out[..., 3:4] = a_c * 255 + out[..., 3:4] * (1 - a_c)
+            tela = Image.fromarray(np.clip(out, 0, 255).astype(np.uint8))
+            if vis < 1:                                             # entra crescendo, com um pulinho
+                e = 1 + 0.12 * math.sin(vis * math.pi) if vis > 0.5 else vis * 2 * 1.0
+                e = max(0.05, min(1.12, e))
+                w_, h_ = max(1, int(CW * e)), max(1, int(CH * e))
+                peq = tela.resize((w_, h_), Image.BILINEAR)
+                tela = Image.new('RGBA', (CW, CH), (0, 0, 0, 0))
+                tela.paste(peq, ((CW - w_) // 2, (CH - h_) // 2), peq)
+                tela.putalpha(tela.getchannel('A').point(lambda v_: int(v_ * min(1, vis * 1.6))))
         proc.stdin.write(tela.tobytes())
     proc.stdin.close(); proc.wait()
     if proc.returncode:

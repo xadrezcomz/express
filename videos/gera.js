@@ -220,7 +220,8 @@ async function geraVideo(arquivoLicao, op) {
 // A pose muda sozinha conforme a fala (pergunta, atenção, xeque-mate, a peça apresentada, o "até lá")
 // e pode ser escolhida no roteiro com [avatar pose]; o videos/avatar.py desenha e cola no vídeo.
 const AVATAR = { ancora: [260, 1600], caixa: [0, 1330, 700, 1910], olhos: 54 };
-const AVATAR2 = { caixa: [0, 1440, 470, 1910], dx: -30 };   // a pose única: encosta embaixo, à esquerda
+const AVATAR2 = { caixa: [0, 1440, 470, 1910], dx: -30,
+  bolha: { cx: 203, cy: 1349, r: 115 } };   // nos Reels: a bolha encosta no canto de baixo da zona segura (x 80, y 1480)   // a pose única: encosta embaixo, à esquerda
 const PECA_POSE = { p: 'peao', r: 'torre', n: 'cavalo', b: 'bispo', q: 'dama', k: 'rei' };
 function linhaDoAvatar(roteiro, poses) {
   const tem = p => poses.includes(p);
@@ -304,6 +305,33 @@ function linhaDoAvatar2(roteiro, av) {
   roteiro.legendas.forEach(b => b.palavras.forEach(p => { if (p.destaque) acenos.push(p.ini); }));
   return { linha: fim.map(g => g.slice(0, 3)), acenos: acenos.filter((t, i) => !i || t - acenos[i - 1] > 0.8) };
 }
+// "avatar: reel": nos Reels, o canto de baixo fica sob o nome do perfil e a legenda do Instagram.
+// Então o avatar vira uma bolha redonda dentro da zona segura e só aparece quando não tampa a
+// explicação: na abertura (até o tabuleiro começar a ser usado), enquanto um cartaz grande
+// ([mostra ...]) ou uma tela cobre o tabuleiro, e no fecho, depois do último lance.
+function janelasDoReel(roteiro, duracao) {
+  const tab = ['lance', 'seta', 'marca', 'poe', 'posicao', 'tira', 'mao', 'etiqueta'];
+  const ev = roteiro.eventos;
+  const js = [];
+  const primeiro = ev.find(e => tab.includes(e.tipo) && e.t > 0.3);
+  js.push([0.75, Math.min(5.5, Math.max(2.5, primeiro ? primeiro.t - 0.1 : duracao))]);
+  ev.forEach((e, k) => {
+    if (e.tipo !== 'mostra' && !(e.tipo === 'tela' && e.modelo !== 'celular')) return;
+    const fim = ev.slice(k + 1).find(x => ['esconde', 'limpa', 'lance', 'posicao', 'tela', 'mostra'].includes(x.tipo));
+    const t1 = fim ? fim.t : duracao;
+    if (t1 - e.t >= 1.2) js.push([e.t + 0.15, t1 - 0.05]);
+  });
+  let ult = 0;
+  ev.forEach(e => { if (tab.includes(e.tipo)) ult = Math.max(ult, e.t + (e.tipo === 'lance' ? (e.dur || roteiro.durLance) : 0.3)); });
+  if (duracao - (ult + 0.5) >= 1.5) js.push([ult + 0.5, duracao - 0.15]);
+  js.sort((a, b) => a[0] - b[0]);
+  const fim = [];
+  js.forEach(j => {
+    const u = fim[fim.length - 1];
+    if (u && j[0] - u[1] < 0.8) u[1] = Math.max(u[1], j[1]); else fim.push(j.slice());
+  });
+  return fim;
+}
 function poeAvatar(roteiro, audio, duracao, saida, nome) {
   if (!roteiro.avatar) return;
   const umaPose = path.join(BASE, 'avatar', 'avatar.json');
@@ -316,6 +344,11 @@ function poeAvatar(roteiro, audio, duracao, saida, nome) {
     const l = linhaDoAvatar2(roteiro, av);
     const cfg = Object.assign({ pasta: path.join(BASE, 'avatar'), fps: QPS, duracao: duracao, audio: audio, semente: h % 100000,
       caixa: AVATAR2.caixa, dx: AVATAR2.dx, entrada: entrada, saida: saida }, l);
+    if (roteiro.avatar === 'reel') {
+      cfg.bolha = AVATAR2.bolha;
+      cfg.janelas = janelasDoReel(roteiro, duracao);
+      console.log('  avatar (reel) aparece: ' + cfg.janelas.map(([a, b]) => a.toFixed(1) + '-' + b.toFixed(1) + 's').join(', '));
+    }
     fs.writeFileSync(path.join(tmp, 'avatar.json'), JSON.stringify(cfg));
     console.log('  avatar: ' + (l.linha.map(([t, p]) => p + ' ' + t.toFixed(1) + 's').join(', ') || 'só a pose base'));
     try { roda('python3', [path.join(AQUI, 'avatar2.py'), path.join(tmp, 'avatar.json')]); }

@@ -200,7 +200,7 @@ function le(texto, nomeArquivo) {
     estilo: chave(cab.estilo || '') === '3d' ? '3d' : '2d',
     legenda: !/^(nao|n|off|0)$/.test(chave(cab.legenda || 'sim')),
     edicao: chave(cab.edicao || ''), musica: chave(cab.musica || ''), serie: cab.serie || '',
-    avatar: !!cab.avatar && !/^(nao|n|off|0)$/.test(chave(cab.avatar)),
+    avatar: chave(cab.avatar || '') === 'reel' ? 'reel' : (!!cab.avatar && !/^(nao|n|off|0)$/.test(chave(cab.avatar))),
     casas: casas, palavras: palavras, ordens: ordens,
     fala: palavras.map(p => p.voz || p.texto).join(' ')
   };
