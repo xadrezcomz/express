@@ -104,7 +104,7 @@ def pesos_da_boca(alvo, env, fps):
         if s in 'AEIOU' and env[i] < 0.45:
             f = max(0.35, env[i] / 0.45)
             P[i] *= f; P[i, k_m] += 1 - f
-    k = np.array([0.2, 0.6, 1.0, 0.6, 0.2]); k /= k.sum()        # 5 quadros de passagem
+    k = np.array([0.3, 1.0, 0.3]); k /= k.sum()                  # passagem curta (mistura longa dobra a boca)
     P = ndimage.convolve1d(P, k, axis=0, mode='nearest')
     P[:, k_s] = ndimage.uniform_filter1d(P[:, k_s], 9, mode='nearest')   # o sorriso chega devagar
     return P / P.sum(1, keepdims=True)
