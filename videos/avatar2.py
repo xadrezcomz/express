@@ -243,6 +243,23 @@ def main():
         nomes_g.update(av['gestos_reel'])                         # nos Reels, a mão sobe ao lado do rosto
     gestos = {k: carrega(pasta, v, tam) for k, v in nomes_g.items()}
     reacoes = {k: carrega(pasta, v, tam) for k, v in av['reacoes'].items()}
+    frente = cfg.get('frente')
+    if frente:
+        # uma camada parada na frente do professor (ex.: o microfone de estúdio com o braço), no mesmo
+        # tamanho e lugar do desenho; à direita de 'acima_x' (no desenho), a mão e o braço dos gestos
+        # passam na frente dela (a mão por cima do suporte, não atrás)
+        fi = Image.open(frente['imagem']).convert('RGBA')
+        fi = fi.resize((int(fi.width * esc), int(fi.height * esc)), Image.LANCZOS)
+        fr_tela = Image.new('RGBA', (CW, CH), (0, 0, 0, 0)); fr_tela.paste(fi, (ox, oy))
+        fr_tela = np.asarray(fr_tela).astype(np.float32)
+        ax = int(frente.get('acima_x', 0) * esc)
+        def braco(pose):
+            d = (np.abs(pose[..., :3] - base[..., :3]).max(2) > 28) | (np.abs(pose[..., 3] - base[..., 3]) > 40)
+            d = ndimage.binary_dilation(d, iterations=max(2, int(6 * esc)))
+            m = ndimage.gaussian_filter(d.astype(np.float32), 1.5 * esc + 0.5)
+            m[:, :ax] = 0
+            return m
+        bracos = {k: braco(v) for k, v in list(gestos.items()) + list(reacoes.items())}
     mb = mascara(tam, av['regioes']['boca'], esc, 10 * esc)[..., None]
     mo = mascara(tam, av['regioes']['olhos'], esc, 6 * esc)[..., None]
 
@@ -361,6 +378,19 @@ def main():
         tela.paste(quadro, (ox, oy), quadro)
         if not bolha and cfg.get('luz', True):
             tela = Image.fromarray(ilumina(np.asarray(tela).astype(np.float32)).astype(np.uint8))
+        if frente:
+            mf = fr_tela[..., 3:4] / 255
+            if nome in bracos and f > 0:
+                bm = Image.fromarray(np.clip(bracos[nome] * f * 255, 0, 255).astype(np.uint8), 'L')
+                bm = bm.transform(bm.size, Image.AFFINE, (1 / resp, 0, cx - cx / resp, 0, 1 / resp, cy - cy / resp - dy),
+                                  resample=Image.BILINEAR).rotate(ang, resample=Image.BILINEAR, center=(cx, cy))
+                bt = Image.new('L', (CW, CH), 0); bt.paste(bm, (ox, oy))
+                mf = mf * (1 - np.asarray(bt).astype(np.float32)[..., None] / 255)
+            t_ = np.asarray(tela).astype(np.float32)
+            a_t = t_[..., 3:4] / 255
+            a_o = mf + a_t * (1 - mf)
+            rgb = (fr_tela[..., :3] * mf + t_[..., :3] * a_t * (1 - mf)) / np.maximum(a_o, 1e-4)
+            tela = Image.fromarray(np.clip(np.concatenate([rgb, a_o * 255], 2), 0, 255).astype(np.uint8))
         if bolha:
             pess = np.asarray(tela).astype(np.float32)
             pess[..., 3] *= disco                                   # recorta o desenho no círculo
