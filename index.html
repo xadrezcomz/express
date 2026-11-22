@@ -266,22 +266,14 @@
             <li data-so-venda hidden><b>Acesso vitalício:</b> reveja quantas vezes quiser</li>
           </ul>
 
-          <!-- números, módulos e bônus do curso: vêm de "curso" em js/config.js -->
+          <!-- os números do curso: vêm de "curso" em js/config.js -->
           <div class="curso-numeros" id="cursoNumeros" hidden></div>
-          <div class="curso-conteudo" id="cursoConteudo" hidden>
-            <p class="curso-sub">O que tem dentro</p>
-            <ol class="curso-modulos" id="cursoModulos"></ol>
-          </div>
-          <div class="curso-bonus" id="cursoBonus" hidden>
-            <p class="curso-sub">🎁 Bônus</p>
-            <ul id="cursoBonusLista"></ul>
-          </div>
-
           <div class="curso-preco" id="cursoPreco" hidden>
             <s id="cursoPrecoDe"></s>
             <b id="cursoPrecoPor"></b>
             <small id="cursoParcelas"></small>
           </div>
+          <p class="curso-por-aula" id="cursoPorAula" hidden></p>
 
           <a class="botao botao-ouro botao-g" id="cursoBotao" href="https://www.instagram.com/xadrezcomz/" target="_blank" rel="noopener">Quero ser avisado no Instagram</a>
           <!-- as garantias da compra: só aparecem quando a venda está ligada (js/config.js) -->
@@ -291,6 +283,20 @@
             <li><i aria-hidden="true">🔒</i><span><b>Compra segura</b>Pagamento pela Hotmart.</span></li>
           </ul>
           <p class="curso-nota" id="cursoNota">As gravações estão a caminho. Siga <b>@xadrezcomz</b> para saber do lançamento em primeira mão.</p>
+        </div>
+        <div class="curso-mais">
+          <!-- módulos e bônus do curso: vêm de "curso" em js/config.js -->
+          <div class="curso-conteudo" id="cursoConteudo" hidden>
+            <p class="curso-sub">O que tem dentro</p>
+            <ol class="curso-modulos" id="cursoModulos"></ol>
+          </div>
+          <div class="curso-bonus" id="cursoBonus" hidden>
+            <p class="curso-sub" id="cursoBonusTitulo">🎁 Bônus</p>
+            <ul id="cursoBonusLista"></ul>
+            <button type="button" class="curso-bonus-ver" id="cursoBonusVer" hidden>Ver todos os bônus</button>
+          </div>
+
+          <a class="botao botao-ouro botao-g" id="cursoBotao2" href="#curso" target="_blank" rel="noopener" hidden>Quero começar agora</a>
         </div>
       </article>
     </div>

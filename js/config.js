@@ -17,11 +17,25 @@ window.XE_CONFIG = {
   // Só entra no cartão o que estiver preenchido; nada de número inventado.
   curso: {
     modulos: [
-      { titulo: 'Conhecendo o tabuleiro e as peças', aulas: 7, extras: 2 },
-      // { titulo: 'Nome do módulo', aulas: 10 },
+      { titulo: 'Conhecendo o tabuleiro e as peças', aulas: 8 },
+      { titulo: 'Regras Essenciais', aulas: 11 },
+      { titulo: 'Primeiros Passos na Estratégia', aulas: 4 },
+      { titulo: 'Táticas Essenciais', aulas: 6 },
+      { titulo: 'Xeque-mates e Finais', aulas: 6 },
+      { titulo: 'Sua Primeira Partida', aulas: 6 }
     ],
     bonus: [
-      // { titulo: 'Nome do bônus', texto: 'Uma frase dizendo o que a pessoa ganha.' },
+      { titulo: 'Notação Algébrica', aulas: 12, texto: 'Leia e escreva qualquer partida, como nos livros.' },
+      { titulo: 'Glossário do Xadrez', aulas: 12, texto: 'As palavras que todo jogador usa, mostradas no tabuleiro.' },
+      { titulo: 'Regras Oficiais da FIDE', aulas: 12, texto: 'As leis do xadrez para quem vai jogar torneio.' },
+      { titulo: 'Xadrez Digital', aulas: 12, texto: 'Jogue e estude no Lichess e no Chess.com, pelo celular.' },
+      { titulo: 'Aberturas com as Brancas', aulas: 12, texto: 'As principais aberturas, com os planos de cada uma.' },
+      { titulo: 'Aberturas com as Pretas', aulas: 12, texto: 'As principais defesas contra e4 e contra d4.' },
+      { titulo: 'Armadilhas', aulas: 12, texto: 'As armadilhas mais famosas, para aplicar e para não cair.' },
+      { titulo: 'Táticas Avançadas', aulas: 12, texto: 'Os golpes dos jogadores experientes.' },
+      { titulo: 'Estratégia de Meio-jogo', aulas: 12, texto: 'Como pensar quando não há tática: planos e peões.' },
+      { titulo: 'Finais Completos', aulas: 10, texto: 'De rei e peão aos finais de torre.' },
+      { titulo: 'Como Treinar Sozinho', aulas: 10, texto: 'Como continuar evoluindo depois do curso.' }
     ]
   },
 

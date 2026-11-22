@@ -62,27 +62,49 @@
   } else { botao.href = insta; }
 
   // ---------------------------------------------------------------- o que tem no curso
+  // Números, módulos e bônus vêm de "curso" em js/config.js; só aparece o que estiver preenchido.
   var C = CFG.curso || {}, mods = (C.modulos || []).filter(function (m) { return m.titulo; }), bonus = (C.bonus || []).filter(function (b) { return b.titulo; });
   function plural(n, um, varios) { return n + ' ' + (n === 1 ? um : varios); }
+  function soma(lista) { return lista.reduce(function (s, m) { return s + (Number(m.aulas) || 0); }, 0); }
+  var aulasCurso = soma(mods), aulasBonus = soma(bonus), totalAulas = aulasCurso + aulasBonus;
   if (mods.length) {
-    var totalAulas = mods.reduce(function (s, m) { return s + (Number(m.aulas) || 0); }, 0);
-    var totalExtras = mods.reduce(function (s, m) { return s + (Number(m.extras) || 0); }, 0);
     var numeros = [];
     if (totalAulas) numeros.push(['🎬', plural(totalAulas, 'aula', 'aulas')]);
-    if (mods.length > 1) numeros.push(['📚', plural(mods.length, 'módulos', 'módulos')]);
-    if (totalExtras) numeros.push(['📄', plural(totalExtras, 'material extra', 'materiais extras')]);
-    if (bonus.length) numeros.push(['🎁', plural(bonus.length, 'bônus', 'bônus')]);
+    if (mods.length > 1) numeros.push(['📚', plural(mods.length, 'módulo', 'módulos')]);
+    if (bonus.length) numeros.push(['🎁', plural(bonus.length, 'módulo bônus', 'módulos bônus')]);
     id('cursoNumeros').innerHTML = numeros.map(function (n) { return '<span><i aria-hidden="true">' + n[0] + '</i>' + n[1] + '</span>'; }).join('');
     id('cursoNumeros').hidden = false;
     id('cursoModulos').innerHTML = mods.map(function (m, i) {
-      var info = [m.aulas ? plural(Number(m.aulas), 'aula', 'aulas') : '', m.extras ? plural(Number(m.extras), 'material extra', 'materiais extras') : ''].filter(Boolean).join(' + ');
-      return '<li><b>' + (i + 1 < 10 ? '0' : '') + (i + 1) + '</b><span>' + m.titulo + (info ? '<small>' + info + '</small>' : '') + '</span></li>';
+      return '<li><b>' + (i + 1 < 10 ? '0' : '') + (i + 1) + '</b><span>' + m.titulo + (m.aulas ? '<small>' + plural(Number(m.aulas), 'aula', 'aulas') + '</small>' : '') + '</span></li>';
     }).join('');
     id('cursoConteudo').hidden = false;
   }
   if (bonus.length) {
-    id('cursoBonusLista').innerHTML = bonus.map(function (b) { return '<li><b>' + b.titulo + '</b>' + (b.texto ? '<span>' + b.texto + '</span>' : '') + '</li>'; }).join('');
+    var lista = id('cursoBonusLista');
+    lista.innerHTML = bonus.map(function (b, i) {
+      return '<li' + (i >= 4 ? ' class="extra"' : '') + '><b>' + b.titulo + (b.aulas ? ' <small>' + plural(Number(b.aulas), 'aula', 'aulas') + '</small>' : '') + '</b>' + (b.texto ? '<span>' + b.texto + '</span>' : '') + '</li>';
+    }).join('');
+    id('cursoBonusTitulo').textContent = '🎁 ' + plural(bonus.length, 'módulo bônus', 'módulos bônus') + (aulasBonus ? ' · ' + aulasBonus + ' aulas a mais' : '');
+    if (bonus.length > 4) {
+      var ver = id('cursoBonusVer');
+      ver.textContent = 'Ver todos os ' + bonus.length + ' bônus';
+      ver.hidden = false;
+      ver.addEventListener('click', function () { id('cursoBonus').classList.add('aberto'); ver.hidden = true; });
+    }
     id('cursoBonus').hidden = false;
+  }
+  // um segundo botão de compra no fim do cartão, para quem leu a lista inteira
+  if (CFG.linkCompra && (mods.length || bonus.length)) {
+    var b2 = id('cursoBotao2');
+    b2.href = CFG.linkCompra; b2.hidden = false;
+    b2.textContent = totalAulas >= 20 && CFG.preco ? 'Quero as ' + totalAulas + ' aulas por ' + CFG.preco : 'Quero começar agora';
+  }
+  // a conta que vende: o preço dividido pelas aulas
+  var valor = parseFloat(String(CFG.preco || '').replace(/[^\d,]/g, '').replace(',', '.'));
+  if (CFG.linkCompra && valor && totalAulas >= 20) {
+    var porAula = Math.ceil(valor / totalAulas * 100) / 100;
+    id('cursoPorAula').innerHTML = 'São ' + totalAulas + ' aulas: <b>menos de R$ ' + porAula.toFixed(2).replace('.', ',') + ' por aula</b>.';
+    id('cursoPorAula').hidden = false;
   }
 
   // ---------------------------------------------------------------- cartão do curso
@@ -100,7 +122,7 @@
     cartao.addEventListener('pointerleave', function () { cartao.style.setProperty('--rx', '0deg'); cartao.style.setProperty('--ry', '0deg'); });
   }
   // a "telinha" do cartão: uma amostra de como são as lições, trocando sozinha
-  // (as sete primeiras lições do Módulo 1, na ordem em que estão no curso)
+  // (as oito lições do Módulo 1, na ordem em que estão no curso)
   var AMOSTRAS = [
     ['img/tabuleiro.svg', 'O tabuleiro: onde tudo começa'],
     ['img/pecas-express/wp.svg', 'Cada peça no seu lugar'],
@@ -108,7 +130,8 @@
     ['img/pecas-express/wb.svg', 'O bispo: o dono das diagonais'],
     ['img/pecas-express/wn.svg', 'O cavalo: o único que salta'],
     ['img/pecas-express/wq.svg', 'A dama: a peça mais poderosa'],
-    ['img/pecas-express/wk.svg', 'O rei: quem decide a partida']
+    ['img/pecas-express/wk.svg', 'O rei: quem decide a partida'],
+    ['img/pecas-express/wp.svg', 'O peão: pequeno, mas decisivo']
   ];
   var amostra = 0, tPeca = id('telaPeca'), tBarra = id('telaBarra'), vendoTela = false, inicioTela = 0;
   function poeAmostra() {
