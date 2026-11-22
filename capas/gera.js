@@ -4,6 +4,7 @@
 //
 //   node capas/gera.js              gera todas + a folha de miniaturas (capas/saida/)
 //   node capas/gera.js 00           só o módulo 00 e as aulas dele
+//   node capas/gera.js banner       só o fundo do topo do curso (1920x640)
 //   node capas/gera.js --amostra    só a primeira capa de módulo e a primeira de aula
 //
 // Precisa do playwright. No fim, confere o tamanho em pixels e o peso de cada arquivo.
@@ -12,7 +13,8 @@ const { chromium } = require('playwright');
 
 const RAIZ = path.join(__dirname, '..'), SAIDA = path.join(__dirname, 'saida');
 const ORDEM = ['ciano', 'ouro', 'rosa', 'roxo', 'laranja'];
-const LIMITE = { modulo: 5 * 1024 * 1024, aula: 2 * 1024 * 1024 };
+const LIMITE = { modulo: 5 * 1024 * 1024, aula: 2 * 1024 * 1024, banner: 5 * 1024 * 1024 };
+const TELA = { modulo: [1920, 1080], aula: [1920, 1080], banner: [1920, 640] };
 const TIPOS = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.jpg': 'image/jpeg' };
 const fatia = t => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
@@ -31,6 +33,8 @@ const fatia = t => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').repl
     (m.aulas || []).forEach(a => fila.push({ tipo: 'aula', grupo: m.grupo, arquivo: base + '-' + fatia(a.rotulo) + '.jpg',
       dados: { rotulo: a.rotulo, titulo: a.titulo, peca: a.peca || m.peca, cor, duracao: a.duracao, semente: m.numero + a.rotulo } }));
   });
+  // o fundo do topo do curso na área de membros (3:1)
+  if (!so || so === 'banner') fila.push({ tipo: 'banner', grupo: 'banner', arquivo: 'banner-hotmart.jpg', dados: {} });
   const fazer = amostra ? [fila.find(c => c.tipo === 'modulo'), fila.find(c => c.tipo === 'aula')].filter(Boolean) : fila;
   const repetido = fazer.map(c => c.arquivo).find((a, i, t) => t.indexOf(a) !== i);
   if (repetido) throw new Error('Dois itens da lista dariam o mesmo arquivo: ' + repetido);
@@ -50,22 +54,23 @@ const fatia = t => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').repl
   const pag = await nav.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
   let erro = false;
   for (const c of fazer) {
+    await pag.setViewportSize({ width: TELA[c.tipo][0], height: TELA[c.tipo][1] });
     await pag.goto(url + 'modelo-' + c.tipo + '.html');
     await pag.evaluate(d => monta(d), c.dados);
     await pag.waitForLoadState('networkidle');
-    const estourou = await pag.evaluate(() => { const t = document.getElementById('titulo'); return t.scrollHeight > t.parentElement.clientHeight || t.scrollWidth > t.clientWidth; });
+    const estourou = await pag.evaluate(() => { const t = document.getElementById('titulo'); if (!t) return false; return t.scrollHeight > t.parentElement.clientHeight || t.scrollWidth > t.clientWidth; });
     const destino = path.join(SAIDA, c.arquivo);
     await pag.screenshot({ path: destino, type: 'jpeg', quality: 88 });
     const kb = fs.statSync(destino).size / 1024, passou = fs.statSync(destino).size > LIMITE[c.tipo];
     if (passou || estourou) erro = true;
     c.kb = kb;
-    console.log(c.arquivo.padEnd(40), '1920x1080', (kb.toFixed(0) + ' KB').padStart(8),
+    console.log(c.arquivo.padEnd(40), TELA[c.tipo].join('x'), (kb.toFixed(0) + ' KB').padStart(8),
       passou ? '  ACIMA DO LIMITE!' : '  ok', estourou ? '  TÍTULO NÃO COUBE!' : '');
   }
 
   // as folhas de miniaturas: uma para os módulos (folha-miniaturas.jpg) e uma para os bônus (folha-bonus.jpg)
   if (!amostra) {
-    const grupos = [...new Set(fila.map(c => c.grupo))];
+    const grupos = [...new Set(fila.map(c => c.grupo))].filter(g => g !== 'banner');
     for (const g of grupos) {
       const todas = fila.filter(c => c.grupo === g).map(c => c.arquivo).filter(a => fs.existsSync(path.join(SAIDA, a)));
       const nome = g === 'modulos' ? 'folha-miniaturas.jpg' : 'folha-' + g + '.jpg', colunas = todas.length > 60 ? 6 : 4;

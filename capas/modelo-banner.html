@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Banner da área de membros (1920x640)</title>
+<link rel="stylesheet" href="capa.css">
+<style>
+/* O fundo do topo do curso na Hotmart (proporção 3:1). A Hotmart escreve o nome do curso
+   e os botões por cima, à esquerda, e põe a capa do curso à direita: por isso a esquerda
+   fica escura e limpa, e o desenho mora no meio. */
+html,body,.capa{width:1920px;height:640px}
+#estrelas,#arte{width:1920px;height:640px}
+.brilho{background:
+  radial-gradient(760px 420px at 52% 60%,rgba(160,107,255,.30),transparent 70%),
+  radial-gradient(620px 380px at 72% 30%,rgba(46,230,255,.16),transparent 70%),
+  radial-gradient(560px 360px at 86% 70%,rgba(255,79,216,.14),transparent 70%)}
+.casas{left:700px;top:-330px;width:1300px;height:1300px;opacity:.35;--cor:#a06bff;background-size:216px 216px}
+/* escurece a esquerda, onde entra o texto da Hotmart */
+.sombra{inset:0;background:linear-gradient(90deg,rgba(7,4,26,.92) 0%,rgba(7,4,26,.75) 22%,rgba(7,4,26,0) 42%)}
+#pecas{inset:0}
+#pecas .peca{position:absolute;--cor:var(--c)}
+</style>
+</head>
+<body>
+<div class="capa">
+  <div class="brilho"></div>
+  <canvas id="estrelas"></canvas>
+  <div class="casas"></div>
+  <svg id="arte" viewBox="0 0 1920 640"></svg>
+  <div id="pecas"></div>
+  <div class="sombra"></div>
+</div>
+<script src="capa.js"></script>
+<script>
+// Cada nave: peça, centro, tamanho, giro, cor e de onde vem o rastro (p0 -> pc -> ponta).
+var NAVES = [
+  { peca: 'wn',      x: 760,  y: 420, tam: 150, giro: 10,  cor: 'ouro',    p0: [430, 760],  pc: [690, 700] },
+  { peca: 'foguete', x: 1060, y: 250, tam: 210, giro: -58, cor: 'ciano',   p0: [760, 760],  pc: [930, 560] },
+  { peca: 'wq',      x: 1330, y: 470, tam: 135, giro: -8,  cor: 'rosa',    p0: [1010, 760], pc: [1300, 700] },
+  { peca: 'wr',      x: 1450, y: 150, tam: 105, giro: 12,  cor: 'roxo',    p0: [1720, 700], pc: [1430, 470] },
+  { peca: 'wp',      x: 640,  y: 160, tam: 85,  giro: -12, cor: 'laranja', p0: [430, 460],  pc: [600, 380] }
+];
+function monta() {
+  estrelas(document.getElementById('estrelas'), 'banner');
+  var arte = document.getElementById('arte'), caixa = document.getElementById('pecas');
+  NAVES.forEach(function (n, k) {
+    var cores = CORES[n.cor], fog = n.peca === 'foguete';
+    // a ponta do rastro encosta na base da peça (no foguete, no bocal)
+    // (o foguete aponta para a direita no desenho; o bocal fica 18/96 da largura atrás do centro)
+    var g = n.giro * Math.PI / 180, atras = n.tam * 1.25 * 18 / 96;
+    var ponta = fog ? [n.x - Math.cos(g) * atras, n.y - Math.sin(g) * atras]
+                    : [n.x - Math.sin(g) * n.tam * 0.38, n.y + Math.cos(g) * n.tam * 0.38];
+    rastro(arte, n.p0, n.pc, ponta, n.tam * (fog ? 0.42 : 0.45), cores, 'b' + k);
+    var d = document.createElement('div');
+    d.className = 'peca'; d.style.setProperty('--c', cores[0]);
+    caixa.appendChild(d);
+    poePeca(d, n.peca, n.x, n.y, n.tam, n.giro);
+  });
+  return document.fonts.ready;
+}
+</script>
+</body>
+</html>
