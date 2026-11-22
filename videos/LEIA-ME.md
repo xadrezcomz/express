@@ -196,10 +196,19 @@ balança de leve. Tudo é feito aqui, com programas gratuitos (`videos/avatar.py
 numpy, scipy e Pillow); não usa nenhum serviço pago.
 
 As imagens são a cara do dono do curso, então ficam na pasta privada das lições, em `avatar/`:
-um PNG com fundo transparente por pose e o `poses.json`, que marca em cada pose os dois olhos
-(`[x, y, raio x, raio y]`, para a piscada) e a boca (`"dentes"` quando os dentes aparecem, que o
-programa acha sozinho, ou o centro, a meia-largura e a linha onde a boca abre). Sem essa pasta, o
-vídeo sai sem o avatar.
+um PNG com fundo transparente por pose e o `poses.json`, que marca em cada pose, em pixels da
+imagem:
+
+- cada olho: os dois cantos (`c`), o ponto mais alto da pálpebra (`topo`) e o mais baixo do olho
+  (`baixo`). A pálpebra desce seguindo o ângulo daquele olho, coberta com a pele lisa de volta
+  dele, e fecha num arco com a linha dos cílios; a armação dos óculos fica por cima
+  (`"armacao": true` quando ela cruza o próprio olho);
+- a boca: os dois cantos (`c`) e o meio da linha onde ela abre (`meio`: a borda de baixo dos
+  dentes de cima, ou o encontro dos lábios). O programa acha a borda exata perto dessa linha, e o
+  queixo desce na direção do queixo daquela pose (perpendicular aos cantos da boca).
+
+A boca abre com o volume da voz e fica redonda nos "o" e "u" (ele usa o tempo de cada palavra
+do `.palavras.json` do áudio). Sem a pasta `avatar/`, o vídeo sai sem o avatar.
 
 A pose muda sozinha conforme a fala:
 
