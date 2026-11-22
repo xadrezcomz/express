@@ -259,6 +259,34 @@ def main():
     pis = piscadas(n, fps, cfg.get('semente', 7))
     linha = sorted(cfg.get('linha', []))                            # [[t, nome, dur], ...]
     acenos = cfg.get('acenos', [])
+    olhares = cfg.get('olhares', [])
+
+    def olhar_em(t):
+        """Quanto ele está olhando para o tabuleiro (0 a 1), com ida e volta suaves."""
+        v = 0.0
+        for t0, d in olhares:
+            if t0 <= t <= t0 + d:
+                v = max(v, min(1, (t - t0) / 0.18, (t0 + d - t) / 0.25))
+        return v
+
+    # a luz da cena no desenho: um brilho roxo atrás e um contorno ciano do lado do tabuleiro
+    import cv2
+    def ilumina(rgba):
+        a = rgba[..., 3] / 255.0
+        cima_dir = np.roll(a, (3, -3), axis=(0, 1))          # o vizinho de cima e da direita
+        esq = np.roll(a, 4, axis=1)
+        aro = cv2.GaussianBlur((a * (1 - cima_dir)).astype(np.float32), (0, 0), 1.4) * a
+        aro2 = cv2.GaussianBlur((a * (1 - esq)).astype(np.float32), (0, 0), 1.6) * a
+        cor = rgba[..., :3]
+        cor = cor + aro[..., None] * np.array([111, 233, 255]) * 0.85 + aro2[..., None] * np.array([160, 107, 255]) * 0.45
+        brilho = cv2.GaussianBlur(a.astype(np.float32), (0, 0), 22) * 0.55
+        fundo_a = brilho * (1 - a)
+        out = np.empty_like(rgba)
+        out[..., :3] = cor * a[..., None] + np.array([120, 80, 255]) * fundo_a[..., None]
+        tot = a + fundo_a
+        out[..., :3] = out[..., :3] / np.maximum(tot, 1e-4)[..., None]
+        out[..., 3] = tot * 255
+        return np.clip(out, 0, 255)
 
     def corpo_em(t):
         """Qual gesto/reação vale no segundo t, e quanto dele (para a troca suave)."""
@@ -314,10 +342,11 @@ def main():
             if q == 2: olho = base + olhos['fechado']
             elif q == 1: olho = base + olhos['meio']
             elif nome == 'pensa' and 'baixo' in olhos: olho = base + olhos['baixo'] * f
+            elif 'tabuleiro' in olhos and olhar_em(t) > 0: olho = base + olhos['tabuleiro'] * olhar_em(t)
             img = img + (olho - img) * mo * lsync
         # o movimento: respiração, balanço e o aceno nas palavras fortes
         fala = env[max(0, i - 12):i + 1].mean()
-        ang = math.sin(t * 1.3) * 0.8 + fala * math.sin(t * 4.1) * 1.2
+        ang = math.sin(t * 1.3) * 0.8 + fala * math.sin(t * 4.1) * 1.2 - 2.2 * olhar_em(t)   # vira de leve para o tabuleiro
         aceno = sum(math.sin(min(1, (t - a) / 0.45) * math.pi) for a in acenos if 0 <= t - a < 0.45)
         dy = math.sin(t * 2.0) * 2.0 + aceno * 6 * esc / 0.45
         resp = 1 + math.sin(t * 2.0) * 0.006
@@ -327,6 +356,8 @@ def main():
         quadro = quadro.rotate(ang, resample=Image.BICUBIC, center=(cx, cy))
         tela = Image.new('RGBA', (CW, CH), (0, 0, 0, 0))
         tela.paste(quadro, (ox, oy), quadro)
+        if not bolha and cfg.get('luz', True):
+            tela = Image.fromarray(ilumina(np.asarray(tela).astype(np.float32)).astype(np.uint8))
         if bolha:
             pess = np.asarray(tela).astype(np.float32)
             pess[..., 3] *= disco                                   # recorta o desenho no círculo

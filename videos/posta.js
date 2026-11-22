@@ -50,7 +50,8 @@ async function principal() {
   const campos = ['media_type=REELS', 'upload_type=resumable', 'caption=' + legenda, 'share_to_feed=true'];
   // na edição "show" o vídeo abre com uma capa (título grande): ela vira a capa do Reel
   const fLicao = path.join(BASE, 'licoes', nome + '.txt');
-  const show = fs.existsSync(fLicao) && /^edicao:\s*show/m.test(fs.readFileSync(fLicao, 'utf8'));
+  const txtLicao = fs.existsSync(fLicao) ? fs.readFileSync(fLicao, 'utf8') : '';
+  const show = /^edicao:\s*show/m.test(txtLicao) || /^avatar:\s*reel/m.test(txtLicao);   // os dois abrem com a capa
   const capa = show ? 250 : cfg.capa_ms;
   if (capa != null) campos.push('thumb_offset=' + capa);
   const c = curl(['-X', 'POST', API + cfg.conta + '/media', '-H', AUT].concat(...campos.map(x => ['--form-string', x])));

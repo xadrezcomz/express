@@ -179,3 +179,18 @@
    o lado do rosto, no lugar do balão de fala */
 .palco3d.reel-avatar .tela .t-meio{top:420px;bottom:800px}
 .palco3d.reel-avatar .nota{top:1250px;left:665px}
+
+/* Reels com o avatar: a legenda maior, com a setinha para a boca; as laterais escurecem (o
+   tabuleiro que passa da borda some); o lance escrito maior, ao lado do rosto; e a capa com a
+   frase-gancho no alto (o professor fica embaixo, por cima dela) */
+.palco3d.reel-avatar .legenda3d{font-size:54px;gap:6px 8px;line-height:1.12}
+.palco3d.reel-avatar .legenda3d::before{content:"";position:absolute;left:-23px;top:118px;border:14px solid transparent;
+  border-right:20px solid rgba(255,211,107,.7);border-left:0}
+.palco3d.reel-avatar .sombra-pe{top:0;bottom:0;height:auto;
+  background:linear-gradient(0deg,#070417 0%,#070417 25%,rgba(7,4,23,.85) 37%,rgba(7,4,23,0) 52%),
+             linear-gradient(90deg,#070417 0%,rgba(7,4,23,0) 120px,rgba(7,4,23,0) 900px,#070417 1080px)}
+.palco3d.reel-avatar .nota{top:1236px;left:670px;font-size:72px}
+.palco3d.reel-avatar .capa{justify-content:flex-start;padding-top:300px;gap:26px}
+.palco3d.reel-avatar .capa-logo{display:none}
+.palco3d.reel-avatar .capa-titulo{font-size:104px;padding:0 90px 0 80px}
+.palco3d.reel-avatar .capa-titulo.longa{font-size:84px}

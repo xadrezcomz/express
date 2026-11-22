@@ -144,6 +144,7 @@ async function geraVideo(arquivoLicao, op) {
   }
   const roteiro = L.roteiro(licao, tempos, durAudio);
   if (op.estilo) roteiro.estilo = op.estilo;
+  if (roteiro.avatar === 'reel') poeChamadaFinal(roteiro, nome);
   const duracao = roteiro.duracao + SOBRA;
   fs.mkdirSync(PASTA.prontos, { recursive: true });
 
@@ -266,10 +267,27 @@ function linhaDoAvatar(roteiro, poses) {
   });
   return linha;
 }
+// Nos Reels com o avatar, o vídeo termina com uma chamada no balão de fala (salvar, mandar para um
+// amigo, comentar), com o professor fazendo joinha: dá um motivo para compartilhar e um fim claro.
+const CHAMADAS = ['Salve este vídeo para não esquecer!', 'Manda para um amigo que joga xadrez!',
+  'Você já sabia disso? Comenta aí!', 'Salve e treine na sua próxima partida!'];
+function poeChamadaFinal(roteiro, nome) {
+  let h = 0; for (const ch of nome) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const texto = CHAMADAS[h % CHAMADAS.length].split(' ');
+  const ult = roteiro.legendas[roteiro.legendas.length - 1];
+  const ini = Math.max(roteiro.duracao - 0.2, ult ? ult.fim + 0.25 : 0);
+  const pal = texto.map((t, k) => ({ texto: t, ini: ini + k * 0.08, fim: ini + k * 0.08 + 0.08, destaque: false }));
+  if (ult) ult.some = Math.min(ult.some, ini);
+  roteiro.legendas.push({ ini: ini, fim: pal[pal.length - 1].fim, some: ini + 2.4, palavras: pal, letras: 99, chamada: true });
+  roteiro.ctaT = ini;
+  roteiro.duracao = ini + 2.2;
+}
 // o avatar de uma pose só (avatar/avatar.json): os gestos e reações entram por pouco tempo,
 // por cima da pose base, e a cabeça acena nas palavras em *destaque*
 function linhaDoAvatar2(roteiro, av) {
-  const tem = n => (av.gestos && av.gestos[n]) || (av.reacoes && av.reacoes[n]) || n === 'pensa';
+  const reel = roteiro.avatar === 'reel';
+  // nos Reels, a mão do dedo e a da explicação caem fora da tela ou sob a legenda do app: só o rosto
+  const tem = n => !(reel && (n === 'dedo' || n === 'explica')) && ((av.gestos && av.gestos[n]) || (av.reacoes && av.reacoes[n]) || n === 'pensa');
   const linha = [];                        // [t, nome, duração, prioridade]
   let ultimoGesto = -9, perguntas = 0;
   roteiro.legendas.forEach((b, k) => {
@@ -303,9 +321,23 @@ function linhaDoAvatar2(roteiro, av) {
     }
     fim.push(g);
   });
+  if (roteiro.ctaT != null && tem('joinha')) {
+    while (fim.length && fim[fim.length - 1][0] + fim[fim.length - 1][2] > roteiro.ctaT) {
+      const u = fim[fim.length - 1]; if (u[0] < roteiro.ctaT - 0.6) { u[2] = roteiro.ctaT - u[0]; break; } fim.pop();
+    }
+    fim.push([roteiro.ctaT, 'joinha', 2.1, 3]);
+  }
   const acenos = [];
   roteiro.legendas.forEach(b => b.palavras.forEach(p => { if (p.destaque) acenos.push(p.ini); }));
-  return { linha: fim.map(g => g.slice(0, 3)), acenos: acenos.filter((t, i) => !i || t - acenos[i - 1] > 0.8) };
+  // o professor olha para o tabuleiro quando um lance, uma seta ou uma marca aparece
+  const olhares = [];
+  roteiro.eventos.forEach(e => {
+    if (!['lance', 'seta', 'marca'].includes(e.tipo)) return;
+    const u = olhares[olhares.length - 1];
+    if (u && e.t - 0.2 < u[0] + u[1] + 0.4) u[1] = Math.min(2.6, e.t + 1.2 - u[0]); else olhares.push([Math.max(0, e.t - 0.2), 1.3]);
+  });
+  return { linha: fim.map(g => g.slice(0, 3)), acenos: acenos.filter((t, i) => !i || t - acenos[i - 1] > 0.8),
+    olhares: olhares.filter(o => !fim.some(g => (g[1] === 'comemora' || g[1] === 'surpreso') && o[0] < g[0] + g[2] && g[0] < o[0] + o[1])) };
 }
 // "avatar: reel": nos Reels, o canto de baixo fica sob o nome do perfil e a legenda do Instagram.
 // Então o avatar vira uma bolha redonda dentro da zona segura e só aparece quando não tampa a

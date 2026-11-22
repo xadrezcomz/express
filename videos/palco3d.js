@@ -867,9 +867,16 @@ async function prepara(roteiro) {
     document.getElementById('hudNome').textContent = 'Xadrez Express' + (R.serie ? ' · ' + R.serie : R.numero ? ' · Lição ' + String(R.numero).padStart(2, '0') : '');
     R.totalNotas = R.eventos.filter(ev => ev.tipo === 'nota').length;
     document.getElementById('capaSerie').textContent = R.serie || (R.numero ? 'Lição ' + String(R.numero).padStart(2, '0') : 'Xadrez Express');
-    document.getElementById('capaTitulo').textContent = R.titulo;
+    document.getElementById('capaTitulo').textContent = R.gancho || R.titulo;
   }
-  if (R.avatar === 'reel') document.getElementById('palco').classList.add('reel-avatar');
+  if (R.avatar === 'reel') {
+    // nos Reels com o avatar, também abre com a capa: a frase-gancho grande (ou o título)
+    document.getElementById('palco').classList.add('reel-avatar');
+    document.getElementById('capaSerie').textContent = R.serie || (R.numero ? 'Lição ' + String(R.numero).padStart(2, '0') : 'Xadrez Express');
+    const ct = document.getElementById('capaTitulo');
+    ct.textContent = R.gancho || R.titulo;
+    ct.classList.toggle('longa', (R.gancho || R.titulo).length > 22);
+  }
   elLegenda.hidden = !R.legenda;
   await document.fonts.load('700 84px "Chakra Petch"');
   await document.fonts.ready;
@@ -927,12 +934,13 @@ function quadro(t) {
   const e = estado(t);
   if (e.faixa) e.faixa.y = lugarDaFaixa(e);
   const a3d = JSON.stringify([e.cam, e.pecas, e.veio, e.foi, e.marcas, e.setas, e.brilho, e.expl, e.mao, e.etq]);
-  if (R.edicao === 'show' && t < DUR_CAPA) e.capa = { o: n3(Math.min(1, (DUR_CAPA - t) / 0.18)) };
+  if ((R.edicao === 'show' || R.avatar === 'reel') && t < DUR_CAPA) e.capa = { o: n3(Math.min(1, (DUR_CAPA - t) / 0.18)) };
   const aHtml = JSON.stringify([e.leg, e.faixa, e.cartaz, e.man, e.nota, e.flash, e.treme, e.tela, e.capa]);
   const muda3d = a3d !== ultima3d && !(e.cartaz && e.cartaz.o >= 1) && !(e.tela && e.tela.o >= 1);
   if (!muda3d && aHtml === ultimaHtml) return false;
   if (muda3d) { ultima3d = a3d; desenha3d(e); }
-  if (aHtml !== ultimaHtml) { ultimaHtml = aHtml; desenhaHtml(e); if (R.edicao === 'show') desenhaShow(e); }
+  if (aHtml !== ultimaHtml) { ultimaHtml = aHtml; desenhaHtml(e); if (R.edicao === 'show') desenhaShow(e);
+    else if (R.avatar === 'reel') { const c = document.getElementById('capa'); c.hidden = !e.capa; if (e.capa) c.style.opacity = e.capa.o; } }
   // espera o navegador pôr o quadro novo na tela antes da foto
   return new Promise(r => requestAnimationFrame(() => r(true)));
 }

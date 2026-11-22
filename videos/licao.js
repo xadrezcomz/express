@@ -159,7 +159,7 @@ function le(texto, nomeArquivo) {
     if (l === '' && !Object.keys(cab).length) continue;
     if (/^-{3,}$/.test(l)) { i++; break; }
     const m = l.match(/^([A-Za-zÀ-ÿ]+)\s*:\s*(.*)$/);
-    if (!m || !/^(licao|titulo|posicao|pecas|lado|legenda|voz|estilo|edicao|musica|serie|avatar)$/.test(chave(m[1]))) break;
+    if (!m || !/^(licao|titulo|posicao|pecas|lado|legenda|voz|estilo|edicao|musica|serie|avatar|gancho)$/.test(chave(m[1]))) break;
     cab[chave(m[1])] = m[2].trim();
   }
   const onde = nomeArquivo || 'lição';
@@ -199,7 +199,7 @@ function le(texto, nomeArquivo) {
     pretasEmbaixo: /^pret/.test(chave(cab.lado || '')),
     estilo: chave(cab.estilo || '') === '3d' ? '3d' : '2d',
     legenda: !/^(nao|n|off|0)$/.test(chave(cab.legenda || 'sim')),
-    edicao: chave(cab.edicao || ''), musica: chave(cab.musica || ''), serie: cab.serie || '',
+    edicao: chave(cab.edicao || ''), musica: chave(cab.musica || ''), serie: cab.serie || '', gancho: cab.gancho || '',
     avatar: chave(cab.avatar || '') === 'reel' ? 'reel' : (!!cab.avatar && !/^(nao|n|off|0)$/.test(chave(cab.avatar))),
     casas: casas, palavras: palavras, ordens: ordens,
     fala: palavras.map(p => p.voz || p.texto).join(' ')
@@ -365,7 +365,7 @@ function roteiro(licao, tempos, duracao) {
   const fim = Math.max(fimDaFala, ultimo, efeitos, duracao || 0);
   return {
     numero: licao.numero, titulo: licao.titulo, pretasEmbaixo: licao.pretasEmbaixo, estilo: licao.estilo,
-    legenda: licao.legenda, edicao: licao.edicao, musica: licao.musica, serie: licao.serie, avatar: licao.avatar, inicial: inicial, eventos: eventos, legendas: legendas,
+    legenda: licao.legenda, edicao: licao.edicao, musica: licao.musica, serie: licao.serie, gancho: licao.gancho, avatar: licao.avatar, inicial: inicial, eventos: eventos, legendas: legendas,
     durLance: DUR_LANCE, duracao: fim, visoes: visoes
   };
 }
