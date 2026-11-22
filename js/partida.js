@@ -34,7 +34,7 @@
       grade.appendChild(c); casas.push(c);
     }
   }
-  function poe(el, i) { el.style.left = (i % 8) * 12.5 + '%'; el.style.top = Math.floor(i / 8) * 12.5 + '%'; }
+  function poe(el, i) { el.style.transform = 'translate(' + (i % 8) * 100 + '%,' + Math.floor(i / 8) * 100 + '%)'; }
   function criaPeca(i, p) {
     var el = document.createElement('div'), branca = p === p.toUpperCase();
     el.className = 'p3-peca ' + (branca ? 'branca' : 'preta');
@@ -202,6 +202,7 @@
     // ...e só toca enquanto o tabuleiro está na tela
     new IntersectionObserver(function (es) {
       naTela = es[0].isIntersecting;
+      secao.classList.toggle('na-tela', naTela);
       if (!G) return;
       if (naTela && !pausouNaMao && !tocando && atual < lances.length && !CALMO) toca();
       else if (!naTela && tocando) pausa();

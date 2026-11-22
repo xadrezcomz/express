@@ -238,8 +238,8 @@ button{font:inherit;color:inherit}
 .arte-video{display:flex;align-items:center;gap:10px;width:min(78%,260px);font-style:normal}
 .arte-play{flex:none;width:0;height:0;border:8px solid transparent;border-left:13px solid #fff;border-right:0}
 .arte-linha{flex:1;height:7px;border-radius:99px;background:rgba(255,255,255,.2);overflow:hidden}
-.arte-linha i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--c),#fff);animation:arte-anda 3.2s linear infinite}
-@keyframes arte-anda{from{width:0}85%,100%{width:100%}}
+.arte-linha i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--c),#fff);transform-origin:left;animation:arte-anda 3.2s linear infinite}
+@keyframes arte-anda{from{transform:scaleX(0)}85%,100%{transform:scaleX(1)}}
 .arte-video em{font-family:var(--titulo);font-weight:700;font-size:1rem;font-style:normal;color:#fff;font-variant-numeric:tabular-nums}
 
 /* 2: o peão do começo, com ondas saindo dele */
@@ -415,8 +415,8 @@ button{font:inherit;color:inherit}
 @keyframes p3-risca{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
 .p3-pecas{position:absolute;inset:0;transform-style:preserve-3d}
 /* cada peça ocupa a sua casa; o desenho fica em pé, de frente para a câmera */
-.p3-peca{position:absolute;width:12.5%;height:12.5%;transform-style:preserve-3d;
-  transition:left .45s cubic-bezier(.3,.8,.3,1),top .45s cubic-bezier(.3,.8,.3,1),opacity .35s ease}
+.p3-peca{position:absolute;left:0;top:0;width:12.5%;height:12.5%;transform-style:preserve-3d;
+  transition:transform .45s cubic-bezier(.3,.8,.3,1),opacity .35s ease}
 .p3-peca span{
   position:absolute;left:-6%;right:-6%;bottom:42%;height:112%;
   background:center bottom/contain no-repeat;
@@ -424,7 +424,7 @@ button{font:inherit;color:inherit}
   transform:rotateZ(calc(-1 * var(--gira))) rotateX(calc(-1 * var(--inclina)));
 }
 .p3-peca.branca span{filter:drop-shadow(0 0 5px rgba(255,255,255,.6))}
-.p3-peca.preta span{filter:drop-shadow(0 0 1px #2ee6ff) drop-shadow(0 0 1px #2ee6ff) drop-shadow(0 0 4px rgba(46,230,255,.8))}
+.p3-peca.preta span{filter:drop-shadow(0 0 1.5px #2ee6ff) drop-shadow(0 0 4px rgba(46,230,255,.8))}
 .p3-peca.pula span{animation:p3-pula .45s ease-out}
 @keyframes p3-pula{40%{bottom:95%}}
 .p3-peca.capturada{opacity:0}
@@ -661,7 +661,7 @@ button{font:inherit;color:inherit}
 body.sem-rolar{overflow:hidden}
 
 /* ------------------------------------------------------------- quem ensina */
-.professor{background:linear-gradient(180deg,var(--fundo2),var(--fundo))}
+.professor{background:linear-gradient(180deg,var(--fundo2),var(--fundo));padding-top:clamp(16px,4vw,48px)}
 .prof-miolo{display:grid;gap:20px;justify-items:center;text-align:center}
 .prof-foto{width:min(62vw,260px);height:auto;filter:drop-shadow(0 18px 30px rgba(0,0,0,.5)) drop-shadow(0 0 40px rgba(160,107,255,.35))}
 .prof-texto{display:flex;flex-direction:column;align-items:center;gap:10px}
@@ -753,3 +753,18 @@ body.tem-barra .rodape{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
   .aula-play::before{left:28px;top:22px;border-width:14px;border-left-width:21px}
   .aula > b{font-size:1.125rem}
 }
+
+/* a câmera do tabuleiro só se mexe enquanto ele está na tela */
+.partida:not(.na-tela) .p3-plano{animation-play-state:paused}
+/* no celular: tabuleiro parado e brilho mais leve; cartão do curso sem inclinar com o dedo */
+@media (max-width:799px),(hover:none){
+  .p3-plano{animation:none}
+  .p3-peca.branca span{filter:drop-shadow(0 0 3px rgba(255,255,255,.55))}
+  .p3-peca.preta span{filter:drop-shadow(0 0 2px #2ee6ff)}
+  .p3-casas{box-shadow:0 0 30px rgba(0,0,0,.7)}
+  .curso-palco{perspective:none}
+  .curso-cartao{transform:none;transform-style:flat;transition:none}
+  .curso-brilho{display:none}
+}
+/* animação de enfeite só roda na seção que está na tela */
+.fora *,.fora *::before,.fora *::after{animation-play-state:paused !important}
