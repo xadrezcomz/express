@@ -325,6 +325,8 @@
     if (e.promo && l.promo !== e.promo) return false;
     return e.captura || e.enPassant ? !!(l.captura || l.enPassant) : l.peca === e.peca;
   }
+  // A peça da pergunta ("onde o rei branco pode ir?") fica marcada, e a faixa diz de quem é a vez.
+  function corDaOrigem(f, origem) { var p = X.deFEN(fen(f)).casas[X.casaParaIndice(origem)]; return p && p === p.toUpperCase() ? 'w' : 'b'; }
   function vez(cor) { return '<i class="bolinha' + (cor === 'b' ? ' pretas' : '') + '"></i>' + (cor === 'b' ? 'Pretas jogam' : 'Brancas jogam'); }
   function selo(moldura) {
     var s = el('div', 'tab-certo', '✓');
@@ -337,7 +339,7 @@
     var passos = ctx.L.teoria, salvo = daLicao(ctx.slug, ctx.id);
     var i = salvo.teoria ? 0 : Math.min(salvo.passo || 0, passos.length - 1);
     var P = palco(ctx), T = P.tabuleiro, prof = professor(), feitos = {}, errosNoPasso = 0, vezDoPasso = 0;
-    var contador = el('p', 'passo-contador'), barra = el('div', 'passo-barra', '<i></i>');
+    var contador = el('p', 'passo-contador'), barra = el('div', 'passo-barra', '<i></i>'), quemJoga = el('p', 'ex-vez passo-vez');
     var nav = el('div', 'passo-nav');
     var antes = botao('‹', 'botao-vidro passo-volta', function () { mostra(i - 1); });
     antes.setAttribute('aria-label', 'Passo anterior');
@@ -347,7 +349,7 @@
       else { anota(ctx.slug, ctx.id, { teoria: true, passo: 0 }); location.hash = ctx.base + '/exercicios'; }
     });
     nav.appendChild(antes); nav.appendChild(segue);
-    P.lado.appendChild(contador); P.lado.appendChild(barra); P.lado.appendChild(prof.el); P.lado.appendChild(nav);
+    P.lado.appendChild(contador); P.lado.appendChild(barra); P.lado.appendChild(quemJoga); P.lado.appendChild(prof.el); P.lado.appendChild(nav);
 
     function libera(sim) { segue.disabled = !sim; segue.classList.toggle('pulsa', sim && passos[i].interativo && feitos[i]); }
     function mostra(k) {
@@ -376,6 +378,7 @@
         depois(function () { if (meu === vezDoPasso) T.joga(lances.shift(), anima); }, 650);
       })();
       var it = passo.interativo;
+      quemJoga.innerHTML = it && it.lance ? vez(T.estado().vez) : '';
       libera(!it || feitos[i]);
       if (!it) return;
       function acertou() {
@@ -481,8 +484,9 @@
         return;
       }
       if (item.tipo === 'casa') {
-        quem.innerHTML = '';
+        quem.innerHTML = item.origem ? vez(corDaOrigem(item.fen, item.origem)) : '';
         T.posicao(fen(item.fen), item.lado || 'w');
+        if (item.origem) T.marcaCasas('origem', [item.origem]);
         prof.fala(item.origem ? 'Toque na casa certa, ou arraste a peça até lá.' : (j === 0 ? 'Bora! Toque na casa certa.' : 'Próximo. Toque na casa certa.'), 'curioso');
         T.modo('casa', { aoTocar: tocou, origem: item.origem });
         return;
@@ -657,7 +661,9 @@
       P.lado.appendChild(faixa); P.lado.appendChild(prof.el); P.lado.appendChild(segue);
       mostraTabuleiro(P);
       if (q.tipo === 'casa') {
+        if (q.origem) quem.innerHTML = vez(corDaOrigem(q.fen, q.origem));
         T.posicao(fen(q.fen), q.lado || 'w');
+        if (q.origem) T.marcaCasas('origem', [q.origem]);
         prof.fala('Sem dica agora: uma tentativa só. Capricha!', 'curioso');
         T.modo('casa', { origem: q.origem, aoTocar: function (c) {
           T.modo('nenhum');

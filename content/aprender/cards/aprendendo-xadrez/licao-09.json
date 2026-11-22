@@ -16,12 +16,12 @@
       ]
     },
     {
-      "fen": "7k/8/8/3qk3/3rn3/8/8/K7 w - - 0 1",
+      "fen": "8/8/8/3qk3/3rn3/8/8/K7 w - - 0 1",
       "texto": "Pergunta rápida: entre **dama, rei, torre e cavalo**, uma dessas peças nunca pode ser capturada. Qual?",
       "pose": "curioso"
     },
     {
-      "fen": "7k/8/8/3qk3/3rn3/8/8/K7 w - - 0 1",
+      "fen": "8/8/8/3qk3/3rn3/8/8/K7 w - - 0 1",
       "texto": "É o **rei**! Ele nunca é capturado, e nem pode ir para uma casa atacada. A vitória vem com o **xeque-mate**: o rei atacado, sem salvação.",
       "pose": "atencao",
       "destaques": [
@@ -33,7 +33,7 @@
     },
     {
       "fen": "7k/8/8/3p4/8/8/3Q4/7K w - - 0 1",
-      "texto": "Para capturar, basta levar a sua peça até a casa da peça inimiga. Capture o peão em ==d5==.",
+      "texto": "Para capturar, basta levar a sua peça até a casa da peça inimiga. Com a dama branca, capture o peão preto em ==d5==.",
       "pose": "curioso",
       "interativo": {
         "lance": "d2d5",
@@ -54,7 +54,7 @@
     },
     {
       "fen": "7k/8/8/3q4/3Pp3/4N3/8/7K w - - 0 1",
-      "texto": "O **cavalo**! Ele pula, mas não captura quem fica no caminho. Capture a dama em ==d5==.",
+      "texto": "O **cavalo**! Ele pula, mas não captura quem fica no caminho. Com o cavalo branco, capture a dama preta em ==d5==.",
       "pose": "surpreso",
       "interativo": {
         "lance": "e3d5",
@@ -68,7 +68,7 @@
     },
     {
       "fen": "7k/8/8/8/3p4/2P5/8/7K w - - 0 1",
-      "texto": "O **peão**! Ele anda reto para frente, mas captura na **diagonal**. Capture o peão preto.",
+      "texto": "O **peão**! Ele anda reto para frente, mas captura na **diagonal**. Com o peão branco, capture o peão preto.",
       "pose": "explicando",
       "interativo": {
         "lance": "c3d4",
@@ -94,7 +94,7 @@
       {
         "tipo": "autoral",
         "fen": "7k/8/8/8/8/2r5/1P6/7K w - - 0 1",
-        "pergunta": "Capture a torre com o peão",
+        "pergunta": "Capture a torre preta com o peão branco",
         "solucao": ["b2c3"],
         "dica": "O peão captura na diagonal."
       },
@@ -139,7 +139,7 @@
     {
       "tipo": "autoral",
       "fen": "7k/8/8/8/2q5/1P6/8/7K w - - 0 1",
-      "pergunta": "Capture a dama com o peão",
+      "pergunta": "Capture a dama preta com o peão branco",
       "solucao": ["b3c4"],
       "explicacao": "Diagonal, uma casa à frente."
     },

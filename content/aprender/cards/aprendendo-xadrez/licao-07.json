@@ -27,7 +27,7 @@
     },
     {
       "fen": "7k/8/8/8/8/8/4P3/7K w - - 0 1",
-      "texto": "Sua vez: avance o peão duas casas, até ==e4==.",
+      "texto": "Sua vez, com as brancas: avance o peão branco duas casas, até ==e4==.",
       "pose": "curioso",
       "interativo": {
         "lance": "e2e4",
@@ -75,7 +75,7 @@
     },
     {
       "fen": "7k/8/8/3n1r2/4P3/8/8/7K w - - 0 1",
-      "texto": "Capture a **torre**, que vale mais.",
+      "texto": "Com o peão branco, capture a **torre** preta, que vale mais.",
       "pose": "curioso",
       "interativo": {
         "lance": "e4f5",
@@ -96,7 +96,7 @@
     },
     {
       "fen": "7k/8/8/3pP3/8/8/8/7K w - d6 0 1",
-      "texto": "Capture en passant: leve o peão de ==e5== para ==d6==.",
+      "texto": "Capture en passant: leve o peão branco de ==e5== para ==d6==.",
       "pose": "curioso",
       "interativo": {
         "lance": "e5d6",
@@ -115,7 +115,7 @@
       {
         "tipo": "casa",
         "fen": "7k/8/8/8/8/8/3P4/7K w - - 0 1",
-        "pergunta": "Toque numa casa onde o peão pode ir",
+        "pergunta": "Toque numa casa onde o peão branco pode ir",
         "resposta": ["d3", "d4"],
         "dica": "É o primeiro lance dele.",
         "origem": "d2"
@@ -129,7 +129,7 @@
       },
       {
         "tipo": "multipla",
-        "pergunta": "O peão em d4 pode avançar?",
+        "pergunta": "O peão branco em d4 pode avançar?",
         "opcoes": ["Sim, para d5", "Não, está travado"],
         "correta": 1,
         "explicacao": "O peão não captura para frente.",
@@ -169,7 +169,7 @@
     {
       "tipo": "casa",
       "fen": "7k/8/8/8/8/8/6P1/7K w - - 0 1",
-      "pergunta": "Toque numa casa onde o peão pode ir",
+      "pergunta": "Toque numa casa onde o peão branco pode ir",
       "resposta": ["g3", "g4"],
       "dica": "Primeiro lance: uma ou duas casas.",
       "origem": "g2"

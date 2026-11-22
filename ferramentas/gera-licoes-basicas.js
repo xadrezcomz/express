@@ -28,7 +28,13 @@ const verde = casas => [{ casas, cor: 'verde' }];
 const mc = (pergunta, opcoes, correta, explicacao, extra) => Object.assign({ tipo: 'multipla', pergunta, opcoes, correta, explicacao }, extra || {});
 const casa = (fen, pergunta, resposta, dica, explicacao) => Object.assign({ tipo: 'casa', fen, pergunta, resposta }, dica ? { dica } : {}, explicacao ? { explicacao } : {});
 // "toque numa casa onde a peça de `origem` pode ir": a resposta são todas as casas que ela alcança
-const casaPeca = (fen, pergunta, origem, dica, explicacao) => Object.assign(casa(fen, pergunta, vai(fen, origem), dica, explicacao), { origem });
+// a cor da peça vai no texto: "o rei" vira "o rei branco", "a torre" vira "a torre preta"
+const GENERO = { rei: 'o', bispo: 'o', cavalo: 'o', 'peão': 'o', dama: 'a', torre: 'a' };
+function comCor(texto, fen, origem) {
+  const p = X.deFEN(fen).casas[X.casaParaIndice(origem)], branca = p === p.toUpperCase();
+  return texto.replace(/(rei|bispo|cavalo|peão|dama|torre)(?! (branc|pret))/, (m, nome) => nome + ' ' + (GENERO[nome] === 'o' ? (branca ? 'branco' : 'preto') : (branca ? 'branca' : 'preta')));
+}
+const casaPeca = (fen, pergunta, origem, dica, explicacao) => Object.assign(casa(fen, comCor(pergunta, fen, origem), vai(fen, origem), dica, explicacao), { origem });
 const lance = (fen, pergunta, solucao, dica, explicacao) => Object.assign({ tipo: 'autoral', fen, pergunta, solucao }, dica ? { dica } : {}, explicacao ? { explicacao } : {});
 
 const L = {};
@@ -42,9 +48,9 @@ const L = {};
       passo(T, 'Hora de conhecer as peças! Começamos pela **torre**: forte, direta e sem curvas.', { pose: 'apresentando' }),
       passo(T, 'A torre anda em **linha reta**: pelas colunas e pelas fileiras, quantas casas quiser.', { destaques: verde(vai(T, 'd4')) }),
       passo(T, 'Para cima, para baixo e para os lados. Daqui de d4 ela alcança **14 casas**.', { setas: raios(T, 'd4') }),
-      passo(T, 'Sua vez: leve a torre até a casa ==d8==.', { pose: 'curioso', interativo: { lance: 'd4d8', acerto: 'Isso! Reta para cima, sem parar no caminho.' } }),
+      passo(T, 'Sua vez, com as brancas: leve a torre branca até a casa ==d8==.', { pose: 'curioso', interativo: { lance: 'd4d8', acerto: 'Isso! Reta para cima, sem parar no caminho.' } }),
       passo(B, 'A torre **não pula** peças. O peão branco em f4 trava o caminho para a direita, e o peão preto em d6 pode ser **capturado**.', { pose: 'atencao', destaques: verde(vai(B, 'd4')) }),
-      passo(B, 'Capture o peão preto em ==d6==.', { pose: 'curioso', interativo: { lance: 'd4d6', acerto: 'Capturou! A torre ocupa a casa e o peão sai do tabuleiro.' } }),
+      passo(B, 'Agora, com a torre branca, capture o peão preto em ==d6==.', { pose: 'curioso', interativo: { lance: 'd4d6', acerto: 'Capturou! A torre ocupa a casa e o peão sai do tabuleiro.' } }),
       passo('inicial', 'No começo da partida, as torres ficam nos **cantos**: a1 e h1 para as brancas, a8 e h8 para as pretas.', { destaques: [{ casas: ['a1', 'h1', 'a8', 'h8'], cor: 'amarelo' }] }),
       passo('7k/8/8/8/8/8/7K/R7 w - - 0 1', 'Curiosidade: num tabuleiro vazio, a torre alcança sempre **14 casas**, esteja no canto ou no centro.', { pose: 'surpreso', destaques: verde(vai('7k/8/8/8/8/8/7K/R7 w - - 0 1', 'a1')) }),
       passo(T, 'Resumo: linha reta, quantas casas quiser, sem pular ninguém. Bora praticar?', { pose: 'aprovando' })
@@ -53,7 +59,7 @@ const L = {};
       casaPeca('7k/8/8/8/2R5/8/8/7K w - - 0 1', 'Toque numa casa onde a torre pode ir', 'c4', 'Olhe a coluna c e a fileira 4.'),
       lance('7k/8/8/1r6/8/8/8/1R5K w - - 0 1', 'Capture a torre preta', ['b1b5'], 'As duas torres estão na mesma coluna.'),
       casaPeca('7k/8/8/2p5/8/2R1P3/8/7K w - - 0 1', 'Toque numa casa onde a torre pode ir', 'c3', 'O peão branco trava a fileira; o preto pode ser capturado.'),
-      lance('6k1/8/8/3n4/8/8/8/R6K w - - 0 1', 'Leve a torre até a8 num lance só', ['a1a8'], 'Coluna a, de baixo até em cima.'),
+      lance('6k1/8/8/3n4/8/8/8/R6K w - - 0 1', 'Leve a torre branca até a8 num lance só', ['a1a8'], 'Coluna a, de baixo até em cima.'),
       lance('7k/8/8/8/1n2R3/8/8/7K w - - 0 1', 'Capture o cavalo preto', ['e4b4'], 'O cavalo está na mesma fileira da torre.')
     ] },
     avaliacao: [
@@ -75,17 +81,17 @@ const L = {};
       passo(T, 'Agora é a vez do **bispo**, o dono das diagonais.', { pose: 'apresentando' }),
       passo(T, 'O bispo anda na **diagonal**, quantas casas quiser.', { destaques: verde(vai(T, 'd4')) }),
       passo(T, 'São quatro direções inclinadas, como um X. Daqui de d4 ele alcança 13 casas.', { setas: raios(T, 'd4') }),
-      passo(T, 'Sua vez: leve o bispo até ==a7==.', { pose: 'curioso', interativo: { lance: 'd4a7', acerto: 'Isso! Diagonal certinha.' } }),
+      passo(T, 'Sua vez, com as brancas: leve o bispo branco até ==a7==.', { pose: 'curioso', interativo: { lance: 'd4a7', acerto: 'Isso! Diagonal certinha.' } }),
       passo(T, 'Repare: o bispo em d4 só pisa em casas **escuras**. Ele nunca muda de cor, a partida inteira.', { pose: 'atencao', destaques: verde(vai(T, 'd4')) }),
       passo('inicial', 'Por isso cada lado tem dois bispos: um das casas **claras** e um das casas **escuras**. Eles começam ao lado do rei e da dama.', { destaques: [{ casas: ['c1', 'f1', 'c8', 'f8'], cor: 'amarelo' }] }),
       passo(B, 'Como a torre, o bispo **não pula**. O peão branco em e3 trava uma diagonal, e o peão preto em b6 pode ser capturado.', { pose: 'atencao', destaques: verde(vai(B, 'd4')) }),
-      passo(B, 'Capture o peão preto em ==b6==.', { pose: 'curioso', interativo: { lance: 'd4b6', acerto: 'Capturou! Na diagonal, sem pular ninguém.' } }),
+      passo(B, 'Agora, com o bispo branco, capture o peão preto em ==b6==.', { pose: 'curioso', interativo: { lance: 'd4b6', acerto: 'Capturou! Na diagonal, sem pular ninguém.' } }),
       passo(T, 'Resumo: diagonal, quantas casas quiser, sempre na mesma cor. Bora praticar?', { pose: 'aprovando' })
     ],
     exercicios: { instrucao: 'Movimento do bispo', itens: [
       casaPeca('7k/8/8/8/4B3/8/8/7K w - - 0 1', 'Toque numa casa onde o bispo pode ir', 'e4', 'Pense em um X saindo do bispo.'),
       lance('7k/8/8/5r2/8/8/8/1B5K w - - 0 1', 'Capture a torre preta', ['b1f5'], 'Siga a diagonal que sobe para a direita.'),
-      mc('O bispo em e4 está numa casa clara. Ele pode chegar em uma casa escura?', ['Sim', 'Não', 'Só capturando', 'Só no fim da partida'], 1, 'O bispo nunca troca de cor.', { fen: '7k/8/8/8/4B3/8/8/7K w - - 0 1' }),
+      mc('O bispo branco em e4 está numa casa clara. Ele pode chegar em uma casa escura?', ['Sim', 'Não', 'Só capturando', 'Só no fim da partida'], 1, 'O bispo nunca troca de cor.', { fen: '7k/8/8/8/4B3/8/8/7K w - - 0 1' }),
       casaPeca('7k/8/5p2/8/3B4/2P5/8/7K w - - 0 1', 'Toque numa casa onde o bispo pode ir', 'd4', 'O peão branco atrapalha; o preto pode ser capturado.'),
       lance('6k1/8/8/8/8/8/1q6/B6K w - - 0 1', 'Capture a dama preta', ['a1b2'], 'Ela está logo ali, na diagonal.')
     ] },
@@ -107,8 +113,8 @@ const L = {};
       passo(T, 'Chegou a peça mais poderosa: a **dama**.', { pose: 'apresentando' }),
       passo(T, 'O segredo é simples: a dama anda como a **torre** e como o **bispo** juntos. Linha reta ou diagonal, quantas casas quiser.', { destaques: verde(vai(T, 'd4')) }),
       passo(T, 'São oito direções. Do centro, ela alcança **27 casas**!', { pose: 'surpreso', setas: raios(T, 'd4') }),
-      passo(T, 'Sua vez: leve a dama até ==g7==, na diagonal.', { pose: 'curioso', interativo: { lance: 'd4g7', acerto: 'Isso! Diagonal, como um bispo.' } }),
-      passo(T, 'Agora até ==a4==, em linha reta.', { pose: 'curioso', interativo: { lance: 'd4a4', acerto: 'Perfeito! Reta, como uma torre.' } }),
+      passo(T, 'Sua vez, com as brancas: leve a dama branca até ==g7==, na diagonal.', { pose: 'curioso', interativo: { lance: 'd4g7', acerto: 'Isso! Diagonal, como um bispo.' } }),
+      passo(T, 'Agora leve a dama branca até ==a4==, em linha reta.', { pose: 'curioso', interativo: { lance: 'd4a4', acerto: 'Perfeito! Reta, como uma torre.' } }),
       passo('7k/8/1p6/8/3Q1P2/8/8/7K w - - 0 1', 'Ela também **não pula** ninguém, e captura do mesmo jeito que anda.', { pose: 'atencao', destaques: verde(vai('7k/8/1p6/8/3Q1P2/8/8/7K w - - 0 1', 'd4')) }),
       passo('inicial', 'Na posição inicial, lembra da regra? **Dama na sua cor**: a branca em d1, numa casa clara, e a preta em d8, numa casa escura.', { pose: 'atencao', destaques: [{ casas: ['d1', 'd8'], cor: 'amarelo' }] }),
       passo(T, 'Por ser tão forte, a dama vale muito. Cuidado para não perdê-la cedo! Bora praticar?', { pose: 'aprovando' })
@@ -145,7 +151,7 @@ const L = {};
     teoria: [
       passo(T, 'Agora a peça mais importante de todas: o **rei**.', { pose: 'apresentando' }),
       passo(T, 'O rei anda **uma casa** em qualquer direção: para frente, para trás, para os lados e na diagonal.', { destaques: verde(vai(T, 'd4')) }),
-      passo(T, 'Sua vez: leve o rei até ==e5==.', { pose: 'curioso', interativo: { lance: 'd4e5', acerto: 'Isso! Uma casinha, na diagonal.' } }),
+      passo(T, 'Sua vez, com as brancas: leve o rei branco até ==e5==.', { pose: 'curioso', interativo: { lance: 'd4e5', acerto: 'Isso! Uma casinha, na diagonal.' } }),
       passo('8/8/8/8/3K4/8/8/4r2k w - - 0 1', 'Regra de ouro: o rei **nunca** pode ir para uma casa atacada. A torre preta ataca toda a coluna e, então e3, e4 e e5 estão proibidas.', { pose: 'atencao', destaques: [{ casas: vai('8/8/8/8/3K4/8/8/4r2k w - - 0 1', 'd4'), cor: 'verde' }, { casas: ['e3', 'e4', 'e5'], cor: 'vermelho' }] }),
       passo('8/8/8/3k4/8/3K4/8/8 w - - 0 1', 'Por isso, os dois reis nunca ficam lado a lado: sempre sobra pelo menos **uma casa** entre eles.', { pose: 'atencao', destaques: [{ casas: ['c4', 'd4', 'e4'], cor: 'vermelho' }] }),
       passo('inicial', 'No começo, o rei branco fica em ==e1== e o preto em ==e8==, ao lado da dama.', { destaques: [{ casas: ['e1', 'e8'], cor: 'amarelo' }] }),
@@ -155,15 +161,15 @@ const L = {};
     exercicios: { instrucao: 'Movimento do rei', itens: [
       casaPeca('8/8/8/8/2K5/8/8/7k w - - 0 1', 'Toque numa casa onde o rei pode ir', 'c4', 'Só uma casinha, para qualquer lado.'),
       lance('7k/8/8/8/8/2p5/2K5/8 w - - 0 1', 'Capture o peão preto com o rei', ['c2c3'], 'Ele está colado no rei.'),
-      casaPeca('8/8/8/4r3/2K5/8/8/7k w - - 0 1', 'Toque numa casa segura para o rei', 'c4', 'A torre preta ataca a coluna e e a fileira 5.'),
-      mc('O rei em d3 pode ir para d4?', ['Sim', 'Não, porque o rei preto vigia d4'], 1, 'Os reis nunca ficam lado a lado.', { fen: '8/8/8/3k4/8/3K4/8/8 w - - 0 1' }),
-      lance('7k/8/8/8/8/8/1q6/K7 w - - 0 1', 'O rei pode capturar a dama? Faça isso!', ['a1b2'], 'A dama está sem proteção, colada no rei.')
+      casaPeca('8/8/8/4r3/2K5/8/8/7k w - - 0 1', 'Toque numa casa segura para o rei branco', 'c4', 'A torre preta ataca a coluna e e a fileira 5.'),
+      mc('O rei branco em d3 pode ir para d4?', ['Sim', 'Não, porque o rei preto vigia d4'], 1, 'Os reis nunca ficam lado a lado.', { fen: '8/8/8/3k4/8/3K4/8/8 w - - 0 1' }),
+      lance('7k/8/8/8/8/8/1q6/K7 w - - 0 1', 'O rei branco pode capturar a dama preta? Faça isso!', ['a1b2'], 'A dama está sem proteção, colada no rei.')
     ] },
     avaliacao: [
       mc('Como o rei se move?', ['Uma casa em qualquer direção', 'Em L', 'Na diagonal, quantas casas quiser', 'Só para frente'], 0, 'Uma casinha, para qualquer lado.'),
       casaPeca('8/8/8/5K2/8/8/8/k7 w - - 0 1', 'Toque numa casa onde o rei pode ir', 'f5', 'As oito casas em volta.'),
       mc('O rei pode ir para uma casa atacada?', ['Sim', 'Não', 'Só se capturar', 'Só no começo'], 1, 'Nunca. Esse lance não é permitido.'),
-      casaPeca('8/8/8/8/3K4/8/8/6rk w - - 0 1', 'Toque numa casa segura para o rei', 'd4', 'A torre preta só ataca a coluna g e a fileira 1.'),
+      casaPeca('8/8/8/8/3K4/8/8/6rk w - - 0 1', 'Toque numa casa segura para o rei branco', 'd4', 'A torre preta só ataca a coluna g e a fileira 1.'),
       mc('Onde começa o rei branco?', ['d1', 'e1', 'e8', 'f1'], 1, 'Em e1, ao lado da dama.'),
       mc('O que acontece quando o rei é atacado e não tem saída?', ['Ele é capturado', 'É xeque-mate e a partida acaba', 'Ele volta para e1', 'Nada'], 1, 'O rei nunca é capturado: é xeque-mate.')
     ] };
@@ -178,9 +184,9 @@ const L = {};
       passo(T, 'Agora a peça mais curiosa do tabuleiro: o **cavalo**.', { pose: 'apresentando' }),
       passo(T, 'Ele anda em **L**: duas casas numa direção e mais uma para o lado.', { destaques: verde(vai(T, 'd4')) }),
       passo(T, 'Do centro, o cavalo alcança **8 casas**. Por exemplo, um L de d4 até e6: duas casas para cima e uma para o lado.', { setas: [{ de: 'd4', para: 'e6', cor: 'azul' }], destaques: verde(vai(T, 'd4')) }),
-      passo(T, 'Sua vez: leve o cavalo até ==f5==.', { pose: 'curioso', interativo: { lance: 'd4f5', acerto: 'Isso! Duas para o lado e uma para cima.' } }),
+      passo(T, 'Sua vez, com as brancas: leve o cavalo branco até ==f5==.', { pose: 'curioso', interativo: { lance: 'd4f5', acerto: 'Isso! Duas para o lado e uma para cima.' } }),
       passo(J, 'E a grande surpresa: o cavalo é a **única peça que pula** as outras. Mesmo cercado, ele escapa!', { pose: 'surpreso', destaques: verde(vai(J, 'd4')) }),
-      passo(J, 'Pule por cima dos peões até ==e6==.', { pose: 'curioso', interativo: { lance: 'd4e6', acerto: 'Pulou! E repare: ele não captura quem fica no caminho.' } }),
+      passo(J, 'Com o cavalo branco, pule por cima dos peões até ==e6==.', { pose: 'curioso', interativo: { lance: 'd4e6', acerto: 'Pulou! E repare: ele não captura quem fica no caminho.' } }),
       passo(T, 'Um detalhe: a cada salto o cavalo **troca de cor**. Saiu de uma casa escura, cai numa clara, e vice-versa.', { pose: 'atencao', destaques: verde(vai(T, 'd4')) }),
       passo('7k/8/8/8/8/8/8/N6K w - - 0 1', 'No canto, ele fica fraco: só **2 casas**. Cavalo gosta do centro!', { pose: 'pensativo', destaques: verde(vai('7k/8/8/8/8/8/8/N6K w - - 0 1', 'a1')) }),
       passo('inicial', 'Na posição inicial, os cavalos ficam ao lado das torres: b1 e g1, b8 e g8. Bora praticar?', { pose: 'aprovando', destaques: [{ casas: ['b1', 'g1', 'b8', 'g8'], cor: 'amarelo' }] })
@@ -210,19 +216,19 @@ const L = {};
     teoria: [
       passo('inicial', 'Agora o soldado do tabuleiro: o **peão**. Cada lado começa com oito, na segunda fileira.', { pose: 'apresentando', destaques: [{ casas: ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'], cor: 'amarelo' }] }),
       passo('7k/8/8/8/8/8/4P3/7K w - - 0 1', 'O peão anda **para frente**, uma casa. Mas no primeiro lance dele, pode andar **duas**.', { destaques: verde(['e3', 'e4']) }),
-      passo('7k/8/8/8/8/8/4P3/7K w - - 0 1', 'Sua vez: avance o peão duas casas, até ==e4==.', { pose: 'curioso', interativo: { lance: 'e2e4', acerto: 'Isso! Primeiro lance, duas casas.' } }),
+      passo('7k/8/8/8/8/8/4P3/7K w - - 0 1', 'Sua vez, com as brancas: avance o peão branco duas casas, até ==e4==.', { pose: 'curioso', interativo: { lance: 'e2e4', acerto: 'Isso! Primeiro lance, duas casas.' } }),
       passo('7k/8/8/8/4P3/8/8/7K w - - 0 1', 'Depois do primeiro lance, é **uma casa por vez**. E atenção: o peão **nunca anda para trás**.', { pose: 'atencao', destaques: verde(['e5']) }),
       passo('7k/8/8/4p3/4P3/8/8/7K w - - 0 1', 'Se tiver uma peça na frente, o peão fica **travado**: ele não captura para frente.', { pose: 'atencao', destaques: [{ casas: ['e5'], cor: 'vermelho' }] }),
       passo('7k/8/8/3n1r2/4P3/8/8/7K w - - 0 1', 'O peão **captura na diagonal**, uma casa à frente. Daqui ele pode tomar o cavalo ou a torre.', { pose: 'surpreso', setas: [{ de: 'e4', para: 'd5', cor: 'vermelho' }, { de: 'e4', para: 'f5', cor: 'vermelho' }] }),
-      passo('7k/8/8/3n1r2/4P3/8/8/7K w - - 0 1', 'Capture a **torre**, que vale mais.', { pose: 'curioso', interativo: { lance: 'e4f5', acerto: 'Boa escolha! A torre vale mais que o cavalo.' } }),
+      passo('7k/8/8/3n1r2/4P3/8/8/7K w - - 0 1', 'Com o peão branco, capture a **torre** preta, que vale mais.', { pose: 'curioso', interativo: { lance: 'e4f5', acerto: 'Boa escolha! A torre vale mais que o cavalo.' } }),
       passo('7k/8/8/3pP3/8/8/8/7K w - d6 0 1', 'Uma regra especial: o **en passant**. O peão preto acabou de andar duas casas e parou ao lado do branco. O branco pode capturá-lo como se ele tivesse andado só uma.', { pose: 'surpreso', setas: [{ de: 'e5', para: 'd6', cor: 'vermelho' }] }),
-      passo('7k/8/8/3pP3/8/8/8/7K w - d6 0 1', 'Capture en passant: leve o peão de ==e5== para ==d6==.', { pose: 'curioso', interativo: { lance: 'e5d6', acerto: 'Isso! O peão preto sai do tabuleiro, mesmo sem estar em d6.' } }),
+      passo('7k/8/8/3pP3/8/8/8/7K w - d6 0 1', 'Capture en passant: leve o peão branco de ==e5== para ==d6==.', { pose: 'curioso', interativo: { lance: 'e5d6', acerto: 'Isso! O peão preto sai do tabuleiro, mesmo sem estar em d6.' } }),
       passo('7k/8/8/8/4P3/8/8/7K w - - 0 1', 'Resumo: para frente, duas casas no primeiro lance, captura na diagonal e nunca volta. Bora praticar?', { pose: 'aprovando' })
     ],
     exercicios: { instrucao: 'Movimento do peão', itens: [
       casaPeca('7k/8/8/8/8/8/3P4/7K w - - 0 1', 'Toque numa casa onde o peão pode ir', 'd2', 'É o primeiro lance dele.'),
       lance('7k/8/8/2b1n3/3P4/8/8/7K w - - 0 1', 'Capture o cavalo preto', ['d4e5'], 'O peão captura na diagonal.'),
-      mc('O peão em d4 pode avançar?', ['Sim, para d5', 'Não, está travado'], 1, 'O peão não captura para frente.', { fen: '7k/8/8/3p4/3P4/8/8/7K w - - 0 1' }),
+      mc('O peão branco em d4 pode avançar?', ['Sim, para d5', 'Não, está travado'], 1, 'O peão não captura para frente.', { fen: '7k/8/8/3p4/3P4/8/8/7K w - - 0 1' }),
       lance('7k/8/8/5Pp1/8/8/8/7K w - g6 0 1', 'Capture en passant', ['f5g6'], 'O peão preto acabou de andar duas casas.'),
       mc('O peão pode andar para trás?', ['Sim', 'Não', 'Só capturando', 'Só no fim'], 1, 'Nunca. Cada avanço é para sempre.')
     ] },
@@ -243,29 +249,29 @@ const L = {};
     teoria: [
       passo(P, 'O peão tem um superpoder escondido: a **promoção**.', { pose: 'apresentando' }),
       passo(P, 'Quando o peão chega à **última fileira**, ele vira outra peça: dama, torre, bispo ou cavalo. Só não pode virar rei.', { destaques: verde(['e8']) }),
-      passo(P, 'Sua vez: avance o peão até ==e8== e escolha a **dama**.', { pose: 'curioso', interativo: { lance: 'e7e8q', acerto: 'Promoveu! Um peão virou a peça mais forte do jogo.' } }),
-      passo('4Q2k/8/8/8/8/8/8/K7 b - - 0 1', 'Quase sempre se escolhe a **dama**, porque ela é a mais forte. E dá até para ter duas damas no tabuleiro!', { pose: 'surpreso' }),
-      passo('3r3k/4P3/8/8/8/8/8/K7 w - - 0 1', 'O peão também pode promover **capturando**, na diagonal. Capture a torre em ==d8== e vire dama.', { pose: 'curioso', interativo: { lance: 'e7d8q', acerto: 'Captura e promoção no mesmo lance!' } }),
+      passo(P, 'Sua vez, com as brancas: avance o peão branco até ==e8== e escolha a **dama**.', { pose: 'curioso', interativo: { lance: 'e7e8q', acerto: 'Promoveu! Um peão virou a peça mais forte do jogo.' } }),
+      passo('k7/8/8/8/8/8/2QQQ3/6K1 b - - 0 1', 'Quase sempre se escolhe a **dama**, porque ela é a mais forte. E não tem limite: cada peão que promove vira mais uma dama. Dá para ter até **nove**: a do começo e mais uma para cada um dos oito peões!', { pose: 'surpreso' }),
+      passo('3r3k/4P3/8/8/8/8/8/K7 w - - 0 1', 'O peão também pode promover **capturando**, na diagonal. Com o peão branco, capture a torre preta em ==d8== e vire dama.', { pose: 'curioso', interativo: { lance: 'e7d8q', acerto: 'Captura e promoção no mesmo lance!' } }),
       passo('7k/5K2/8/8/8/8/8/8 w - - 0 1', 'Às vezes outra peça é melhor. Quem escolhe algo que não é dama faz uma **subpromoção**, por exemplo para dar mate de cavalo ou evitar um empate.', { pose: 'pensativo' }),
-      passo('8/8/8/8/8/8/3p4/7K b - - 0 1', 'Vale para as pretas também: o peão preto promove ao chegar na **fileira 1**.', { pose: 'atencao', destaques: verde(['d1']) }),
+      passo('8/8/8/8/k7/8/3p4/7K b - - 0 1', 'Vale para as pretas também: o peão preto promove ao chegar na **fileira 1**.', { pose: 'atencao', destaques: verde(['d1']) }),
       passo(P, 'Resumo: peão na última fileira vira dama, torre, bispo ou cavalo. Bora praticar?', { pose: 'aprovando' })
     ],
     exercicios: { instrucao: 'Promoção', itens: [
-      lance('7k/8/8/8/8/8/1P5K/8 w - - 0 1'.replace('1P5K/8', '7K/8').replace('8/8/8/8/8', '1P6/8/8/8/8'), 'Promova o peão a dama', ['b7b8q'], 'Avance até a última fileira.'),
+      lance('7k/8/8/8/8/8/1P5K/8 w - - 0 1'.replace('1P5K/8', '7K/8').replace('8/8/8/8/8', '1P6/8/8/8/8'), 'Promova o peão branco a dama', ['b7b8q'], 'Avance até a última fileira.'),
       casaPeca('7k/2P5/8/8/8/8/8/K7 w - - 0 1', 'Em que casa este peão vai promover?', 'c7', 'Ele anda para frente até a fileira 8.'),
-      lance('2r4k/1P6/8/8/8/8/8/K7 w - - 0 1', 'Capture a torre e promova a dama', ['b7c8q'], 'O peão captura na diagonal.'),
+      lance('2r4k/1P6/8/8/8/8/8/K7 w - - 0 1', 'Capture a torre preta e promova o peão branco a dama', ['b7c8q'], 'O peão captura na diagonal.'),
       mc('Em que peça o peão NÃO pode se transformar?', ['Dama', 'Cavalo', 'Rei', 'Torre'], 2, 'Rei só existe um de cada lado.'),
       mc('Onde o peão preto promove?', ['Na fileira 8', 'Na fileira 1', 'No centro', 'Em qualquer canto'], 1, 'As pretas andam para baixo, até a fileira 1.')
     ] },
     avaliacao: [
       mc('O que acontece quando o peão chega à última fileira?', ['Nada', 'Ele volta para o começo', 'Ele vira outra peça', 'A partida acaba'], 2, 'É a promoção.'),
       mc('Qual peça costuma ser escolhida na promoção?', ['Dama', 'Torre', 'Bispo', 'Cavalo'], 0, 'A dama, por ser a mais forte.'),
-      lance('7k/3P4/8/8/8/8/8/K7 w - - 0 1', 'Promova o peão a dama', ['d7d8q'], null, 'Avançou e virou dama.'),
-      mc('Pode haver duas damas brancas no tabuleiro?', ['Sim, com a promoção', 'Não, nunca'], 0, 'Com a promoção, sim.'),
-      lance('5n1k/6P1/8/8/8/8/8/K7 w - - 0 1', 'Capture o cavalo e promova a dama', ['g7f8q'], null, 'Captura na diagonal e promoção.'),
+      lance('7k/3P4/8/8/8/8/8/K7 w - - 0 1', 'Promova o peão branco a dama', ['d7d8q'], null, 'Avançou e virou dama.'),
+      mc('Quantas damas um jogador pode ter ao mesmo tempo?', ['Só uma', 'No máximo duas', 'Até nove'], 2, 'A dama do começo e mais uma para cada peão promovido: até nove.'),
+      lance('5n1k/6P1/8/8/8/8/8/K7 w - - 0 1', 'Capture o cavalo preto e promova o peão branco a dama', ['g7f8q'], null, 'Captura na diagonal e promoção.'),
       mc('Como se chama escolher uma peça que não é a dama?', ['Subpromoção', 'En passant', 'Roque', 'Afogamento'], 0, 'Subpromoção.')
     ] };
-  L['licao-08'].exercicios.itens[0] = lance('7k/1P6/8/8/8/8/8/K7 w - - 0 1', 'Promova o peão a dama', ['b7b8q'], 'Avance até a última fileira.');
+  L['licao-08'].exercicios.itens[0] = lance('7k/1P6/8/8/8/8/8/K7 w - - 0 1', 'Promova o peão branco a dama', ['b7b8q'], 'Avance até a última fileira.');
 }
 
 // ================================================================ 9. Capturas (apostila "Capturando Peças")
@@ -273,18 +279,18 @@ const L = {};
   L['licao-09'] = { titulo: 'Capturas', abertura: 'Tirar peças do adversário costuma ser muito bom. Mas cada captura tem as suas regras.',
     teoria: [
       passo('7k/8/8/8/5P2/8/3Q4/7K w - - 0 1', 'Capturar peças nem sempre ganha a partida, mas costuma ser ótimo. Primeira regra: você **nunca** captura as suas próprias peças.', { pose: 'apresentando', setas: [{ de: 'd2', para: 'f4', cor: 'vermelho' }] }),
-      passo('7k/8/8/3qk3/3rn3/8/8/K7 w - - 0 1', 'Pergunta rápida: entre **dama, rei, torre e cavalo**, uma dessas peças nunca pode ser capturada. Qual?', { pose: 'curioso' }),
-      passo('7k/8/8/3qk3/3rn3/8/8/K7 w - - 0 1', 'É o **rei**! Ele nunca é capturado, e nem pode ir para uma casa atacada. A vitória vem com o **xeque-mate**: o rei atacado, sem salvação.', { pose: 'atencao', destaques: [{ casas: ['e5'], cor: 'vermelho' }] }),
-      passo('7k/8/8/3p4/8/8/3Q4/7K w - - 0 1', 'Para capturar, basta levar a sua peça até a casa da peça inimiga. Capture o peão em ==d5==.', { pose: 'curioso', interativo: { lance: 'd2d5', acerto: 'Adeus, peão! Ele sai do tabuleiro.' } }),
+      passo('8/8/8/3qk3/3rn3/8/8/K7 w - - 0 1', 'Pergunta rápida: entre **dama, rei, torre e cavalo**, uma dessas peças nunca pode ser capturada. Qual?', { pose: 'curioso' }),
+      passo('8/8/8/3qk3/3rn3/8/8/K7 w - - 0 1', 'É o **rei**! Ele nunca é capturado, e nem pode ir para uma casa atacada. A vitória vem com o **xeque-mate**: o rei atacado, sem salvação.', { pose: 'atencao', destaques: [{ casas: ['e5'], cor: 'vermelho' }] }),
+      passo('7k/8/8/3p4/8/8/3Q4/7K w - - 0 1', 'Para capturar, basta levar a sua peça até a casa da peça inimiga. Com a dama branca, capture o peão preto em ==d5==.', { pose: 'curioso', interativo: { lance: 'd2d5', acerto: 'Adeus, peão! Ele sai do tabuleiro.' } }),
       passo('7k/8/8/3p4/8/8/3Q4/7K w - - 0 1', 'A dama **não pula** o peão: subindo pela coluna, ela tem que parar em d5. Só uma peça consegue pular as outras. Qual?', { pose: 'pensativo', setas: [{ de: 'd2', para: 'd8', cor: 'vermelho' }] }),
-      passo('7k/8/8/3q4/3Pp3/4N3/8/7K w - - 0 1', 'O **cavalo**! Ele pula, mas não captura quem fica no caminho. Capture a dama em ==d5==.', { pose: 'surpreso', interativo: { lance: 'e3d5', acerto: 'Isso! Pulou os peões e capturou a dama.' } }),
+      passo('7k/8/8/3q4/3Pp3/4N3/8/7K w - - 0 1', 'O **cavalo**! Ele pula, mas não captura quem fica no caminho. Com o cavalo branco, capture a dama preta em ==d5==.', { pose: 'surpreso', interativo: { lance: 'e3d5', acerto: 'Isso! Pulou os peões e capturou a dama.' } }),
       passo('7k/8/8/8/8/B1P1N1K1/8/8 w - - 0 1', 'Entre **bispo, peão, cavalo e rei**, qual captura de um jeito diferente de como anda?', { pose: 'curioso' }),
-      passo('7k/8/8/8/3p4/2P5/8/7K w - - 0 1', 'O **peão**! Ele anda reto para frente, mas captura na **diagonal**. Capture o peão preto.', { pose: 'explicando', interativo: { lance: 'c3d4', acerto: 'Na diagonal, como manda a regra.' } }),
+      passo('7k/8/8/8/3p4/2P5/8/7K w - - 0 1', 'O **peão**! Ele anda reto para frente, mas captura na **diagonal**. Com o peão branco, capture o peão preto.', { pose: 'explicando', interativo: { lance: 'c3d4', acerto: 'Na diagonal, como manda a regra.' } }),
       passo('7k/8/8/8/3P4/8/8/7K w - - 0 1', 'Juntando tudo: tome as peças do adversário e, no fim, dê xeque-mate no rei. Bora praticar?', { pose: 'aprovando' })
     ],
     exercicios: { instrucao: 'Capture!', itens: [
       lance('7k/8/8/5n2/8/8/2B5/7K w - - 0 1', 'Capture o cavalo preto', ['c2f5'], 'O bispo está na diagonal certa.'),
-      lance('7k/8/8/8/8/2r5/1P6/7K w - - 0 1', 'Capture a torre com o peão', ['b2c3'], 'O peão captura na diagonal.'),
+      lance('7k/8/8/8/8/2r5/1P6/7K w - - 0 1', 'Capture a torre preta com o peão branco', ['b2c3'], 'O peão captura na diagonal.'),
       lance('7k/8/8/2b5/2pp4/2pp4/8/7K w - - 0 1'.replace('7K', '1N5K'), 'Pule e capture o bispo', ['b1c3'].slice(0, 0).concat([]).length ? [] : [], null),
       mc('Qual peça nunca pode ser capturada?', ['A dama', 'O rei', 'A torre', 'O cavalo'], 1, 'O rei nunca é capturado: a partida acaba no xeque-mate.'),
       mc('Você pode capturar uma peça sua?', ['Sim', 'Não'], 1, 'Nunca.')
@@ -292,7 +298,7 @@ const L = {};
     avaliacao: [
       mc('Como se captura uma peça?', ['Pulando por cima dela', 'Levando a sua peça até a casa dela', 'Cercando a peça', 'Encostando ao lado'], 1, 'A peça inimiga sai e a sua fica no lugar.'),
       mc('Qual peça pode pular as outras?', ['A torre', 'O bispo', 'O cavalo', 'A dama'], 2, 'Só o cavalo.'),
-      lance('7k/8/8/8/2q5/1P6/8/7K w - - 0 1', 'Capture a dama com o peão', ['b3c4'], null, 'Diagonal, uma casa à frente.'),
+      lance('7k/8/8/8/2q5/1P6/8/7K w - - 0 1', 'Capture a dama preta com o peão branco', ['b3c4'], null, 'Diagonal, uma casa à frente.'),
       mc('Qual peça captura de forma diferente de como anda?', ['O peão', 'A torre', 'O rei', 'O bispo'], 0, 'Anda reto e captura na diagonal.'),
       lance('7k/8/8/3r4/3pp3/4N3/8/7K w - - 0 1', 'Capture a torre preta', ['e3d5'], null, 'O cavalo pula os peões.'),
       mc('O cavalo captura as peças que pula?', ['Sim', 'Não'], 1, 'Ele só captura a peça da casa onde cai.')
@@ -354,9 +360,9 @@ const L = {};
       q('rnbqk1nr/pppp1ppp/8/4p3/1b1P4/2N5/PPP1PPPP/R1BQKBNR w KQkq - 2 3'.replace('2N5', '8').replace('R1BQKBNR', 'RNBQKBNR'), 'As pretas jogaram o bispo em b4. É xeque, mate ou afogamento?', 0, 'Só xeque: as brancas podem bloquear com c3, Cc3 ou Bd2.'),
       q('8/8/8/8/8/5K2/8/3Q1k2 b - - 0 1', 'A dama branca foi para d1. É xeque, mate ou afogamento?', 1, 'Xeque-mate! O rei branco apoia a dama junto à borda.'),
       q('4k3/8/3Q1K2/8/8/8/8/8 b - - 0 1', 'É a vez das pretas. Xeque, mate ou afogamento?', 2, 'Afogamento: sem lances e sem xeque.'),
-      q('1r4k1/6R1/5KN1/6P1/8/8/8/8 b - - 0 1', 'A torre subiu para g7. Xeque, mate ou afogamento?', 1, 'Xeque-mate! O cavalo cobre as fugas e o rei branco protege a torre.'),
+      q('1r4k1/6R1/5KN1/6P1/8/8/8/8 b - - 0 1', 'A torre branca subiu para g7. Xeque, mate ou afogamento?', 1, 'Xeque-mate! O cavalo cobre as fugas e o rei branco protege a torre.'),
       q('8/8/8/8/8/5KP1/5B2/5k2 b - - 0 1', 'O bispo branco acabou de capturar em f2. Xeque, mate ou afogamento?', 2, 'Afogamento: o rei preto não tem lances e não está em xeque.'),
-      q('4R2k/7p/5P2/2p1pK2/b1Br4/1P6/8/8 b - - 0 1', 'A torre subiu para e8. Xeque, mate ou afogamento?', 0, 'Só xeque: o bispo preto de a4 captura a torre.')
+      q('4R2k/7p/5P2/2p1pK2/b1Br4/1P6/8/8 b - - 0 1', 'A torre branca subiu para e8. Xeque, mate ou afogamento?', 0, 'Só xeque: o bispo preto de a4 captura a torre.')
     ] },
     avaliacao: [
       mc('O que é empate por afogamento?', ['O rei em xeque sem saída', 'Sem lances legais e sem estar em xeque', 'Perder a dama', 'Ficar só com o rei'], 1, 'Sem lances e sem xeque: empate.'),

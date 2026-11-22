@@ -120,7 +120,7 @@
       },
       {
         "tipo": "multipla",
-        "pergunta": "A torre subiu para g7. Xeque, mate ou afogamento?",
+        "pergunta": "A torre branca subiu para g7. Xeque, mate ou afogamento?",
         "opcoes": ["Xeque", "Xeque-mate", "Empate por afogamento"],
         "correta": 1,
         "explicacao": "Xeque-mate! O cavalo cobre as fugas e o rei branco protege a torre.",
@@ -136,7 +136,7 @@
       },
       {
         "tipo": "multipla",
-        "pergunta": "A torre subiu para e8. Xeque, mate ou afogamento?",
+        "pergunta": "A torre branca subiu para e8. Xeque, mate ou afogamento?",
         "opcoes": ["Xeque", "Xeque-mate", "Empate por afogamento"],
         "correta": 0,
         "explicacao": "Só xeque: o bispo preto de a4 captura a torre.",

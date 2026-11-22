@@ -8,4 +8,5 @@ O verificador também roda na publicação (`.github/workflows/publica.yml`) e b
 
 Em resumo: setas e destaques calculados pelas regras (seta de movimento vai até o fim da linha;
 vermelha só para o que não pode), números do texto batendo com o tabuleiro, reis fora das linhas da
-peça explicada, perguntas de movimento com `origem` e resposta completa, e nenhuma pergunta ambígua.
+peça explicada, perguntas de movimento com `origem` e resposta completa, peça citada sempre com a cor ("o rei branco"),
+um rei de cada cor em toda posição, e nenhuma pergunta ambígua.

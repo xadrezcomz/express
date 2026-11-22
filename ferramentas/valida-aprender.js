@@ -14,6 +14,9 @@
 //   5. "Capture o/a X": só existe uma peça daquele tipo para capturar (a resposta não é ambígua).
 //   6. Exercícios de mate terminam em mate; "xeque, mate ou afogamento?" bate com as regras.
 //   7. Toda pose e todo avatar usados existem em assets/aprender/avatar/.
+//   9. Cada lado tem no máximo um rei, e, se houver peças, um rei de cada cor (nada de dois reis pretos).
+//   8. Pergunta ou passo em que o aluno age sobre o tabuleiro e cita uma peça diz a cor dela
+//      ("o rei branco", "a torre preta"); com `origem`, a cor tem que ser a da peça daquela casa.
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -85,7 +88,25 @@ function confereContagem(p, onde) {
   if (total !== n) erros.push(onde + ': o texto diz ' + n + ' casas, mas as setas cobrem ' + total);
 }
 
+function confereReis(f, onde) {
+  const casas = X.deFEN(fen(f)).casas, brancos = casas.filter(p => p === 'K').length, pretos = casas.filter(p => p === 'k').length;
+  if (brancos > 1 || pretos > 1) erros.push(onde + ': há ' + (brancos > 1 ? brancos + ' reis brancos' : pretos + ' reis pretos') + ' no tabuleiro');
+  else if (casas.some(p => p) && (brancos !== 1 || pretos !== 1)) erros.push(onde + ': a posição precisa ter um rei de cada cor');
+}
+const PECA = /\b(rei|dama|torre|bispo|cavalo|peão|peao)\b/i, COR = /\b(branc[oa]s?|pret[oa]s?)\b/i;
+function confereCor(texto, onde, f, origem) {
+  if (!texto || !PECA.test(texto)) return;
+  if (!COR.test(texto)) { erros.push(onde + ': "' + texto + '" cita uma peça sem dizer a cor (branca ou preta)'); return; }
+  if (origem) {
+    const p = X.deFEN(fen(f)).casas[X.casaParaIndice(origem)], branca = p && p === p.toUpperCase();
+    const nome = PECA.exec(texto)[1], depois = texto.slice(texto.search(PECA) + nome.length, texto.search(PECA) + nome.length + 8);
+    if (/branc/i.test(depois) !== branca) erros.push(onde + ': "' + texto + '" diz a cor errada da peça de ' + origem);
+  }
+}
 function confereItem(x, onde) {
+  if (x.fen) confereReis(x.fen, onde);
+  if (x.tipo === 'casa' && x.origem) confereCor(x.pergunta, onde, x.fen, x.origem);
+  if (x.tipo === 'autoral' || (x.tipo === 'multipla' && x.fen)) confereCor(x.pergunta, onde);
   if (x.tipo === 'casa') {
     if (!(x.resposta || []).length || !x.resposta.every(casaOk)) erros.push(onde + ': resposta vazia ou com casa inválida');
     if (/pode ir|promover/i.test(x.pergunta || '') && !x.origem) erros.push(onde + ': pergunta sobre o movimento de uma peça precisa de "origem"');
@@ -147,10 +168,12 @@ for (const c of colecoes) for (const slug of c.cards) {
       const onde = base + ' teoria ' + (i + 1);
       if (p.pose && !existentes.has(p.pose)) erros.push(onde + ': pose "' + p.pose + '" não existe');
       try { X.deFEN(fen(p.fen)); } catch (e) { erros.push(onde + ': posição inválida'); return; }
+      confereReis(p.fen, onde);
       const depois = joga(p.fen, p.animacao, onde);
       (p.destaques || []).forEach(d => d.casas.forEach(c => { if (!casaOk(c)) erros.push(onde + ': destaque com casa inválida ' + c); }));
       if (p.interativo) {
         if (p.interativo.lance && depois && !X.deUCI(depois, p.interativo.lance)) erros.push(onde + ': o lance pedido ' + p.interativo.lance + ' é ilegal');
+        if (p.interativo.lance) confereCor(p.texto, onde);
         if (p.interativo.casa && !casaOk(p.interativo.casa)) erros.push(onde + ': casa pedida inválida');
       }
       if (!(p.animacao || []).length) { confereSetas(p, onde); confereContagem(p, onde); }
