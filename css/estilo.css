@@ -632,22 +632,26 @@ button{font:inherit;color:inherit}
 }
 
 /* ------------------------------------------------------------- assista a uma aula */
-.aulas{background:linear-gradient(180deg,var(--fundo),var(--fundo2))}
-.aulas-lista{display:flex;gap:14px;margin-top:22px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 10px;-webkit-overflow-scrolling:touch}
-.aula{flex:0 0 min(72vw,300px);margin:0;scroll-snap-align:center;display:flex;flex-direction:column;gap:10px}
-.aula-video{position:relative;aspect-ratio:9/16;border-radius:22px;overflow:hidden;background:#0d0730;
-  border:1px solid var(--linha2);box-shadow:0 24px 50px -28px #000,0 0 40px -16px rgba(160,107,255,.6)}
-.aula video{width:100%;height:100%;object-fit:cover;display:block}
-.aula-play{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(180deg,transparent 55%,rgba(7,4,26,.55));border:0;cursor:pointer}
-.aula-play span{width:76px;height:76px;border-radius:50%;background:linear-gradient(180deg,#ffe08a,#ffb53d);box-shadow:0 10px 30px -6px rgba(255,170,50,.9);
-  display:grid;place-items:center;transition:transform .2s ease}
-.aula-play span::before{content:'';margin-left:6px;border:14px solid transparent;border-left:22px solid #241300;border-right:0}
-.aula-play:hover span{transform:scale(1.08)}
-.aula.tocando .aula-play{display:none}
-.aula figcaption{display:flex;flex-direction:column;gap:2px}
-.aula figcaption b{font-family:var(--titulo);font-size:1.125rem;color:#fff}
-.aula figcaption span{color:var(--suave);font-size:.9375rem}
-@media (min-width:800px){.aulas-lista{overflow:visible;justify-content:center;gap:30px}.aula{flex-basis:300px}}
+.aulas{background:linear-gradient(180deg,var(--fundo),var(--fundo2));padding:clamp(40px,7vw,72px) 0}
+.aulas-lista{display:grid;grid-template-columns:repeat(2,minmax(0,180px));justify-content:center;gap:14px;margin-top:18px}
+.aula{display:flex;flex-direction:column;gap:8px;padding:0;border:0;background:none;cursor:pointer;text-align:left;color:#fff;-webkit-tap-highlight-color:transparent}
+.aula-capa{position:relative;display:block;aspect-ratio:9/14;border-radius:16px;overflow:hidden;background:#0d0730;
+  border:1px solid var(--linha2);box-shadow:0 18px 36px -24px #000,0 0 30px -14px rgba(160,107,255,.6);transition:transform .2s ease}
+.aula-capa img{width:100%;height:100%;object-fit:cover;object-position:center 40%;display:block}
+.aula:hover .aula-capa{transform:translateY(-3px)}
+/* o play bem no meio da capa */
+.aula-play{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;
+  background:linear-gradient(180deg,#ffe08a,#ffb53d);box-shadow:0 8px 24px -6px rgba(255,170,50,.9),0 0 0 6px rgba(255,211,107,.25)}
+.aula-play::before{content:'';position:absolute;left:23px;top:18px;border:11px solid transparent;border-left:17px solid #241300;border-right:0}
+.aula-capa em{position:absolute;right:8px;bottom:8px;padding:2px 8px;border-radius:99px;font-style:normal;font-weight:700;font-size:.875rem;background:rgba(7,4,26,.8)}
+.aula > b{font-family:var(--titulo);font-size:1rem;line-height:1.2}
+/* o vídeo aberto, por cima da página */
+.aula-tela{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:16px;background:rgba(5,3,18,.92)}
+.aula-tela[hidden]{display:none}
+.aula-tela video{max-width:100%;max-height:100%;height:min(88svh,calc(100vw * 16 / 9));aspect-ratio:9/16;border-radius:16px;background:#000}
+.aula-fecha{position:absolute;top:max(12px,env(safe-area-inset-top));right:14px;width:48px;height:48px;border-radius:50%;border:0;cursor:pointer;
+  font-size:2rem;line-height:1;color:#fff;background:rgba(255,255,255,.14);z-index:1}
+body.sem-rolar{overflow:hidden}
 
 /* ------------------------------------------------------------- quem ensina */
 .professor{background:linear-gradient(180deg,var(--fundo2),var(--fundo))}

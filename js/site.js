@@ -234,20 +234,23 @@
   if (location.hash === '#curso') window.addEventListener('load', function () { setTimeout(function () { irAoCurso(false); confere(); }, 50); });
 
   // ---------------------------------------------------------------- aulas de amostra
-  // O vídeo só é baixado quando a pessoa toca; tocar num faz o outro parar.
-  var aulas = document.querySelectorAll('.aula');
-  aulas.forEach(function (fig) {
-    var v = fig.querySelector('video'), bt = fig.querySelector('.aula-play');
-    v.controls = false;
+  // As capas são pequenas; tocar abre o vídeo grande por cima da página (só aí ele é baixado).
+  var aulaTela = id('aulaTela'), aulaVideo = aulaTela && aulaTela.querySelector('video');
+  function fechaAula() { if (!aulaTela || aulaTela.hidden) return; aulaVideo.pause(); aulaTela.hidden = true; document.body.classList.remove('sem-rolar'); }
+  document.querySelectorAll('.aula[data-video]').forEach(function (bt) {
     bt.addEventListener('click', function () {
-      aulas.forEach(function (o) { var ov = o.querySelector('video'); if (ov !== v) ov.pause(); });
-      v.controls = true; v.play();
-      if (window.XE_evento) window.XE_evento('aula/' + fig.getAttribute('data-aula'));
+      aulaVideo.src = bt.getAttribute('data-video');
+      aulaVideo.poster = bt.querySelector('img').src;
+      aulaTela.hidden = false; document.body.classList.add('sem-rolar');
+      var tenta = aulaVideo.play(); if (tenta && tenta.catch) tenta.catch(function () {});
+      if (window.XE_evento) window.XE_evento('aula/' + bt.getAttribute('data-aula'));
     });
-    v.addEventListener('play', function () { fig.classList.add('tocando'); aulas.forEach(function (o) { var ov = o.querySelector('video'); if (ov !== v) ov.pause(); }); });
-    v.addEventListener('pause', function () { fig.classList.remove('tocando'); });
-    v.addEventListener('ended', function () { fig.classList.remove('tocando'); });
   });
+  if (aulaTela) {
+    aulaTela.querySelector('.aula-fecha').addEventListener('click', fechaAula);
+    aulaTela.addEventListener('click', function (ev) { if (ev.target === aulaTela) fechaAula(); });
+    document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') fechaAula(); });
+  }
 
   // ---------------------------------------------------------------- entradas suaves
   var revelar = document.querySelectorAll('.revela');

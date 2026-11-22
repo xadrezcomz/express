@@ -140,9 +140,9 @@
       <h2>Prof. Fhellipe Augusto</h2>
       <p class="sub">Criador do <b>@xadrezcomz</b>, o maior perfil dedicado ao xadrez do Brasil.</p>
       <ul class="prof-numeros">
-        <li><b>18 anos</b><span>ensinando xadrez</span></li>
-        <li><b>+150 mil</b><span>seguidores no Instagram</span></li>
-        <li><b>+800</b><span>alunos em aulas presenciais</span></li>
+        <li><b>18 anos</b> <span>ensinando xadrez</span></li>
+        <li><b>+150 mil</b> <span>seguidores no Instagram</span></li>
+        <li><b>+800</b> <span>alunos em aulas presenciais</span></li>
       </ul>
       <p class="prof-formacao">🎓 Pós-graduado em <b>Xadrez Técnico e Pedagógico</b> e em <b>Xadrez na Educação</b>.</p>
     </div>
@@ -154,23 +154,22 @@
   <div class="miolo">
     <p class="olho">Assista a uma aula</p>
     <h2>Veja como é por dentro</h2>
-    <p class="sub">Duas aulas de verdade do curso: uma do começo e uma de tática. Toque para assistir.</p>
+    <p class="sub">Duas aulas de verdade do curso. Toque para assistir.</p>
     <div class="aulas-lista">
-      <figure class="aula" data-aula="cavalo">
-        <div class="aula-video">
-          <video src="assets/aulas/licao-05-cavalo.mp4" poster="assets/aulas/licao-05-cavalo.webp" preload="none" playsinline controls width="540" height="960"></video>
-          <button type="button" class="aula-play" aria-label="Assistir à aula sobre o cavalo"><span></span></button>
-        </div>
-        <figcaption><b>Lição 05 · O Cavalo</b><span>Módulo 1 · 0:56</span></figcaption>
-      </figure>
-      <figure class="aula" data-aula="garfo">
-        <div class="aula-video">
-          <video src="assets/aulas/licao-25-garfo.mp4" poster="assets/aulas/licao-25-garfo.webp" preload="none" playsinline controls width="540" height="960"></video>
-          <button type="button" class="aula-play" aria-label="Assistir à aula sobre o garfo"><span></span></button>
-        </div>
-        <figcaption><b>Lição 25 · O Garfo e o Ataque Duplo</b><span>Módulo 4 · 1:06</span></figcaption>
-      </figure>
+      <button type="button" class="aula" data-aula="cavalo" data-video="assets/aulas/licao-05-cavalo.mp4" aria-label="Assistir à Lição 05, O Cavalo">
+        <span class="aula-capa"><img src="assets/aulas/licao-05-cavalo.webp" alt="" width="540" height="960" loading="lazy"><i class="aula-play"></i><em>0:56</em></span>
+        <b>Lição 05 · O Cavalo</b>
+      </button>
+      <button type="button" class="aula" data-aula="garfo" data-video="assets/aulas/licao-25-garfo.mp4" aria-label="Assistir à Lição 25, O Garfo e o Ataque Duplo">
+        <span class="aula-capa"><img src="assets/aulas/licao-25-garfo.webp" alt="" width="540" height="960" loading="lazy"><i class="aula-play"></i><em>1:06</em></span>
+        <b>Lição 25 · O Garfo</b>
+      </button>
     </div>
+  </div>
+  <!-- o vídeo abre grande, por cima da página -->
+  <div class="aula-tela" id="aulaTela" hidden>
+    <button type="button" class="aula-fecha" aria-label="Fechar o vídeo">×</button>
+    <video playsinline controls preload="none"></video>
   </div>
 </section>
 

@@ -29,6 +29,13 @@ jobs:
         run: node ferramentas/valida-aprender.js
       # a oficina dos vídeos das lições não faz parte do site
       - run: rm -rf videos
+      # cada publicação ganha uma "versão" nos links de estilo e de código das páginas (?v=...),
+      # para o navegador não misturar a página nova com o estilo antigo que tinha guardado
+      - name: Marca a versão dos arquivos
+        run: |
+          V=$(echo "$GITHUB_SHA" | cut -c1-8)
+          sed -i -E "s#((href|src)=\"[^\"]+\.(css|js))\"#\1?v=$V\"#g" index.html aprender/index.html
+          grep -c "?v=$V" index.html aprender/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
