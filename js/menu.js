@@ -1,6 +1,15 @@
-// O menu do topo no celular: o botão de três linhas abre e fecha a lista de seções.
+// O topo do site: o botão de compra e, no celular, o menu de três linhas que abre a lista de seções.
 (function () {
   'use strict';
+  // Com a venda ligada (linkCompra em js/config.js), o botão do topo vira "Comprar" e leva
+  // direto ao pagamento: quem toca nele já decidiu.
+  var cfg = window.XE_CONFIG || {}, cta = document.querySelector('[data-cta-topo]');
+  if (cta && cfg.linkCompra) {
+    cta.textContent = 'Comprar';
+    cta.href = cfg.linkCompra;
+    cta.target = '_blank'; cta.rel = 'noopener';
+  }
+
   var topo = document.querySelector('.topo'), botao = document.querySelector('.menu-abre'), menu = document.getElementById('menu');
   if (!topo || !botao || !menu) return;
   function abre(sim) {

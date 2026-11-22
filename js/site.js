@@ -48,8 +48,6 @@
       id('cursoParcelas').textContent = CFG.parcelas || '';
       id('barraPreco').textContent = CFG.preco;
     }
-    var topo = document.querySelector('[data-cta-topo]');
-    if (topo) topo.textContent = 'Comprar';
     // a barra fixa do celular aparece depois do topo e some quando o cartão do curso está na tela
     var barra = id('barraCompra'); barra.hidden = false; id('barraBotao').href = CFG.linkCompra; id('barraBotao').target = '_blank'; id('barraBotao').rel = 'noopener';
     document.body.classList.add('tem-barra');
