@@ -183,6 +183,35 @@
     } else mostraCena(1);
   }
 
+  // ---------------------------------------------------------------- ir até o curso
+  // "Conhecer o curso", "O curso" e companhia param a tela de um jeito que o botão de compra do
+  // cartão sempre fique à vista: mostra a partir do título da seção, sem o espaço vazio de cima,
+  // e, se o botão não couber junto, desce o necessário para ele aparecer inteiro.
+  function irAoCurso(suave) {
+    var secao = id('curso'), botao = id('cursoBotao'), olho = secao && secao.querySelector('.olho');
+    if (!olho || !botao) return false;
+    var topo = document.querySelector('.topo').getBoundingClientRect().height;
+    var y = window.scrollY, inicio = olho.getBoundingClientRect().top + y - topo - 12;
+    var fimBotao = botao.getBoundingClientRect().bottom + y + 16 - window.innerHeight;
+    window.scrollTo({ top: Math.max(0, Math.max(inicio, fimBotao)), behavior: suave && !CALMO ? 'smooth' : 'auto' });
+    return true;
+  }
+  // seções de cima (partida e frase do dia) carregam durante a rolagem e podem empurrar o cartão:
+  // quando a rolagem termina, confere e ajusta o que faltar
+  function confere() {
+    var feito = false;
+    function ajusta() { if (feito) return; feito = true; window.removeEventListener('scrollend', ajusta); irAoCurso(true); setTimeout(function () { irAoCurso(false); }, 700); }
+    window.addEventListener('scrollend', ajusta);
+    setTimeout(ajusta, 1200);
+  }
+  document.addEventListener('click', function (ev) {
+    var a = ev.target.closest && ev.target.closest('a[href="#curso"]');
+    if (!a || a.target === '_blank') return;
+    if (irAoCurso(true)) { ev.preventDefault(); history.replaceState(null, '', '#curso'); confere(); }
+  });
+  // chegou de outra página com #curso no endereço (por exemplo, da seção Aprender)
+  if (location.hash === '#curso') window.addEventListener('load', function () { setTimeout(function () { irAoCurso(false); confere(); }, 50); });
+
   // ---------------------------------------------------------------- entradas suaves
   var revelar = document.querySelectorAll('.revela');
   if ('IntersectionObserver' in window) {
