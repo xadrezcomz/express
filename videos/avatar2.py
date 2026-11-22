@@ -110,6 +110,84 @@ def pesos_da_boca(alvo, env, fps):
     return P / P.sum(1, keepdims=True)
 
 
+def fluxos(base, alvo, caixa):
+    """O movimento de cada ponto da boca entre a pose de descanso e um som (fluxo óptico),
+    para a boca abrir aos poucos (deformando) em vez de trocar de imagem."""
+    import cv2
+    x0, y0, x1, y1 = caixa
+    g = lambda a: cv2.cvtColor(np.ascontiguousarray(a[y0:y1, x0:x1, :3]).astype(np.uint8), cv2.COLOR_RGB2GRAY)
+    dis = cv2.DISOpticalFlow_create(cv2.DISOPTICAL_FLOW_PRESET_MEDIUM)
+    F = dis.calc(g(base), g(alvo), None)                         # base(x) ~ alvo(x + F(x))
+    F = cv2.GaussianBlur(F, (0, 0), 2.0)                         # movimento liso, sem rasgar
+    return F
+
+
+def morfa(base, alvo, F, caixa, a):
+    """A boca a meio caminho (a de 0 a 1) entre a pose de descanso e o som."""
+    import cv2
+    x0, y0, x1, y1 = caixa
+    B = base[y0:y1, x0:x1]; A = alvo[y0:y1, x0:x1]
+    if a <= 0.001:
+        return B
+    h, w = F.shape[:2]
+    gx, gy = np.meshgrid(np.arange(w, dtype=np.float32), np.arange(h, dtype=np.float32))
+    bw = cv2.remap(np.ascontiguousarray(B), (gx - a * F[..., 0]).astype(np.float32), (gy - a * F[..., 1]).astype(np.float32), cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
+    aw = cv2.remap(np.ascontiguousarray(A), (gx + (1 - a) * F[..., 0]).astype(np.float32), (gy + (1 - a) * F[..., 1]).astype(np.float32), cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
+    m = a * a * (3 - 2 * a)                                      # a cor (dentes, língua) entra um pouco depois do movimento
+    return bw * (1 - m) + aw * m
+
+
+def morfa_mistura(base, alvos, F, pesos, caixa, a):
+    """A boca a caminho de uma mistura de sons: o movimento é a média dos movimentos de cada som,
+    e cada imagem é deformada para essa mesma forma antes de misturar as cores (sem fantasma)."""
+    import cv2
+    x0, y0, x1, y1 = caixa
+    B = np.ascontiguousarray(base[y0:y1, x0:x1])
+    if a <= 0.001 or not pesos:
+        return B
+    Fm = sum(w * F[s] for s, w in pesos.items())
+    h, w_ = Fm.shape[:2]
+    gx, gy = np.meshgrid(np.arange(w_, dtype=np.float32), np.arange(h, dtype=np.float32))
+    ox, oy = gx - a * Fm[..., 0], gy - a * Fm[..., 1]                 # o ponto da pose base que veio para cá
+    bw = cv2.remap(B, ox.astype(np.float32), oy.astype(np.float32), cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
+    cor = 0
+    for s, w in pesos.items():
+        A = np.ascontiguousarray(alvos[s][y0:y1, x0:x1])
+        cor = cor + w * cv2.remap(A, (ox + F[s][..., 0]).astype(np.float32), (oy + F[s][..., 1]).astype(np.float32),
+                                  cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
+    m = a * a * (3 - 2 * a)
+    return bw * (1 - m) + cor * m
+
+
+def movimento_da_boca(alvo, env, fps):
+    """Para cada quadro: o som da boca e o quanto ela está aberta (0 a 1), com inércia,
+    como um músculo de verdade: ela acelera e freia, sem pular de uma forma para a outra."""
+    n = len(alvo)
+    sons, abre = [], []
+    a, vel, atual = 0.0, 0.0, 'A'
+    k, amort = (2 * math.pi * 7.5) ** 2, 2 * 0.85 * (2 * math.pi * 7.5)   # mola de ~7,5 Hz, quase sem balanço
+    dt = 1 / fps
+    for i in range(n):
+        s = alvo[i]
+        falando = env[i] > 0.08
+        if s in ('M', 'F'):
+            meta = 1.0                                            # lábios fechados / dentes no lábio: forma inteira
+        elif s and falando:
+            meta = float(np.clip(0.3 + env[i] * 0.75, 0.3, 1.0))
+        else:
+            meta = 0.0
+        if s and s != atual and (a < 0.3 or s in ('M', 'F') or atual in ('M', 'F')):
+            atual = s                                             # troca de som com a boca quase fechada
+        elif s and s != atual:
+            atual = s
+        for _ in range(4):                                       # 4 passos por quadro: a mola fica estável
+            acc = k * (meta - a) - amort * vel
+            vel += acc * dt / 4; a += vel * dt / 4
+        a = float(np.clip(a, 0, 1))
+        sons.append(atual); abre.append(a)
+    return sons, np.array(abre)
+
+
 def piscadas(n, fps, semente):
     """0 aberto, 1 meio fechado, 2 fechado: uma piscada de 5 quadros a cada 2 a 5 segundos."""
     rnd = np.random.default_rng(semente)
@@ -143,7 +221,18 @@ def main():
     mo = mascara(tam, av['regioes']['olhos'], esc, 6 * esc)[..., None]
 
     env = envelope(cfg.get('audio'), n, fps)
-    P = pesos_da_boca(sons_da_fala(cfg.get('audio'), n, fps), env, fps)
+    sons, abre = movimento_da_boca(sons_da_fala(cfg.get('audio'), n, fps), env, fps)
+    rb = [int(round(v * esc)) for v in av['regioes']['boca']]
+    rb = [max(0, rb[0]), max(0, rb[1]), min(tam[0], rb[2]), min(tam[1], rb[3])]
+    alvos = {s: base + d for s, d in bocas.items()}
+    F = {s: fluxos(base, alvos[s], rb) for s in alvos if s != 'sorriso'}
+    boca_base = base.copy()
+    # o peso de cada som em cada quadro, com a passagem suave (uns 5 quadros) de um para o outro
+    nomes_F = list(F)
+    W = np.zeros((n, len(nomes_F)), np.float32)
+    for i, s_i in enumerate(sons):
+        if s_i in F: W[i, nomes_F.index(s_i)] = 1
+    W = ndimage.convolve1d(W, np.array([0.15, 0.5, 1, 0.5, 0.15]), axis=0, mode='nearest')
     pis = piscadas(n, fps, cfg.get('semente', 7))
     linha = sorted(cfg.get('linha', []))                            # [[t, nome, dur], ...]
     acenos = cfg.get('acenos', [])
@@ -179,7 +268,12 @@ def main():
         if lsync > 0:
             # a boca e os olhos são trocados inteiros na região deles (vêm da pose base), em vez de
             # somados: assim um gesto com o rosto um pouco diferente não fica com a boca dobrada
-            boca = base + sum(P[i, k] * bocas[s] for k, s in enumerate(SONS) if s in bocas and P[i, k] > 0.01)
+            boca = boca_base.copy()
+            x0, y0, x1, y1 = rb
+            pesos = {s: float(W[i, k]) for k, s in enumerate(nomes_F) if W[i, k] > 0.02}
+            tot = sum(pesos.values()) or 1
+            pesos = {s: w / tot for s, w in pesos.items()}
+            boca[y0:y1, x0:x1] = morfa_mistura(base, alvos, F, pesos, rb, abre[i])
             img = img + (boca - img) * mb * lsync
             q = pis[i]
             olho = base

@@ -238,7 +238,10 @@ e com o rosto no mesmo lugar, em que só muda um pedaço:
 
 - `base`: a pose de descanso, de boca fechada;
 - `bocas`: uma por som (A, E, I, O, U, M, F e um sorriso para as pausas). A fala vira sons letra
-  a letra, no tempo de cada palavra, e só a região da boca é trocada, com uma passagem suave;
+  a letra, no tempo de cada palavra. A boca não troca de imagem: o programa mede (fluxo óptico)
+  como cada ponto dos lábios anda da pose de descanso até cada som e deforma a boca aos poucos.
+  O quanto ela abre segue o volume da voz, com a inércia de uma mola (acelera e freia), e na
+  passagem de um som para outro os movimentos se misturam antes das cores, sem imagem fantasma;
 - `olhos`: meio fechado e fechado (a piscada, às vezes dupla) e olhando para baixo (nas perguntas);
 - `gestos`: o braço explicando (de tempos em tempos), o dedo levantado ("atenção", "importante",
   "regra") e o joinha ("até lá", `[mostra logo]`); a boca e os olhos continuam animados;
