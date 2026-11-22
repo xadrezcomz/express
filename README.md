@@ -74,6 +74,23 @@ O site usa o conjunto próprio do Xadrez Express, em `img/pecas-express/`. Os de
 `ferramentas/gera-pecas-express.py` (formas e cores ficam no começo do arquivo). O conjunto
 anterior (Cburnett, CC BY-SA 3.0) continua guardado em `img/pecas/`, sem uso.
 
+## Oferta por tempo limitado
+
+Em `js/config.js`, o bloco `oferta` (nome, link, preço e data `ate`) vale até o fim do dia `ate`: o site usa
+o link e o preço da oferta, mostra o preço normal riscado e a contagem regressiva no topo, no cartão e na
+chamada final. Depois dessa data, volta sozinho ao link e ao preço normais. Para conferir antes:
+`?dia=2026-12-01` no endereço.
+
+## Medição de vendas
+
+`js/medicao.js` conta visitas e cliques no GoatCounter (https://xadrezcomz.goatcounter.com, sem cookies).
+Eventos: `express/compra/<origem>` (clique em botão de compra), `express/conhecer-curso` e
+`express/desafio/<primeira|depois-de-errar|viu-a-jogada>`.
+
+Cada botão de compra leva a origem no link da Hotmart (`src=site-topo`, `site-cartao`, `site-cartao-fim`,
+`site-barra`, `site-final`, `site-aprender-topo`): na Hotmart dá para ver qual botão gerou cada venda.
+Botão de compra novo: ponha `data-origem="nome"` no link.
+
 ## Refazer os bancos
 
 ```sh

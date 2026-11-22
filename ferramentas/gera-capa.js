@@ -18,6 +18,7 @@ const { chromium } = require('playwright');
     .hero h1{font-size:212px;line-height:.9}
     .chamada{font-size:46px;max-width:none;font-weight:600}` });
   await p.evaluate(() => {
+    const h1 = document.querySelector('.hero h1'); h1.className = ''; h1.innerHTML = 'Xadrez <span>Express</span>';
     document.querySelector('.chamada').innerHTML = 'O jeito mais rápido de <b>evoluir no xadrez</b>';
     window.dispatchEvent(new Event('resize'));
   });
