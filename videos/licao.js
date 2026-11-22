@@ -136,11 +136,14 @@ function leOrdem(texto, onde) {
     const modelo = chave(partes[1] || '');
     if (!/^(numero|alerta|carimbo|medidor|lista|frase|cronometro|icone|versus|celular)$/.test(modelo)) throw new Error(onde + ': as telas são numero, alerta, carimbo, medidor, lista, frase, cronometro, icone, versus e celular');
     acoes.push({ tipo: 'tela', modelo: modelo, partes: resto2 });
+  } else if (nome === 'avatar') {                       // [avatar surpreso]: a pose do professor no canto
+    if (!resto.length) throw new Error(onde + ': diga a pose do avatar (ex.: [avatar surpreso])');
+    acoes.push({ tipo: 'avatar', pose: chave(resto[0]) });
   } else if (nome === 'tira') {
     semCor.forEach(p => { if (!ehCasa(p)) throw new Error(onde + ': "' + p + '" não é uma casa'); });
     acoes.push({ tipo: 'tira', casas: semCor.map(indice) });
   } else {
-    throw new Error(onde + ': não conheço a ordem [' + texto + ']. As ordens são: lance, seta, marca, limpa, posicao, poe, tira, mostra, esconde, texto, visao, mao, nota, etiqueta, flash, treme, tela, zoom.');
+    throw new Error(onde + ': não conheço a ordem [' + texto + ']. As ordens são: lance, seta, marca, limpa, posicao, poe, tira, mostra, esconde, texto, visao, mao, nota, etiqueta, flash, treme, tela, zoom, avatar.');
   }
   acoes.forEach(a => { a.aos = aos; });
   return acoes;
@@ -156,7 +159,7 @@ function le(texto, nomeArquivo) {
     if (l === '' && !Object.keys(cab).length) continue;
     if (/^-{3,}$/.test(l)) { i++; break; }
     const m = l.match(/^([A-Za-zÀ-ÿ]+)\s*:\s*(.*)$/);
-    if (!m || !/^(licao|titulo|posicao|pecas|lado|legenda|voz|estilo|edicao|musica|serie)$/.test(chave(m[1]))) break;
+    if (!m || !/^(licao|titulo|posicao|pecas|lado|legenda|voz|estilo|edicao|musica|serie|avatar)$/.test(chave(m[1]))) break;
     cab[chave(m[1])] = m[2].trim();
   }
   const onde = nomeArquivo || 'lição';
@@ -197,6 +200,7 @@ function le(texto, nomeArquivo) {
     estilo: chave(cab.estilo || '') === '3d' ? '3d' : '2d',
     legenda: !/^(nao|n|off|0)$/.test(chave(cab.legenda || 'sim')),
     edicao: chave(cab.edicao || ''), musica: chave(cab.musica || ''), serie: cab.serie || '',
+    avatar: !!cab.avatar && !/^(nao|n|off|0)$/.test(chave(cab.avatar)),
     casas: casas, palavras: palavras, ordens: ordens,
     fala: palavras.map(p => p.voz || p.texto).join(' ')
   };
@@ -321,8 +325,8 @@ function roteiro(licao, tempos, duracao) {
     else if (a.tipo === 'seta') { ev.setas = a.setas; ev.cor = a.cor; ultimo = ev.t; }
     else if (a.tipo === 'marca') { ev.casas = a.casas; ev.cor = a.cor; ultimo = ev.t; }
     else if (a.tipo === 'mao') { ev.casa = a.casa; ultimo = ev.t; }
-    else if (/^(nota|etiqueta|flash|treme|tela)$/.test(a.tipo)) {
-      ['texto', 'casa', 'cor', 'modelo', 'partes'].forEach(k => { if (a[k] != null) ev[k] = a[k]; });
+    else if (/^(nota|etiqueta|flash|treme|tela|avatar)$/.test(a.tipo)) {
+      ['texto', 'casa', 'cor', 'modelo', 'partes', 'pose'].forEach(k => { if (a[k] != null) ev[k] = a[k]; });
       ultimo = ev.t;
     }
     else ultimo = ev.t;
@@ -361,7 +365,7 @@ function roteiro(licao, tempos, duracao) {
   const fim = Math.max(fimDaFala, ultimo, efeitos, duracao || 0);
   return {
     numero: licao.numero, titulo: licao.titulo, pretasEmbaixo: licao.pretasEmbaixo, estilo: licao.estilo,
-    legenda: licao.legenda, edicao: licao.edicao, musica: licao.musica, serie: licao.serie, inicial: inicial, eventos: eventos, legendas: legendas,
+    legenda: licao.legenda, edicao: licao.edicao, musica: licao.musica, serie: licao.serie, avatar: licao.avatar, inicial: inicial, eventos: eventos, legendas: legendas,
     durLance: DUR_LANCE, duracao: fim, visoes: visoes
   };
 }

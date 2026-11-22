@@ -188,6 +188,39 @@ O 3D é desenhado pelo processador (sem placa de vídeo), então demora mais: um
 segundos leva cerca de 1 minuto e meio, contra uns 30 segundos no 2D. `--2d` força o 2D numa
 lição que tem `estilo: 3d`.
 
+## O avatar do professor
+
+Com `avatar: sim` no cabeçalho, o professor (um desenho) aparece no canto de baixo, à esquerda,
+falando junto com a voz: a boca abre e fecha com o volume do áudio, os olhos piscam e o corpo
+balança de leve. Tudo é feito aqui, com programas gratuitos (`videos/avatar.py`, em Python, com
+numpy, scipy e Pillow); não usa nenhum serviço pago.
+
+As imagens são a cara do dono do curso, então ficam na pasta privada das lições, em `avatar/`:
+um PNG com fundo transparente por pose e o `poses.json`, que marca em cada pose os dois olhos
+(`[x, y, raio x, raio y]`, para a piscada) e a boca (`"dentes"` quando os dentes aparecem, que o
+programa acha sozinho, ou o centro, a meia-largura e a linha onde a boca abre). Sem essa pasta, o
+vídeo sai sem o avatar.
+
+A pose muda sozinha conforme a fala:
+
+| Quando | Pose |
+|---|---|
+| a primeira frase | `apresenta` |
+| uma pergunta | `pensa` e `duvida`, alternando |
+| "atenção", "cuidado", "importante", `[tela alerta]` | `atencao` |
+| "parabéns", "muito bem", "isso aí" | `comemora` |
+| um xeque-mate | `surpreso` |
+| `[mostra cavalo]` (e as outras peças) | segurando a peça: `peao`, `torre`, `cavalo`, `bispo`, `dama`, `rei` |
+| "até lá", `[mostra logo]` | `joinha` |
+| no resto, a cada 6 segundos ou mais | `explica`, `fala` e `apresenta`, em rodízio |
+
+Para escolher a pose num ponto da fala, use `[avatar surpreso]` (vale por uns 4 segundos).
+O avatar é colado no vídeo pronto e leva uns 40 segundos a mais por minuto de vídeo.
+
+Ele ocupa a faixa de baixo da tela, abaixo do tabuleiro (até 10 px da borda, para a barrinha de
+progresso continuar à vista). Nos Reels essa faixa fica por baixo do nome do perfil e da legenda
+do Instagram: use o avatar nas aulas do curso.
+
 ## Postar no Instagram
 
 `node videos/posta.js NOME` converte `videos/prontos/NOME.mp4` para o formato de Reels do Instagram,

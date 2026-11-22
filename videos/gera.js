@@ -177,6 +177,7 @@ async function geraVideo(arquivoLicao, op) {
   const estilos = [...new Set(trechos.map(x => x.estilo))];
   if (estilos.length < 2) {
     await filma(roteiro, trechos.length ? trechos[0].estilo : roteiro.estilo, duracao, audio, saida);
+    poeAvatar(roteiro, audio, duracao, saida, nome);
     console.log('  ✔ ' + path.relative(process.cwd(), saida) + '  (' + duracao.toFixed(1) + 's)');
     return saida;
   }
@@ -207,9 +208,76 @@ async function geraVideo(arquivoLicao, op) {
     '-map', '[v]', '-map', '0:a', '-c:v', 'libx264', '-preset', 'fast', '-crf', '18', '-pix_fmt', 'yuv420p',
     '-r', String(QPS), '-c:a', 'copy', '-movflags', '+faststart', saida]);
   fs.rmSync(tmp, { recursive: true, force: true });
+  poeAvatar(roteiro, audio, duracao, saida, nome);
   console.log('  ✔ ' + path.relative(process.cwd(), saida) + '  (' + duracao.toFixed(1) + 's, ' +
     trechos.map(x => x.estilo.toUpperCase() + ' ' + x.de.toFixed(1) + '-' + x.ate.toFixed(1) + 's').join(', ') + ')');
   return saida;
+}
+
+// ---------------------------------------------------------------- o avatar do professor
+// "avatar: sim" no cabeçalho: o professor (desenho) fica no canto de baixo, falando junto com a voz.
+// As poses e o poses.json ficam na pasta privada das lições (avatar/), porque são a imagem do dono.
+// A pose muda sozinha conforme a fala (pergunta, atenção, xeque-mate, a peça apresentada, o "até lá")
+// e pode ser escolhida no roteiro com [avatar pose]; o videos/avatar.py desenha e cola no vídeo.
+const AVATAR = { ancora: [260, 1600], caixa: [0, 1330, 700, 1910], olhos: 54 };
+const PECA_POSE = { p: 'peao', r: 'torre', n: 'cavalo', b: 'bispo', q: 'dama', k: 'rei' };
+function linhaDoAvatar(roteiro, poses) {
+  const tem = p => poses.includes(p);
+  const marcas = [];                       // [t, pose, prioridade]
+  const giro = ['explica', 'fala', 'apresenta'].filter(tem);
+  let g = 0, ultimaTroca = -9, perguntas = 0;
+  roteiro.legendas.forEach((b, k) => {
+    const txt = b.palavras.map(p => p.texto).join(' ');
+    let pose = null;
+    if (k === 0 && tem('apresenta')) pose = 'apresenta';
+    else if (/(até lá|até a próxima)/i.test(txt)) pose = 'joinha';
+    else if (/(parabéns|muito bem|isso aí|ótimo|conseguiu|vencemos)/i.test(txt)) pose = 'comemora';
+    else if (/(atenção|cuidado|importante|proibid|perig)/i.test(txt)) pose = 'atencao';
+    else if (/\?$/.test(txt.trim())) pose = (perguntas++ % 2) ? 'duvida' : 'pensa';
+    else if (b.ini - ultimaTroca > 6 && giro.length) pose = giro[g++ % giro.length];
+    if (pose && tem(pose)) { marcas.push([b.ini, pose, 1]); ultimaTroca = b.ini; }
+  });
+  roteiro.eventos.forEach(ev => {
+    if (ev.tipo === 'mostra') {
+      const pose = ev.peca === 'logo' ? 'joinha' : PECA_POSE[ev.peca.toLowerCase()];
+      if (pose && tem(pose)) marcas.push([ev.t, pose, 2]);
+    } else if (ev.tipo === 'lance' && ev.mate && tem('surpreso')) marcas.push([ev.t + (ev.dur || roteiro.durLance), 'surpreso', 2]);
+    else if (ev.tipo === 'tela' && ev.modelo === 'alerta' && tem('atencao')) marcas.push([ev.t, 'atencao', 2]);
+    else if (ev.tipo === 'avatar') {
+      if (!tem(ev.pose)) throw new Error('[avatar ' + ev.pose + ']: as poses são ' + poses.join(', '));
+      marcas.push([ev.t, ev.pose, 3]);
+    }
+  });
+  // as marcas mais fortes seguram a pose por um tempo: nada mais fraco troca nesse meio
+  marcas.sort((a, b) => a[0] - b[0] || b[2] - a[2]);
+  const linha = [[0, marcas.length && marcas[0][0] < 0.5 ? marcas[0][1] : (giro[0] || poses[0])]];
+  let trava = -1, forca = 0;
+  marcas.forEach(([t, pose, pr]) => {
+    const ult = linha[linha.length - 1];
+    if (t < trava && pr <= forca) return;
+    if (t - ult[0] < 1.2 && pr <= 1) return;            // não troca de pose rápido demais
+    if (pose === ult[1]) return;
+    if (t - ult[0] < 0.4) { ult[1] = pose; } else linha.push([Math.max(0, t), pose]);
+    if (pr >= 2) { trava = t + (pr === 3 ? 4 : 2.8); forca = pr; } else forca = 0;
+  });
+  return linha;
+}
+function poeAvatar(roteiro, audio, duracao, saida, nome) {
+  if (!roteiro.avatar) return;
+  const pasta = path.join(BASE, 'avatar'), marc = path.join(pasta, 'poses.json');
+  if (!fs.existsSync(marc)) { console.log('  ⚠ avatar: não achei ' + marc + '; o vídeo sai sem o avatar'); return; }
+  const poses = Object.keys(JSON.parse(fs.readFileSync(marc, 'utf8'))).filter(k => !k.startsWith('_') && fs.existsSync(path.join(pasta, k + '.png')));
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'xe-avatar-'));
+  const entrada = path.join(tmp, 'sem-avatar.mp4');
+  fs.renameSync(saida, entrada);
+  let h = 0; for (const ch of nome) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const cfg = { pasta: pasta, fps: QPS, duracao: duracao, poses: linhaDoAvatar(roteiro, poses), audio: audio, semente: h % 100000,
+    ancora: AVATAR.ancora, caixa: AVATAR.caixa, olhos: AVATAR.olhos, largura: LARGURA, altura: ALTURA, entrada: entrada, saida: saida };
+  fs.writeFileSync(path.join(tmp, 'avatar.json'), JSON.stringify(cfg));
+  console.log('  avatar: ' + cfg.poses.map(([t, p]) => p + ' ' + t.toFixed(1) + 's').join(', '));
+  try { roda('python3', [path.join(AQUI, 'avatar.py'), path.join(tmp, 'avatar.json')]); }
+  catch (e) { fs.renameSync(entrada, saida); throw e; }
+  fs.rmSync(tmp, { recursive: true, force: true });
 }
 
 function escolheMusica(clima, saida) {
