@@ -731,3 +731,18 @@ body.tem-barra .rodape{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
   .tela-cena > *,.cena-lista li{opacity:1;animation:none !important}
   .curso-cartao{transform:none !important}
 }
+
+/* aulas no computador: texto à esquerda, cartões maiores à direita, sem vão grande entre as seções */
+@media (min-width:900px){
+  .professor{padding-bottom:48px}
+  .aulas{padding:48px 0 64px}
+  .aulas .miolo{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:1fr auto auto auto 1fr;column-gap:56px}
+  .aulas .miolo > :not(.aulas-lista){grid-column:1}
+  .aulas .olho{grid-row:2}
+  .aulas h2{grid-row:3}
+  .aulas .sub{grid-row:4}
+  .aulas-lista{grid-column:2;grid-row:1 / -1;grid-template-columns:repeat(2,250px);gap:24px;margin-top:0}
+  .aula-play{width:72px;height:72px;margin:-36px 0 0 -36px}
+  .aula-play::before{left:28px;top:22px;border-width:14px;border-left-width:21px}
+  .aula > b{font-size:1.125rem}
+}
