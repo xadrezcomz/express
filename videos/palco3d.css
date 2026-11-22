@@ -175,3 +175,7 @@
 .palco3d.reel-avatar .pe{display:none}
 .palco3d.reel-avatar .sombra-pe{height:860px;background:linear-gradient(0deg,#070417 0%,#070417 50%,rgba(7,4,23,.85) 72%,rgba(7,4,23,0) 100%)}
 .palco3d.reel-avatar .legenda3d{background:rgba(13,7,48,.94)}
+/* Reels com o avatar, na edição "show": as telas sobem (acima do rosto) e o lance escrito vai para
+   o lado do rosto, no lugar do balão de fala */
+.palco3d.reel-avatar .tela .t-meio{top:420px;bottom:800px}
+.palco3d.reel-avatar .nota{top:1250px;left:665px}
