@@ -11,7 +11,7 @@
   var tela = caixa.querySelector('canvas'), rotulo = document.getElementById('pecaAsciiNome');
   var CALMO = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
   var gl3 = document.createElement('canvas');
-  var gl = !CALMO && gl3.getContext('webgl', { preserveDrawingBuffer: true, antialias: false });
+  var gl = !CALMO && gl3.getContext('webgl', { preserveDrawingBuffer: true, antialias: false, depth: true });
   if (!gl) return;                                           // fica a imagem parada que já está no HTML
 
   // ================================================================ as peças (perfil Staunton)
@@ -47,14 +47,14 @@
     return out;
   }
   var FORMAS = {}; ORDEM.forEach(function (n) { FORMAS[n] = reamostra(PERFIS[n]); });
-  var ALTURAS = { peao: .70, cavalo: 1.13, bispo: 1.0, torre: .80, dama: 1.04, rei: 1.18 };   // até o topo, com a cruz do rei
+  var ALTURAS = { peao: .70, cavalo: 1.22, bispo: 1.0, torre: .80, dama: 1.04, rei: 1.18 };   // até o topo, com a cruz do rei
 
   // ================================================================ a peça na placa de vídeo
   var VS = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
   var FS = [
     'precision highp float;',
     'uniform vec2 uRes;uniform vec2 uP[' + N + '];',
-    'uniform float uTorre,uBispo,uDama,uRei,uCavalo;uniform vec3 uCam,uAlvo;uniform vec2 uC[' + NC + '];',
+    'uniform float uTorre,uBispo,uDama,uRei,uCavalo,uCorte,uOculta;uniform vec3 uCam,uAlvo;uniform vec2 uC[' + NC + '];',
     'float seg(vec2 p,vec2 a,vec2 b){vec2 pa=p-a,ba=b-a;float h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.);return length(pa-ba*h);}',
     'float cruza(vec2 q,vec2 a,vec2 b){bool c1=q.y>=a.y,c2=q.y<b.y;if((c1&&c2)||(!c1&&!c2)){float x=a.x+(q.y-a.y)*(b.x-a.x)/(b.y-a.y);if(q.x<x)return -1.;}return 1.;}',
     'float perfil(vec2 q){float d=1e9;float s=1.;',
@@ -88,7 +88,7 @@
     '  cab=max(cab,-caixa(vec3(k.x-.12,k.y-1.06,p.z),vec3(.012,.05,.006)));',
     '  d=min(d,cab+(1.-uCavalo)*.6);}',
     ' if(uRei>.01){float s=uRei;d=min(d,caixa(p-vec3(0.,.92+.13*s,0.),vec3(.035,.13,.035)*s)-.008);d=min(d,caixa(p-vec3(0.,.99+.08*s,0.),vec3(.1,.032,.035)*s)-.008);}',
-    ' return d;}',
+    ' return max(d,p.y-uCorte);}',
     'vec3 normal(vec3 p){vec2 e=vec2(.0015,0.);return normalize(vec3(peca(p+e.xyy)-peca(p-e.xyy),peca(p+e.yxy)-peca(p-e.yxy),peca(p+e.yyx)-peca(p-e.yyx)));}',
     'float sombra(vec3 o,vec3 r){float s=1.,t=.02;for(int i=0;i<28;i++){float h=peca(o+r*t);s=min(s,10.*h/t);t+=clamp(h,.02,.15);if(s<.01||t>2.5)break;}return clamp(s,0.,1.);}',
     'void main(){',
@@ -97,7 +97,7 @@
     ' vec3 rd=normalize(f*2.3+uv.x*r+uv.y*u),ro=uCam;',
     ' vec3 L=normalize(vec3(-.6,.9,-.45));vec3 col=vec3(0.);',
     ' float t=0.;bool acertou=false;',
-    ' for(int i=0;i<120;i++){float h=peca(ro+rd*t);if(h<.0008){acertou=true;break;}t+=h*.75;if(t>8.)break;}',
+    ' if(uOculta<.5)for(int i=0;i<120;i++){float h=peca(ro+rd*t);if(h<.0008){acertou=true;break;}t+=h*.75;if(t>8.)break;}',
     ' float tc=-ro.y/rd.y;',
     ' if(acertou&&(tc<0.||t<tc)){vec3 p=ro+rd*t,n=normal(p);',
     '  float dif=max(dot(n,L),0.)*sombra(p+n*.003,L);',
@@ -105,21 +105,81 @@
     '  float aro=pow(1.-max(dot(n,-rd),0.),2.5);',
     '  float ao=clamp(.45+.55*n.y,0.,1.)*clamp(p.y*3.+.35,0.,1.);',
     '  col=vec3(1.,.83,.55)*(.07+.95*dif)+vec3(1.,.97,.9)*esp*.9+vec3(.55,.35,1.)*aro*.75+vec3(.25,.18,.5)*ao*.25;',
+    '  col+=vec3(1.,.45,.95)*smoothstep(.05,0.,uCorte-p.y)*1.4;',
     ' } else if(tc>0.){vec3 p=ro+rd*tc;vec2 g=floor(p.xz/.36);float cl=mod(g.x+g.y,2.);',
     '  float fade=clamp(1.-length(p.xz)/1.55,0.,1.);',
     '  col=mix(vec3(.10,.07,.30),vec3(.42,.34,.85),cl)*(.25+.75*sombra(p+vec3(0.,.002,0.),L))*fade*fade;',
     ' }',
     ' gl_FragColor=vec4(col,1.);}'
   ].join('\n');
+  // O cavalo vem de um modelo 3D esculpido (Poly Haven, CC0), com mapa de relevo para a crina e os olhos.
+  var DERIV = gl.getExtension('OES_standard_derivatives');
+  var VSM = 'attribute vec3 aP,aN;attribute vec2 aT;attribute float aA;uniform mat4 uVP;uniform float uE;' +
+    'varying vec3 vP,vN;varying vec2 vT;varying float vA;void main(){vP=aP*uE;vN=aN;vT=aT;vA=aA;gl_Position=uVP*vec4(vP,1.);}';
+  var FSM = (DERIV ? '#extension GL_OES_standard_derivatives : enable\n' : '') + [
+    'precision highp float;uniform sampler2D uTex;uniform vec3 uCam;uniform float uCorte;',
+    'varying vec3 vP,vN;varying vec2 vT;varying float vA;',
+    DERIV ? 'vec3 relevo(vec3 N){vec3 q1=dFdx(vP),q2=dFdy(vP);vec2 s1=dFdx(vT),s2=dFdy(vT);vec3 a=cross(q2,N),b=cross(N,q1);' +
+            'vec3 T=a*s1.x+b*s2.x,B=a*s1.y+b*s2.y;float k=inversesqrt(max(max(dot(T,T),dot(B,B)),1e-12));' +
+            'vec3 m=texture2D(uTex,vT).xyz*2.-1.;return normalize(mat3(T*k,B*k,N)*m);}' : 'vec3 relevo(vec3 N){return N;}',
+    'void main(){if(vP.y>uCorte)discard;',
+    ' vec3 n=normalize(vN);if(!gl_FrontFacing)n=-n;n=relevo(n);',
+    ' vec3 L=normalize(vec3(-.6,.9,-.45)),rd=normalize(vP-uCam);',
+    ' float dif=max(dot(n,L),0.);float esp=pow(max(dot(reflect(rd,n),L),0.),28.);float aro=pow(1.-max(dot(n,-rd),0.),2.5);',
+    ' vec3 col=vec3(1.,.83,.55)*(.07+.95*dif*mix(.55,1.,vA))+vec3(1.,.97,.9)*esp*.9*vA+vec3(.55,.35,1.)*aro*.75+vec3(.25,.18,.5)*vA*.25;',
+    ' col+=vec3(1.,.45,.95)*smoothstep(.05,0.,uCorte-vP.y)*1.4;',
+    ' if(!gl_FrontFacing)col=vec3(1.,.45,.95)*.7;',
+    ' gl_FragColor=vec4(col,1.);}'
+  ].join('\n');
   function compila(tipo, src) { var s = gl.createShader(tipo); gl.shaderSource(s, src); gl.compileShader(s); return gl.getShaderParameter(s, gl.COMPILE_STATUS) ? s : null; }
   var vs = compila(gl.VERTEX_SHADER, VS), fs = compila(gl.FRAGMENT_SHADER, FS);
   if (!vs || !fs) return;
-  var prog = gl.createProgram(); gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+  var prog = gl.createProgram(); gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.bindAttribLocation(prog, 0, 'a'); gl.linkProgram(prog);
   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
   gl.useProgram(prog);
   var vb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-  var la = gl.getAttribLocation(prog, 'a'); gl.enableVertexAttribArray(la); gl.vertexAttribPointer(la, 2, gl.FLOAT, false, 0, 0);
-  var U = {}; ['uRes', 'uP', 'uTorre', 'uBispo', 'uDama', 'uRei', 'uCavalo', 'uC', 'uCam', 'uAlvo'].forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
+  var U = {};
+  ['uRes', 'uP', 'uTorre', 'uBispo', 'uDama', 'uRei', 'uCavalo', 'uC', 'uCam', 'uAlvo', 'uCorte', 'uOculta'].forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
+
+  // a malha do cavalo: baixa junto com a página; até chegar, o ciclo segue sem ele
+  var malha = null, progM = null, UM = {};
+  (function () {
+    var v2 = compila(gl.VERTEX_SHADER, VSM), f2 = compila(gl.FRAGMENT_SHADER, FSM);
+    if (!v2 || !f2 || !window.fetch) return;
+    progM = gl.createProgram(); gl.attachShader(progM, v2); gl.attachShader(progM, f2);
+    ['aP', 'aN', 'aT', 'aA'].forEach(function (n, k) { gl.bindAttribLocation(progM, k, n); });
+    gl.linkProgram(progM);
+    if (!gl.getProgramParameter(progM, gl.LINK_STATUS)) { progM = null; return; }
+    ['uVP', 'uE', 'uTex', 'uCam', 'uCorte'].forEach(function (n) { UM[n] = gl.getUniformLocation(progM, n); });
+    var img = new Image(), bin = null, tex = gl.createTexture();
+    function pronto() {
+      if (!bin || !img.complete || !img.naturalWidth) return;
+      var cab = new Uint32Array(bin, 0, 2), nv = cab[0], ni = cab[1], o = 8, m = { n: ni, buf: [] };
+      [3, 3, 2, 1].forEach(function (k) {
+        var b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bin, o, nv * k), gl.STATIC_DRAW);
+        m.buf.push([b, k]); o += nv * k * 4;
+      });
+      m.ind = gl.createBuffer(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.ind); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(bin, o, ni), gl.STATIC_DRAW);
+      gl.bindTexture(gl.TEXTURE_2D, tex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
+      gl.generateMipmap(gl.TEXTURE_2D); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+      m.tex = tex; malha = m;
+    }
+    img.onload = pronto; img.src = 'assets/peca3d/cavalo-relevo.jpg';
+    fetch('assets/peca3d/cavalo.bin').then(function (r) { return r.ok ? r.arrayBuffer() : null; }).then(function (b) { if (b) { bin = b; pronto(); } }).catch(function () {});
+  })();
+  var E_CAVALO = 15.07;                                   // o modelo tem 7,5 cm: na escala das outras peças, 1,13 de altura
+
+  // câmera igual à do raio da peça: olha do ponto "de" para "para", com a mesma abertura
+  function matriz(de, para, asp) {
+    var f = norm3([para[0] - de[0], para[1] - de[1], para[2] - de[2]]), r = norm3([-f[2], 0, f[0]]), u = [r[1] * f[2] - r[2] * f[1], r[2] * f[0] - r[0] * f[2], r[0] * f[1] - r[1] * f[0]];
+    var g = 2.3 * 2, pe = 0.05, lo = 30, a = (lo + pe) / (pe - lo), b = 2 * lo * pe / (pe - lo);
+    var V = [r[0], u[0], -f[0], 0, r[1], u[1], -f[1], 0, r[2], u[2], -f[2], 0,
+      -(r[0] * de[0] + r[1] * de[1] + r[2] * de[2]), -(u[0] * de[0] + u[1] * de[1] + u[2] * de[2]), f[0] * de[0] + f[1] * de[1] + f[2] * de[2], 1];
+    var P = [g / asp, 0, 0, 0, 0, g, 0, 0, 0, 0, a, -1, 0, 0, b, 0], M = new Float32Array(16);
+    for (var i = 0; i < 4; i++) for (var j = 0; j < 4; j++) { var s = 0; for (var k = 0; k < 4; k++) s += P[k * 4 + j] * V[i * 4 + k]; M[i * 4 + j] = s; }
+    return M;
+  }
+  function norm3(v) { var l = Math.hypot(v[0], v[1], v[2]); return [v[0] / l, v[1] / l, v[2] / l]; }
 
   // ================================================================ caracteres escolhidos pelo formato
   var FONTE = '700 Xpx ui-monospace,Menlo,Consolas,"DejaVu Sans Mono",monospace';
@@ -172,20 +232,48 @@
   var nomeAtual = '';
   function desenha(t) {
     if (!COLS) return;
-    var ciclo = t / 5.5, i0 = Math.floor(ciclo) % ORDEM.length, f = ciclo - Math.floor(ciclo), m = suave((f - 0.8) / 0.2);
-    var A = ORDEM[i0], B = ORDEM[(i0 + 1) % ORDEM.length], P = new Float32Array(N * 2);
-    for (var k = 0; k < N * 2; k++) P[k] = FORMAS[A][k] + (FORMAS[B][k] - FORMAS[A][k]) * m;
-    function peso(n) { return (A === n ? 1 - m : 0) + (B === n ? m : 0); }
+    // sem a malha do cavalo (ainda baixando, ou aparelho sem suporte), o ciclo segue sem ele
+    var ord = malha ? ORDEM : ORDEM.filter(function (n) { return n !== 'cavalo'; });
+    var ciclo = t / 5.5, i0 = Math.floor(ciclo) % ord.length, f = ciclo - Math.floor(ciclo), m = suave((f - 0.8) / 0.2);
+    var A = ord[i0], B = ord[(i0 + 1) % ord.length], KA = A === 'cavalo', KB = B === 'cavalo';
+    var P = new Float32Array(N * 2), pesos = {}, corte = 10, oculta = 0, cavalo = false, k;
+    if (!KA && !KB) {                                     // uma peça vira a outra
+      for (k = 0; k < N * 2; k++) P[k] = FORMAS[A][k] + (FORMAS[B][k] - FORMAS[A][k]) * m;
+      pesos[A] = 1 - m; pesos[B] = (pesos[B] || 0) + m;
+    } else {
+      // o cavalo não se transforma: a peça de antes se desfaz de cima para baixo e a outra se monta de baixo para cima
+      var sai = m < 0.5, qual = sai ? A : B, frac = sai ? 1 - 2 * m : 2 * m - 1;
+      if (m > 0) corte = ALTURAS[qual] * frac + 0.02;
+      P = FORMAS[qual]; pesos[qual] = 1;
+      if (qual === 'cavalo') { oculta = 1; cavalo = true; }    // a peça de raio só faz a sombra; quem aparece é a malha
+    }
+    function peso(n) { return pesos[n] || 0; }
     var nome = NOMES[m < 0.5 ? A : B];
     if (rotulo && nome !== nomeAtual) { nomeAtual = nome; rotulo.textContent = nome; }
 
     // a câmera chega mais perto das peças baixas, para a peça sempre ocupar o quadro
     var h = ALTURAS[A] + (ALTURAS[B] - ALTURAS[A]) * m, z = h / 1.18;
     var giro = t * 0.55, raio = 3.35 * (0.45 + 0.55 * z), alt = (1.2 + 0.12 * Math.sin(t * 0.3)) * (0.5 + 0.5 * z);
+    var cam = [Math.cos(giro) * raio, alt, Math.sin(giro) * raio], alvo = [0, 0.56 * (0.35 + 0.65 * z), 0];
+
+    gl.useProgram(prog); gl.disable(gl.DEPTH_TEST);
+    gl.bindBuffer(gl.ARRAY_BUFFER, vb); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    for (k = 1; k < 4; k++) gl.disableVertexAttribArray(k);
     gl.uniform2f(U.uRes, RX, RY); gl.uniform2fv(U.uP, P);
     gl.uniform1f(U.uTorre, peso('torre')); gl.uniform1f(U.uBispo, peso('bispo')); gl.uniform1f(U.uDama, peso('dama')); gl.uniform1f(U.uRei, peso('rei')); gl.uniform1f(U.uCavalo, peso('cavalo')); gl.uniform2fv(U.uC, CAB);
-    gl.uniform3f(U.uCam, Math.cos(giro) * raio, alt, Math.sin(giro) * raio); gl.uniform3f(U.uAlvo, 0, 0.56 * (0.35 + 0.65 * z), 0);
+    gl.uniform1f(U.uCorte, corte); gl.uniform1f(U.uOculta, oculta);
+    gl.uniform3f(U.uCam, cam[0], cam[1], cam[2]); gl.uniform3f(U.uAlvo, alvo[0], alvo[1], alvo[2]);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    if (cavalo && malha) {
+      gl.useProgram(progM); gl.enable(gl.DEPTH_TEST); gl.clear(gl.DEPTH_BUFFER_BIT);
+      malha.buf.forEach(function (b, i) { gl.bindBuffer(gl.ARRAY_BUFFER, b[0]); gl.enableVertexAttribArray(i); gl.vertexAttribPointer(i, b[1], gl.FLOAT, false, 0, 0); });
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, malha.ind);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, malha.tex); gl.uniform1i(UM.uTex, 0);
+      gl.uniformMatrix4fv(UM.uVP, false, matriz(cam, alvo, RX / RY)); gl.uniform1f(UM.uE, E_CAVALO);
+      gl.uniform3f(UM.uCam, cam[0], cam[1], cam[2]); gl.uniform1f(UM.uCorte, corte);
+      gl.drawElements(gl.TRIANGLES, malha.n, gl.UNSIGNED_SHORT, 0);
+    }
     gl.readPixels(0, 0, RX, RY, gl.RGBA, gl.UNSIGNED_BYTE, px);
 
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
