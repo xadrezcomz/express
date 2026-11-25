@@ -1,7 +1,7 @@
 // "Do peão ao rei": uma peça de xadrez em 3D, desenhada com letras e símbolos.
 // A placa de vídeo desenha a peça (luz, sombra, reflexo); depois cada casinha da imagem
 // vira o caractere de formato mais parecido, medido em 6 regiões (2 colunas x 3 linhas).
-// A peça gira e vai virando a próxima: peão, torre, bispo, dama, rei.
+// A peça gira e vai virando a próxima: peão, cavalo, bispo, torre, dama, rei.
 //
 // Só desenha enquanto está na tela. Sem WebGL ou com "reduzir movimento", fica a imagem parada.
 (function () {
@@ -25,10 +25,14 @@
                         [.125, .65], [.155, .71], [.165, .77], [.15, .83], [.115, .89], [.065, .93], [.045, .945], [.065, .965], [.06, .99], [0, 1.0]]),
     dama:  BASE.concat([[.27, .16], [.21, .19], [.16, .3], [.125, .48], [.115, .6], [.215, .615], [.22, .645], [.20, .66], [.115, .675],
                         [.135, .72], [.185, .82], [.225, .885], [.23, .9], [.19, .91], [.12, .925], [.08, .95], [.065, .975], [0, .985]]),
+    cavalo: BASE.concat([[.27, .16], [.23, .19], [.215, .26], [.21, .33], [.22, .37], [0, .375]]),
     rei:   BASE.concat([[.27, .16], [.21, .19], [.16, .3], [.125, .48], [.115, .6], [.215, .615], [.22, .645], [.20, .66], [.115, .675],
                         [.14, .72], [.19, .81], [.215, .86], [.215, .885], [.17, .895], [.09, .905], [.05, .915], [0, .92]])
   };
-  var ORDEM = ['peao', 'torre', 'bispo', 'dama', 'rei'], NOMES = { peao: 'Peão', torre: 'Torre', bispo: 'Bispo', dama: 'Dama', rei: 'Rei' };
+  var ORDEM = ['peao', 'cavalo', 'bispo', 'torre', 'dama', 'rei'], NOMES = { peao: 'Peão', cavalo: 'Cavalo', bispo: 'Bispo', torre: 'Torre', dama: 'Dama', rei: 'Rei' };
+  // a cabeça do cavalo não é redonda: é o perfil de lado, olhando para a frente, com espessura
+  var CABECA = [[-0.290, 0.34], [0.130, 0.34], [0.170, 0.42], [0.150, 0.50], [0.050, 0.58], [0.110, 0.64], [0.230, 0.66], [0.350, 0.68], [0.390, 0.72], [0.400, 0.78], [0.370, 0.83], [0.270, 0.86], [0.170, 0.92], [0.100, 0.98], [0.080, 1.06], [0.030, 1.13], [-0.010, 1.04], [-0.090, 1.02], [-0.190, 0.97], [-0.290, 0.88], [-0.350, 0.76], [-0.370, 0.62], [-0.350, 0.48], [-0.310, 0.40]];
+  var NC = CABECA.length, CAB = new Float32Array(NC * 2); CABECA.forEach(function (q, k) { CAB[k * 2] = q[0]; CAB[k * 2 + 1] = q[1]; });
   var N = 48;
   function reamostra(pts) {                                 // N pontos igualmente espaçados no contorno: uma peça vira a outra
     var L = [0], i, k;
@@ -43,29 +47,39 @@
     return out;
   }
   var FORMAS = {}; ORDEM.forEach(function (n) { FORMAS[n] = reamostra(PERFIS[n]); });
-  var ALTURAS = { peao: .70, torre: .80, bispo: 1.0, dama: 1.04, rei: 1.18 };   // até o topo, com a cruz do rei
+  var ALTURAS = { peao: .70, cavalo: 1.13, bispo: 1.0, torre: .80, dama: 1.04, rei: 1.18 };   // até o topo, com a cruz do rei
 
   // ================================================================ a peça na placa de vídeo
   var VS = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
   var FS = [
     'precision highp float;',
     'uniform vec2 uRes;uniform vec2 uP[' + N + '];',
-    'uniform float uTorre,uBispo,uDama,uRei;uniform vec3 uCam,uAlvo;',
+    'uniform float uTorre,uBispo,uDama,uRei,uCavalo;uniform vec3 uCam,uAlvo;uniform vec2 uC[' + NC + '];',
     'float seg(vec2 p,vec2 a,vec2 b){vec2 pa=p-a,ba=b-a;float h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.);return length(pa-ba*h);}',
     'float cruza(vec2 q,vec2 a,vec2 b){bool c1=q.y>=a.y,c2=q.y<b.y;if((c1&&c2)||(!c1&&!c2)){float x=a.x+(q.y-a.y)*(b.x-a.x)/(b.y-a.y);if(q.x<x)return -1.;}return 1.;}',
     'float perfil(vec2 q){float d=1e9;float s=1.;',
     ' for(int i=0;i<' + (N - 1) + ';i++){vec2 a=uP[i],b=uP[i+1];d=min(d,seg(q,a,b));s*=cruza(q,a,b);}',
     ' vec2 a=uP[' + (N - 1) + '],b=uP[0];d=min(d,seg(q,a,b));s*=cruza(q,a,b);',
     ' return s*d;}',
+    'float silhueta(vec2 q){float d=1e9;float s=1.;',
+    ' for(int i=0;i<' + (NC - 1) + ';i++){vec2 a=uC[i],b=uC[i+1];d=min(d,seg(q,a,b));s*=cruza(q,a,b);}',
+    ' vec2 a=uC[' + (NC - 1) + '],b=uC[0];d=min(d,seg(q,a,b));s*=cruza(q,a,b);',
+    ' return s*d;}',
     'float caixa(vec3 p,vec3 b){vec3 q=abs(p)-b;return length(max(q,0.))+min(max(q.x,max(q.y,q.z)),0.);}',
     'float peca(vec3 p){',
-    ' float lim=length(vec2(max(length(p.xz)-.42,0.),max(abs(p.y-.58)-.62,0.)));if(lim>.1)return lim;',
+    ' float lim=length(vec2(max(length(p.xz)-.46,0.),max(abs(p.y-.58)-.62,0.)));if(lim>.1)return lim;',
     ' vec2 q=vec2(length(p.xz),p.y);float d=perfil(q);',
     ' if(uTorre>.01){float an=atan(p.z,p.x);float k=6.2832/6.;float a2=mod(an+k*.5,k)-k*.5;vec2 r=vec2(cos(a2),sin(a2))*length(p.xz);',
     '  float e=caixa(vec3(r.x-.25,p.y-.79,r.y),vec3(.08,.075*uTorre,.04*uTorre));d=max(d,-e);}',
     ' if(uBispo>.01){vec3 n=normalize(vec3(.8,.6,0.));float pl=abs(dot(p-vec3(.03,.83,0.),n))-.02*uBispo;pl=max(pl,-p.x);d=max(d,-pl);}',
     ' if(uDama>.01){float an=atan(p.z,p.x);float k=6.2832/9.;float a2=mod(an,k)-k*.5;vec2 r=vec2(cos(a2),sin(a2))*length(p.xz);',
     '  d=min(d,length(vec3(r.x-.215,p.y-.915,r.y))-.036*uDama);d=min(d,length(p-vec3(0.,1.005,0.))-.055*uDama);}',
+    ' if(uCavalo>.01){float d2=silhueta(p.xy);float w=.10-.03*smoothstep(.12,.36,p.x)+.015*smoothstep(-.12,-.3,p.x)-.02*smoothstep(.95,1.12,p.y);',
+    '  vec2 e=vec2(d2,abs(p.z)-w);float cab=min(max(e.x,e.y),0.)+length(max(e,0.))-.03;',
+    '  cab=max(cab,-(length(vec3(p.x-.15,p.y-.88,abs(p.z)-w-.02))-.04));',
+    '  cab=max(cab,-(length(vec3(p.x-.37,p.y-.775,abs(p.z)-w+.005))-.025));',
+    '  cab=max(cab,-caixa(vec3(p.x-.38,p.y-.715,p.z),vec3(.04,.007,.2)));',
+    '  d=min(d,cab+(1.-uCavalo)*.6);}',
     ' if(uRei>.01){float s=uRei;d=min(d,caixa(p-vec3(0.,.92+.13*s,0.),vec3(.035,.13,.035)*s)-.008);d=min(d,caixa(p-vec3(0.,.99+.08*s,0.),vec3(.1,.032,.035)*s)-.008);}',
     ' return d;}',
     'vec3 normal(vec3 p){vec2 e=vec2(.0015,0.);return normalize(vec3(peca(p+e.xyy)-peca(p-e.xyy),peca(p+e.yxy)-peca(p-e.yxy),peca(p+e.yyx)-peca(p-e.yyx)));}',
@@ -98,7 +112,7 @@
   gl.useProgram(prog);
   var vb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
   var la = gl.getAttribLocation(prog, 'a'); gl.enableVertexAttribArray(la); gl.vertexAttribPointer(la, 2, gl.FLOAT, false, 0, 0);
-  var U = {}; ['uRes', 'uP', 'uTorre', 'uBispo', 'uDama', 'uRei', 'uCam', 'uAlvo'].forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
+  var U = {}; ['uRes', 'uP', 'uTorre', 'uBispo', 'uDama', 'uRei', 'uCavalo', 'uC', 'uCam', 'uAlvo'].forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
 
   // ================================================================ caracteres escolhidos pelo formato
   var FONTE = '700 Xpx ui-monospace,Menlo,Consolas,"DejaVu Sans Mono",monospace';
@@ -162,7 +176,7 @@
     var h = ALTURAS[A] + (ALTURAS[B] - ALTURAS[A]) * m, z = h / 1.18;
     var giro = t * 0.55, raio = 3.35 * (0.45 + 0.55 * z), alt = (1.2 + 0.12 * Math.sin(t * 0.3)) * (0.5 + 0.5 * z);
     gl.uniform2f(U.uRes, RX, RY); gl.uniform2fv(U.uP, P);
-    gl.uniform1f(U.uTorre, peso('torre')); gl.uniform1f(U.uBispo, peso('bispo')); gl.uniform1f(U.uDama, peso('dama')); gl.uniform1f(U.uRei, peso('rei'));
+    gl.uniform1f(U.uTorre, peso('torre')); gl.uniform1f(U.uBispo, peso('bispo')); gl.uniform1f(U.uDama, peso('dama')); gl.uniform1f(U.uRei, peso('rei')); gl.uniform1f(U.uCavalo, peso('cavalo')); gl.uniform2fv(U.uC, CAB);
     gl.uniform3f(U.uCam, Math.cos(giro) * raio, alt, Math.sin(giro) * raio); gl.uniform3f(U.uAlvo, 0, 0.56 * (0.35 + 0.65 * z), 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     gl.readPixels(0, 0, RX, RY, gl.RGBA, gl.UNSIGNED_BYTE, px);
