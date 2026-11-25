@@ -31,7 +31,7 @@
   };
   var ORDEM = ['peao', 'cavalo', 'bispo', 'torre', 'dama', 'rei'], NOMES = { peao: 'Peão', cavalo: 'Cavalo', bispo: 'Bispo', torre: 'Torre', dama: 'Dama', rei: 'Rei' };
   // a cabeça do cavalo não é redonda: é o perfil de lado, olhando para a frente, com espessura
-  var CABECA = [[-0.290, 0.34], [0.130, 0.34], [0.170, 0.42], [0.150, 0.50], [0.050, 0.58], [0.110, 0.64], [0.230, 0.66], [0.350, 0.68], [0.390, 0.72], [0.400, 0.78], [0.370, 0.83], [0.270, 0.86], [0.170, 0.92], [0.100, 0.98], [0.080, 1.06], [0.030, 1.13], [-0.010, 1.04], [-0.090, 1.02], [-0.190, 0.97], [-0.290, 0.88], [-0.350, 0.76], [-0.370, 0.62], [-0.350, 0.48], [-0.310, 0.40]];
+  var CABECA = [[0.090, 0.34], [0.110, 0.40], [0.090, 0.47], [0.050, 0.54], [0.040, 0.60], [0.080, 0.66], [0.160, 0.69], [0.240, 0.71], [0.310, 0.72], [0.350, 0.75], [0.360, 0.79], [0.340, 0.83], [0.250, 0.89], [0.170, 0.95], [0.120, 0.99], [0.110, 1.04], [0.070, 1.13], [0.020, 1.06], [-0.040, 1.06], [-0.120, 1.03], [-0.190, 0.98], [-0.250, 0.90], [-0.290, 0.80], [-0.310, 0.70], [-0.310, 0.60], [-0.290, 0.50], [-0.260, 0.42], [-0.250, 0.34]];
   var NC = CABECA.length, CAB = new Float32Array(NC * 2); CABECA.forEach(function (q, k) { CAB[k * 2] = q[0]; CAB[k * 2 + 1] = q[1]; });
   var N = 48;
   function reamostra(pts) {                                 // N pontos igualmente espaçados no contorno: uma peça vira a outra
@@ -74,11 +74,18 @@
     ' if(uBispo>.01){vec3 n=normalize(vec3(.8,.6,0.));float pl=abs(dot(p-vec3(.03,.83,0.),n))-.02*uBispo;pl=max(pl,-p.x);d=max(d,-pl);}',
     ' if(uDama>.01){float an=atan(p.z,p.x);float k=6.2832/9.;float a2=mod(an,k)-k*.5;vec2 r=vec2(cos(a2),sin(a2))*length(p.xz);',
     '  d=min(d,length(vec3(r.x-.215,p.y-.915,r.y))-.036*uDama);d=min(d,length(p-vec3(0.,1.005,0.))-.055*uDama);}',
-    ' if(uCavalo>.01){float d2=silhueta(p.xy);float w=.10-.03*smoothstep(.12,.36,p.x)+.015*smoothstep(-.12,-.3,p.x)-.02*smoothstep(.95,1.12,p.y);',
-    '  vec2 e=vec2(d2,abs(p.z)-w);float cab=min(max(e.x,e.y),0.)+length(max(e,0.))-.03;',
-    '  cab=max(cab,-(length(vec3(p.x-.15,p.y-.88,abs(p.z)-w-.02))-.04));',
-    '  cab=max(cab,-(length(vec3(p.x-.37,p.y-.775,abs(p.z)-w+.005))-.025));',
-    '  cab=max(cab,-caixa(vec3(p.x-.38,p.y-.715,p.z),vec3(.04,.007,.2)));',
+    ' if(uCavalo>.01){vec3 k=p-vec3(-0.080,0.,0.);float d2=silhueta(p.xy);',
+    '  float w=.125*sqrt(clamp(-d2/.09+.12,0.,1.));',
+    '  w*=1.-.38*smoothstep(.2,.42,k.x)*smoothstep(.62,.72,k.y);',
+    '  w*=1.-.45*smoothstep(1.02,1.12,k.y);',
+    '  w+=.025*exp(-dot(k.xy-vec2(.13,.86),k.xy-vec2(.13,.86))*90.);',
+    '  float cab=max(d2,abs(p.z)-w);',
+    '  float cr=smoothstep(-.06,-.16,k.x)*smoothstep(.44,.52,k.y)*smoothstep(1.06,.98,k.y);',
+    '  cab+=cr*.012*abs(sin((k.y-.55*k.x)*62.));',
+    '  cab=max(cab,-(length(vec3(k.x-.17,k.y-.92,abs(p.z)-w*.8))-.032));',
+    '  cab=max(cab,-(length(vec3(k.x-.405,k.y-.79,abs(p.z)-w*.7))-.022));',
+    '  cab=max(cab,-caixa(vec3(k.x-.41,k.y-.74,p.z),vec3(.05,.006,.2)));',
+    '  cab=max(cab,-caixa(vec3(k.x-.12,k.y-1.06,p.z),vec3(.012,.05,.006)));',
     '  d=min(d,cab+(1.-uCavalo)*.6);}',
     ' if(uRei>.01){float s=uRei;d=min(d,caixa(p-vec3(0.,.92+.13*s,0.),vec3(.035,.13,.035)*s)-.008);d=min(d,caixa(p-vec3(0.,.99+.08*s,0.),vec3(.1,.032,.035)*s)-.008);}',
     ' return d;}',
@@ -90,7 +97,7 @@
     ' vec3 rd=normalize(f*2.3+uv.x*r+uv.y*u),ro=uCam;',
     ' vec3 L=normalize(vec3(-.6,.9,-.45));vec3 col=vec3(0.);',
     ' float t=0.;bool acertou=false;',
-    ' for(int i=0;i<96;i++){float h=peca(ro+rd*t);if(h<.0008){acertou=true;break;}t+=h*.9;if(t>8.)break;}',
+    ' for(int i=0;i<120;i++){float h=peca(ro+rd*t);if(h<.0008){acertou=true;break;}t+=h*.75;if(t>8.)break;}',
     ' float tc=-ro.y/rd.y;',
     ' if(acertou&&(tc<0.||t<tc)){vec3 p=ro+rd*t,n=normal(p);',
     '  float dif=max(dot(n,L),0.)*sombra(p+n*.003,L);',
