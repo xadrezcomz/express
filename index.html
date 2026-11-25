@@ -176,6 +176,23 @@
 <!-- ============================================================ O CURSO -->
 <!-- O cartão de venda. O link de compra e os preços ficam em js/config.js:
      quando o link for preenchido, este cartão vira o botão de compra. -->
+<!-- ============================================================ DO PEÃO AO REI -->
+<section class="secao do-peao" id="do-peao" aria-labelledby="doPeaoTitulo">
+  <div class="miolo do-peao-miolo">
+    <div class="peca-ascii" id="pecaAscii">
+      <img src="assets/peca3d/rei.webp" alt="" width="600" height="800" loading="lazy">
+      <canvas aria-hidden="true"></canvas>
+      <span class="peca-ascii-nome" id="pecaAsciiNome" aria-hidden="true">Rei</span>
+    </div>
+    <div class="do-peao-texto">
+      <p class="olho">Sua evolução</p>
+      <h2 id="doPeaoTitulo">Do peão ao rei</h2>
+      <p class="sub">Você começa do zero e, em poucos minutos por dia, chega ao xeque-mate. Uma aula curta de cada vez.</p>
+      <a class="botao botao-ouro" data-link-compra data-origem="do-peao" href="#curso" target="_blank" rel="noopener" data-so-venda hidden>Quero começar</a>
+    </div>
+  </div>
+</section>
+
 <section class="secao curso" id="curso">
   <div class="miolo">
     <p class="olho">O curso</p>
@@ -416,6 +433,7 @@
 <script src="js/dados.js" defer></script>
 <script src="js/puzzle.js" defer></script>
 <script src="js/partida.js" defer></script>
+<script src="js/peca-ascii.js" defer></script>
 <script src="js/site.js" defer></script>
 <script src="js/menu.js" defer></script>
 <script src="js/medicao.js" defer></script>
