@@ -43,6 +43,7 @@
     return out;
   }
   var FORMAS = {}; ORDEM.forEach(function (n) { FORMAS[n] = reamostra(PERFIS[n]); });
+  var ALTURAS = { peao: .70, torre: .80, bispo: 1.0, dama: 1.04, rei: 1.18 };   // até o topo, com a cruz do rei
 
   // ================================================================ a peça na placa de vídeo
   var VS = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
@@ -157,10 +158,12 @@
     var nome = NOMES[m < 0.5 ? A : B];
     if (rotulo && nome !== nomeAtual) { nomeAtual = nome; rotulo.textContent = nome; }
 
-    var giro = t * 0.55, raio = 3.35, alt = 1.2 + 0.12 * Math.sin(t * 0.3);
+    // a câmera chega mais perto das peças baixas, para a peça sempre ocupar o quadro
+    var h = ALTURAS[A] + (ALTURAS[B] - ALTURAS[A]) * m, z = h / 1.18;
+    var giro = t * 0.55, raio = 3.35 * (0.45 + 0.55 * z), alt = (1.2 + 0.12 * Math.sin(t * 0.3)) * (0.5 + 0.5 * z);
     gl.uniform2f(U.uRes, RX, RY); gl.uniform2fv(U.uP, P);
     gl.uniform1f(U.uTorre, peso('torre')); gl.uniform1f(U.uBispo, peso('bispo')); gl.uniform1f(U.uDama, peso('dama')); gl.uniform1f(U.uRei, peso('rei'));
-    gl.uniform3f(U.uCam, Math.cos(giro) * raio, alt, Math.sin(giro) * raio); gl.uniform3f(U.uAlvo, 0, 0.56, 0);
+    gl.uniform3f(U.uCam, Math.cos(giro) * raio, alt, Math.sin(giro) * raio); gl.uniform3f(U.uAlvo, 0, 0.56 * (0.35 + 0.65 * z), 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
     gl.readPixels(0, 0, RX, RY, gl.RGBA, gl.UNSIGNED_BYTE, px);
 
