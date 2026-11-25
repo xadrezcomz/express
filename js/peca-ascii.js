@@ -225,7 +225,53 @@
     tela.width = Math.round(L * dpr); tela.height = Math.round(A * dpr);
     RX = COLS * SX * SUB; RY = LINS * SY * SUB; gl3.width = RX; gl3.height = RY;
     gl.viewport(0, 0, RX, RY); px = new Uint8Array(RX * RY * 4);
+    var nn = COLS * LINS; DX = new Float32Array(nn); DY = new Float32Array(nn); VX = new Float32Array(nn); VY = new Float32Array(nn);
   }
+
+  // ================================================================ o dedo arrasta o desenho
+  // Cada casinha tem um deslocamento (em pixels da tela). O mouse ou o dedo puxa as casinhas
+  // perto dele na direção do movimento; depois elas voltam ao lugar como uma mola, com uma
+  // pequena balançada.
+  var DX = null, DY = null, VX = null, VY = null, mexeu = 0;
+  function passoMola() {
+    var ativo = 0;
+    for (var i = 0; i < DX.length; i++) {
+      VX[i] = (VX[i] - DX[i] * 0.07) * 0.86; VY[i] = (VY[i] - DY[i] * 0.07) * 0.86;
+      DX[i] += VX[i]; DY[i] += VY[i];
+      if (DX[i] > 0.3 || DX[i] < -0.3 || DY[i] > 0.3 || DY[i] < -0.3) ativo = 1;
+    }
+    return ativo;
+  }
+  function empurra(qx, qy, mx, my) {
+    if (!DX) return;
+    var R = cw * 15, R2 = R * R, x0 = Math.max(0, Math.floor((qx - R) / cw)), x1 = Math.min(COLS - 1, Math.ceil((qx + R) / cw));
+    var y0 = Math.max(0, Math.floor((qy - R) / chh)), y1 = Math.min(LINS - 1, Math.ceil((qy + R) / chh)), lim = cw * 22;
+    for (var y = y0; y <= y1; y++) for (var x = x0; x <= x1; x++) {
+      var ex = (x + 0.5) * cw + DX[y * COLS + x] - qx, ey = (y + 0.5) * chh + DY[y * COLS + x] - qy, d2 = ex * ex + ey * ey;
+      if (d2 > R2) continue;
+      var w = Math.exp(-d2 / (R2 * 0.22)), i = y * COLS + x;           // mais forte bem embaixo do dedo
+      DX[i] = Math.max(-lim, Math.min(lim, DX[i] + mx * w * 1.25)); DY[i] = Math.max(-lim, Math.min(lim, DY[i] + my * w * 1.25));
+      VX[i] *= 1 - w * 0.5; VY[i] *= 1 - w * 0.5;                       // segura enquanto o dedo está em cima
+    }
+    mexeu = 1;
+  }
+  var ultimoP = null;
+  function toque(x, y) {
+    var r = tela.getBoundingClientRect(), qx = x - r.left, qy = y - r.top;
+    if (qx < 0 || qy < 0 || qx > r.width || qy > r.height) return;
+    // o desenho vai junto com o gesto; passos longos viram vários puxões
+    if (ultimoP) {
+      var dx = qx - ultimoP[0], dy = qy - ultimoP[1], passos = Math.min(8, Math.max(1, Math.round(Math.hypot(dx, dy) / cw / 2)));
+      for (var k = 1; k <= passos; k++) empurra(qx - dx * (1 - k / passos), qy - dy * (1 - k / passos), dx / passos, dy / passos);
+    }
+    ultimoP = [qx, qy];
+  }
+  caixa.addEventListener('pointermove', function (ev) { if (ev.pointerType === 'mouse') toque(ev.clientX, ev.clientY); });
+  caixa.addEventListener('pointerleave', function () { ultimoP = null; });
+  // no celular o dedo também rola a página: os eventos são só "passivos", nunca seguram a rolagem
+  caixa.addEventListener('touchstart', function (ev) { ultimoP = null; var p = ev.touches[0]; toque(p.clientX, p.clientY); }, { passive: true });
+  caixa.addEventListener('touchmove', function (ev) { var p = ev.touches[0]; toque(p.clientX, p.clientY); }, { passive: true });
+  caixa.addEventListener('touchend', function () { ultimoP = null; }, { passive: true });
 
   // ================================================================ um quadro
   function suave(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
@@ -281,10 +327,18 @@
     c.font = FONTE.replace('X', (chh * 0.86).toFixed(2));
     c.textBaseline = 'middle'; c.textAlign = 'center';
     var s = [0, 0, 0, 0, 0, 0], rw = SX * SUB, rh = SY * SUB, area = SUB * SUB;
+    var puxa = mexeu && DX; if (puxa) mexeu = passoMola();
+    var ex = rw / cw, ey = rh / chh;                       // pixels da tela -> pixels da imagem da placa
     for (var cy = 0; cy < LINS; cy++) for (var cx = 0; cx < COLS; cx++) {
-      var R = 0, G = 0, Bc = 0, soma = 0, j;
+      var R = 0, G = 0, Bc = 0, soma = 0, j, dx = 0, dy = 0;
+      if (puxa) {
+        // a casinha mostra o que estava "antes" do puxão: o desenho anda junto com o dedo
+        var io = cy * COLS + cx;
+        dx = -Math.round(DX[io] * ex); dy = -Math.round(DY[io] * ey);
+        dx = Math.max(-cx * rw, Math.min((COLS - 1 - cx) * rw, dx)); dy = Math.max(-cy * rh, Math.min((LINS - 1 - cy) * rh, dy));
+      }
       for (j = 0; j < 6; j++) {
-        var ox = cx * rw + (j & 1) * SUB, oy = (LINS - 1 - cy) * rh + (2 - (j >> 1)) * SUB, l = 0;   // a placa entrega a imagem de cabeça para baixo
+        var ox = cx * rw + (j & 1) * SUB + dx, oy = (LINS - 1 - cy) * rh + (2 - (j >> 1)) * SUB - dy, l = 0;   // a placa entrega a imagem de cabeça para baixo
         for (var yy = 0; yy < SUB; yy++) for (var xx = 0; xx < SUB; xx++) {
           var q = ((oy + yy) * RX + ox + xx) * 4; R += px[q]; G += px[q + 1]; Bc += px[q + 2];
           l += 0.3 * px[q] + 0.59 * px[q + 1] + 0.11 * px[q + 2];
@@ -325,5 +379,5 @@
   if ('IntersectionObserver' in window) {
     new IntersectionObserver(function (es) { naTela = es[0].isIntersecting; if (naTela) liga(); else desliga(); }, { threshold: 0.1 }).observe(caixa);
   } else { naTela = true; liga(); }
-  window.XE_PECA_ASCII = { tempo: function (x) { t = x; desenha(t); } };   // para testes
+  window.XE_PECA_ASCII = { tempo: function (x) { t = x; desenha(t); }, puxao: function () { var m = 0; if (DX) for (var i = 0; i < DX.length; i++) m = Math.max(m, Math.abs(DX[i]), Math.abs(DY[i])); return m; } };   // para testes
 })();
