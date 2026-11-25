@@ -225,7 +225,47 @@
     tela.width = Math.round(L * dpr); tela.height = Math.round(A * dpr);
     RX = COLS * SX * SUB; RY = LINS * SY * SUB; gl3.width = RX; gl3.height = RY;
     gl.viewport(0, 0, RX, RY); px = new Uint8Array(RX * RY * 4);
+    OL = LINS * 2; onda = new Float32Array(COLS * OL); onda2 = new Float32Array(COLS * OL);
   }
+
+  // ================================================================ água por cima do desenho
+  // Uma grade de alturas do tamanho da grade de letras. O mouse ou o dedo empurra a água;
+  // a onda se espalha e perde força, e a inclinação dela desloca a imagem como uma lente.
+  var onda = null, onda2 = null, OL = 0, mexeu = 0;
+  function passoOnda() {
+    var a = onda, b = onda2, W = COLS, H = OL, ativo = 0;
+    for (var y = 1; y < H - 1; y++) for (var x = 1; x < W - 1; x++) {
+      var i = y * W + x, v = (a[i - 1] + a[i + 1] + a[i - W] + a[i + W]) * 0.5 - b[i];
+      v *= 0.965; b[i] = v; if (v > 0.01 || v < -0.01) ativo = 1;
+    }
+    onda = b; onda2 = a; return ativo;
+  }
+  function empurra(px0, py0, forca) {
+    if (!onda) return;
+    var x0 = Math.round(px0 / cw), y0 = Math.round(py0 / (chh / 2)), R = 3;
+    for (var y = y0 - R; y <= y0 + R; y++) for (var x = x0 - R; x <= x0 + R; x++) {
+      if (x < 1 || y < 1 || x >= COLS - 1 || y >= OL - 1) continue;
+      var d = Math.hypot(x - x0, y - y0); if (d > R) continue;
+      onda[y * COLS + x] += forca * (1 - d / R);
+    }
+    mexeu = 90;                                             // segue simulando por uns 3 s depois do último toque
+  }
+  var ultimoP = null;
+  function toque(x, y) {
+    var r = tela.getBoundingClientRect(), qx = x - r.left, qy = y - r.top;
+    if (qx < 0 || qy < 0 || qx > r.width || qy > r.height) return;
+    // quanto mais rápido o gesto, mais forte a onda; passos longos viram vários empurrões
+    var passos = 1, dx = 0, dy = 0;
+    if (ultimoP) { dx = qx - ultimoP[0]; dy = qy - ultimoP[1]; passos = Math.min(6, Math.max(1, Math.round(Math.hypot(dx, dy) / cw / 2))); }
+    for (var k = 1; k <= passos; k++) empurra(qx - dx * (1 - k / passos), qy - dy * (1 - k / passos), 2.2);
+    ultimoP = [qx, qy];
+  }
+  caixa.addEventListener('pointermove', function (ev) { if (ev.pointerType === 'mouse') toque(ev.clientX, ev.clientY); });
+  caixa.addEventListener('pointerleave', function () { ultimoP = null; });
+  // no celular o dedo também rola a página: os eventos são só "passivos", nunca seguram a rolagem
+  caixa.addEventListener('touchstart', function (ev) { ultimoP = null; var p = ev.touches[0]; toque(p.clientX, p.clientY); }, { passive: true });
+  caixa.addEventListener('touchmove', function (ev) { var p = ev.touches[0]; toque(p.clientX, p.clientY); }, { passive: true });
+  caixa.addEventListener('touchend', function () { ultimoP = null; }, { passive: true });
 
   // ================================================================ um quadro
   function suave(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
@@ -281,23 +321,43 @@
     c.font = FONTE.replace('X', (chh * 0.86).toFixed(2));
     c.textBaseline = 'middle'; c.textAlign = 'center';
     var s = [0, 0, 0, 0, 0, 0], rw = SX * SUB, rh = SY * SUB, area = SUB * SUB;
+    var agua = mexeu > 0 && onda; if (agua) { mexeu--; if (passoOnda()) mexeu = Math.max(mexeu, 1); }
     for (var cy = 0; cy < LINS; cy++) for (var cx = 0; cx < COLS; cx++) {
-      var R = 0, G = 0, Bc = 0, soma = 0, j;
+      var R = 0, G = 0, Bc = 0, soma = 0, j, dx = 0, dy = 0, hh = 0;
+      var gx = 0, gy = 0;
+      if (agua && cx > 0 && cy > 0 && cx < COLS - 1 && cy < LINS - 1) {
+        var io = (cy * 2 + 1) * COLS + cx; hh = onda[io];
+        gx = (onda[io + 1] - onda[io - 1]) * 0.5; gy = (onda[io + COLS] - onda[io - COLS]) * 0.5;
+        dx = Math.round(gx * rw * 4); dy = Math.round(gy * rh * 3);
+        dx = Math.max(-cx * rw, Math.min((COLS - 1 - cx) * rw, dx)); dy = Math.max(-(LINS - 1 - cy) * rh, Math.min(cy * rh, dy));
+      }
       for (j = 0; j < 6; j++) {
-        var ox = cx * rw + (j & 1) * SUB, oy = (LINS - 1 - cy) * rh + (2 - (j >> 1)) * SUB, l = 0;   // a placa entrega a imagem de cabeça para baixo
+        var ox = cx * rw + (j & 1) * SUB + dx, oy = (LINS - 1 - cy) * rh + (2 - (j >> 1)) * SUB - dy, l = 0;   // a placa entrega a imagem de cabeça para baixo
         for (var yy = 0; yy < SUB; yy++) for (var xx = 0; xx < SUB; xx++) {
           var q = ((oy + yy) * RX + ox + xx) * 4; R += px[q]; G += px[q + 1]; Bc += px[q + 2];
           l += 0.3 * px[q] + 0.59 * px[q + 1] + 0.11 * px[q + 2];
         }
         s[j] = l / (area * 255); soma += s[j];
       }
-      if (soma < 0.12) continue;
+      if (soma < 0.12) {
+        // fundo escuro: a água aparece como ondinhas fracas
+        // o traço segue o anel da onda: de lado vira |, em cima e embaixo vira -, nas diagonais / e \
+        var gg = Math.hypot(gx, gy);
+        if (gg > 0.06 && hh > 0.02) {
+          var an = (Math.atan2(gy, gx) * 57.3 + 180) % 180, tr = an < 22.5 || an >= 157.5 ? '|' : an < 67.5 ? '/' : an < 112.5 ? '-' : '\\';
+          var fo = Math.min(1, gg * 2.5);
+          c.fillStyle = 'rgba(190,160,255,' + (0.2 + 0.6 * fo).toFixed(2) + ')';
+          c.fillText(fo > 0.75 && hh > 0.5 ? (tr === '-' ? '~' : tr) : tr, cx * cw + cw / 2, cy * chh + chh / 2);
+        }
+        continue;
+      }
       var media = soma / 6, mn = 1, mx = 0, ch;
       for (j = 0; j < 6; j++) { mn = Math.min(mn, s[j]); mx = Math.max(mx, s[j]); }
       if (mx - mn < 0.1) ch = DENS[Math.min(DENS.length - 1, Math.floor(Math.pow(media, 0.9) * DENS.length))];
       else { for (j = 0; j < 6; j++) s[j] = Math.max(0, Math.min(1, media + (s[j] - media) * 1.5)); ch = letraPara(s); }
       if (ch === ' ') continue;
       var n = 6 * area, br = Math.max(R, G, Bc) / n, ganho = br > 1 ? Math.min(3, 235 / br) : 1;
+      if (hh > 0.05) { var cr = Math.min(70, hh * 60); R += cr * n * 0.6; G += cr * n * 0.5; Bc += cr * n; }   // crista da onda brilha
       c.fillStyle = 'rgb(' + Math.min(255, R / n * ganho | 0) + ',' + Math.min(255, G / n * ganho | 0) + ',' + Math.min(255, Bc / n * ganho | 0) + ')';
       c.fillText(ch, cx * cw + cw / 2, cy * chh + chh / 2);
     }
