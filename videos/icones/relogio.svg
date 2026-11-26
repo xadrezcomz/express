@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><!-- relógio de xadrez -->
+<rect x="40" y="130" width="320" height="190" rx="34" fill="#2a1f7a" stroke="#ffd36b" stroke-width="10"/>
+<rect x="95" y="100" width="60" height="34" rx="10" fill="#ffd36b"/><rect x="245" y="112" width="60" height="22" rx="10" fill="#7462e6"/>
+<circle cx="125" cy="225" r="68" fill="#f3f0ff"/><circle cx="275" cy="225" r="68" fill="#f3f0ff"/>
+<path d="M125 225 L125 178 M125 225 L158 240" stroke="#1b1150" stroke-width="10" stroke-linecap="round"/>
+<path d="M275 225 L275 172 M275 225 L248 250" stroke="#ff4f78" stroke-width="10" stroke-linecap="round"/>
+<circle cx="125" cy="225" r="9" fill="#1b1150"/><circle cx="275" cy="225" r="9" fill="#ff4f78"/></svg>

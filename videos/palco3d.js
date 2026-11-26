@@ -385,6 +385,8 @@ for (let k = 0; k < 22; k++) {
 // Para cada acontecimento, o enquadramento que mostra as casas envolvidas. A câmera vai
 // de um enquadramento ao outro em DUR_CAMERA segundos.
 let tomadas = [];
+// o lance escrito fica alguns segundos e some (o contador no alto continua)
+const NOTA_FICA = 3.6;
 function enquadra(casas, t, k) {
   if (!casas.length) return null;
   let x0 = 9, x1 = -9, z0 = 9, z1 = -9;
@@ -403,8 +405,10 @@ function planejaCamera() {
   tomadas = [];
   const inicio = enquadra(ocupadas(R.inicial), -10, 0) || enquadra([0, 63], -10, 0);
   inicio.larg = 8.4; inicio.prof = 9.2; inicio.el = 1.05; inicio.cx = inicio.cz = 0; tomadas.push(inicio);
+  let perto = false;
   R.eventos.forEach(ev => {
     let casas = null;
+    if (ev.tipo === 'zoom') { perto = true; return; }
     if (ev.tipo === 'lance') { casas = [ev.de, ev.para]; if (ev.xeque != null) casas.push(ev.xeque); }
     else if (ev.tipo === 'seta') casas = [].concat(...ev.setas);
     else if (ev.tipo === 'marca') casas = ev.casas;
@@ -415,6 +419,12 @@ function planejaCamera() {
     const nova = enquadra(casas, ev.t, tomadas.length), ult = tomadas[tomadas.length - 1];
     if (!nova) return;
     if (ev.tipo === 'posicao') { nova.larg = 8.4; nova.prof = 9.2; nova.el = 1.05; nova.cx = nova.cz = 0; }
+    // [zoom]: o próximo lance é visto bem de perto e mais de lado, para o golpe ficar dramático
+    if (perto && ev.tipo === 'lance') {
+      // perto, o que importa é a casa de chegada (e o rei em xeque): a saída pode ficar fora
+      const foco = enquadra([ev.para].concat(ev.xeque != null ? [ev.xeque] : []), ev.t, tomadas.length);
+      if (foco) { nova.cx = foco.cx; nova.cz = foco.cz; }
+      nova.larg = Math.min(nova.larg, 3.6); nova.prof = Math.min(nova.prof, 3.0); nova.el = 0.5; nova.az += 0.28; perto = false; }
     // se o novo enquadramento é quase o mesmo, a câmera fica onde está
     if (Math.hypot(nova.cx - ult.cx, nova.cz - ult.cz) < 0.7 && Math.abs(nova.larg - ult.larg) < 0.9 && Math.abs(nova.prof - ult.prof) < 0.9) return;
     // uma tomada nova logo depois de outra espera a anterior terminar
@@ -433,7 +443,8 @@ function cameraEm(t) {
 // A faixa da tela onde o tabuleiro deve caber: entre a legenda e o rodapé.
 // (dentro da zona segura dos Reels: x 80–940, y 250–1480; na edição "show", acima do lance escrito)
 const QUADRO = { x0: 80, x1: 940, y0: 590, y1: 1410 };
-const quadroY1 = () => R && R.edicao === 'show' ? 1310 : QUADRO.y1;
+const quadroY1 = () => R && R.avatar === 'reel' ? 1110 : R && R.edicao === 'show' ? 1310 : QUADRO.y1;
+const quadroY0 = () => R && R.avatar === 'reel' ? 420 : QUADRO.y0;   // nos Reels com o avatar, o tabuleiro sobe
 function poeCamera(c) {
   const alvo = new THREE.Vector3(c.cx, TOPO, c.cz);
   const dir = new THREE.Vector3(Math.sin(c.az) * Math.cos(c.el), Math.sin(c.el), Math.cos(c.az) * Math.cos(c.el));
@@ -454,11 +465,11 @@ function poeCamera(c) {
   let perto = 3, longe = 80;
   for (let k = 0; k < 30; k++) {
     const d = (perto + longe) / 2, m = medida(d);
-    if (m.x1 - m.x0 <= QUADRO.x1 - QUADRO.x0 && m.y1 - m.y0 <= quadroY1() - QUADRO.y0) longe = d; else perto = d;
+    if (m.x1 - m.x0 <= QUADRO.x1 - QUADRO.x0 && m.y1 - m.y0 <= quadroY1() - quadroY0()) longe = d; else perto = d;
   }
   const m = medida(longe);
   // e desliza a imagem para a área ficar no meio da faixa
-  const dx = (m.x0 + m.x1) / 2 - (QUADRO.x0 + QUADRO.x1) / 2, dy = (m.y0 + m.y1) / 2 - (QUADRO.y0 + quadroY1()) / 2;
+  const dx = (m.x0 + m.x1) / 2 - (QUADRO.x0 + QUADRO.x1) / 2, dy = (m.y0 + m.y1) / 2 - (quadroY0() + quadroY1()) / 2;
   camera.setViewOffset(1080, 1920, dx, dy, 1080, 1920);
 }
 
@@ -473,22 +484,22 @@ function estado(t) {
   for (const ev of R.eventos) {
     if (ev.t > t) break;
     tab = ev.tabuleiro; andando = null; novas = null;
-    const chega = ev.t + R.durLance;
+    const chega = ev.t + (ev.dur || R.durLance);
     if (ev.tipo === 'lance') {
       veio = ev.de; foi = ev.para; setas = []; marcas = [];
-      if (t - ev.t < R.durLance) andando = { ev, p: (t - ev.t) / R.durLance };
+      if (t - ev.t < (ev.dur || R.durLance)) andando = { ev, p: (t - ev.t) / (ev.dur || R.durLance) };
       xeque = ev.xeque != null ? { casa: ev.xeque, mate: ev.mate, t0: chega } : null;
-      if (ev.capturada) captura = { casa: ev.capturada.casa, peca: ev.capturada.peca, t0: ev.t + R.durLance * DUR_ATE_BATER };
+      if (ev.capturada) captura = { casa: ev.capturada.casa, peca: ev.capturada.peca, t0: ev.t + (ev.dur || R.durLance) * DUR_ATE_BATER };
       if (ev.xeque != null) faixa = { texto: ev.mate ? 'XEQUE-MATE!' : 'XEQUE!', classe: ev.mate ? 'mate' : 'xeque', t0: chega, dur: ev.mate ? 2.2 : 1.4 };
       if (cartaz) { cartazSai = { c: cartaz, t0: ev.t }; cartaz = null; }
       fechaTela(ev.t);
       // na edição "show", o mate e a captura pedem piscada e tremor
       if (show && ev.mate) { flash = { cor: 'amarela', t0: chega, forte: 1 }; treme = { t0: chega, forca: 1 }; }
-      else if (show && ev.capturada) treme = { t0: ev.t + R.durLance * DUR_ATE_BATER, forca: 0.5 };
+      else if (show && ev.capturada) treme = { t0: ev.t + (ev.dur || R.durLance) * DUR_ATE_BATER, forca: 0.5 };
       // a mão que segura a peça do lance vai junto com ela e solta logo depois; outra mão sai
       if (mao && mao.sai == null && ev.de === mao.casa) { mao.segue = ev; mao.sai = chega + 0.3; }
       else maoSai(ev.t);
-    } else if (ev.tipo === 'posicao') { veio = foi = -1; setas = []; marcas = []; xeque = null; etiquetas = []; maoSai(ev.t); fechaTela(ev.t); }
+    } else if (ev.tipo === 'posicao') { veio = foi = -1; setas = []; marcas = []; xeque = null; etiquetas = []; faixa = null; maoSai(ev.t); fechaTela(ev.t); }
     else if (ev.tipo === 'nota') { nNota++; nota = { texto: ev.texto, t0: ev.t, k: nNota }; }
     else if (ev.tipo === 'etiqueta') etiquetas.push({ casa: ev.casa, texto: ev.texto, cor: ev.cor, t0: ev.t });
     else if (ev.tipo === 'flash') flash = { cor: ev.cor, t0: ev.t, forte: 0.7 };
@@ -529,7 +540,7 @@ function estado(t) {
     if (t < fim + DUR_MAO_VAI) {
       let c = col(mao.casa), l = lin(mao.casa), h = 0;
       if (mao.segue && t >= mao.segue.t) {
-        const ev = mao.segue, q = Math.min(1, (t - ev.t) / R.durLance), p = vaiVem(q);
+        const ev = mao.segue, q = Math.min(1, (t - ev.t) / (ev.dur || R.durLance)), p = vaiVem(q);
         c = col(ev.de) + (col(ev.para) - col(ev.de)) * p; l = lin(ev.de) + (lin(ev.para) - lin(ev.de)) * p;
         h = (mao.peca.toLowerCase() === 'n' ? 0.75 : 0.35) * Math.sin(Math.PI * q);
       }
@@ -580,7 +591,7 @@ function estado(t) {
   if (show) {
     if (leg) man = { b: leg.b, ws: R.legendas[leg.b].palavras.map((w, k) => Math.max(0, Math.min(1, (t - w.ini + 0.04) / 0.22)))
       .map(p => n3(p)).filter((p, k) => t >= R.legendas[leg.b].palavras[k].ini - 0.04) };
-    if (nota) { const d = t - nota.t0; nt = { texto: nota.texto, k: nota.k, e: n3(d < 0.3 ? 0.6 + 0.4 * molinha(d / 0.3) : 1) }; }
+    if (nota) { const d = t - nota.t0; nt = { texto: nota.texto, k: nota.k, e: n3(d < 0.3 ? 0.6 + 0.4 * molinha(d / 0.3) : 1), o: n3(Math.max(0, Math.min(1, (NOTA_FICA + 0.4 - d) / 0.4))) }; }
     etiquetas.forEach(q => { const d = t - q.t0; if (d < 4.5) etq.push({ casa: q.casa, texto: q.texto, cor: q.cor,
       e: n3(d < 0.35 ? molinha(d / 0.35) : 1), o: n3(Math.min(1, (4.5 - d) / 0.3)) }); });
     if (flash && t >= flash.t0 && t - flash.t0 < 0.55) fl = { cor: flash.cor, o: n3(flash.forte * Math.pow(1 - (t - flash.t0) / 0.55, 2)) };
@@ -588,7 +599,8 @@ function estado(t) {
       const d = t - treme.t0, a = 26 * treme.forca * (1 - d / 0.45);
       tr = { x: n3(a * Math.sin(d * 97)), y: n3(a * Math.cos(d * 73)) };
     }
-    if (tela) tl = { modelo: tela.modelo, partes: tela.partes, t0: tela.t0, d: n3(Math.min(2.4, t - tela.t0)), o: n3(Math.min(1, (t - tela.t0) / 0.18)) };
+    if (tela) tl = { modelo: tela.modelo, partes: tela.partes, t0: tela.t0, d: n3(Math.min(2.4, t - tela.t0)), o: n3(Math.min(1, (t - tela.t0) / 0.18)),
+      d2: tela.modelo === 'cronometro' ? n3(Math.min(30, Math.floor((t - tela.t0) * 10) / 10)) : tela.modelo === 'versus' ? n3(Math.min(2.6, t - tela.t0)) : 0 };
     else if (telaSai && t - telaSai.t0 < 0.22) tl = { modelo: telaSai.tl.modelo, partes: telaSai.tl.partes, t0: telaSai.tl.t0, d: 2.4, o: n3(1 - (t - telaSai.t0) / 0.22), sai: 1 };
   }
   return {
@@ -707,6 +719,7 @@ function desenhaHtml(e) {
   if (e.faixa) {
     elFaixa.textContent = e.faixa.texto; elFaixa.className = 'faixa ' + e.faixa.classe;
     elFaixa.style.transform = 'translate(-50%,-50%) scale(' + e.faixa.e + ')'; elFaixa.style.opacity = e.faixa.o;
+    elFaixa.style.top = ((e.faixa.y || 0.5) * 100) + '%';
   }
   elCartaz.hidden = !e.cartaz;
   if (e.cartaz) {
@@ -723,9 +736,24 @@ function desenhaHtml(e) {
 const elMan = document.getElementById('manchete'), elNota = document.getElementById('nota'), elFlash = document.getElementById('flash');
 const elTela = document.getElementById('tela'), elHud = document.getElementById('hud');
 const COR_FLASH = { amarela: '255,190,80', verde: '88,226,58', vermelha: '255,60,100', azul: '46,200,255' };
-const FUNDO_TELA = { numero: 'radial-gradient(900px 900px at 50% 55%,#4a2cc0,#140a45 70%,#07041a)',
+// tabuleirinho 2D para a tela "versus": FEN -> casas; o lance anima entre d = 0,5 e 1,1 (esquerda) ou 1,3 e 1,9 (direita)
+function miniTabuleiro(fen, uci, cor, lado) {
+  const casas = []; fen.split(' ')[0].split('/').forEach(l => { for (const ch of l) { if (/\d/.test(ch)) for (let k = 0; k < +ch; k++) casas.push(''); else casas.push(ch); } });
+  const idx = s => (8 - Number(s[1])) * 8 + 'abcdefgh'.indexOf(s[0]);
+  const de = uci ? idx(uci.slice(0, 2)) : -1, para = uci ? idx(uci.slice(2, 4)) : -1;
+  let h = '<div class="vs-tab" data-lado="' + lado + '">';
+  for (let i = 0; i < 64; i++) h += '<i class="' + (((i % 8) + Math.floor(i / 8)) % 2 ? 'esc' : '') + (i === de || i === para ? ' alvo-' + cor : '') + '"></i>';
+  casas.forEach((p, i) => { if (!p || i === para) return;
+    h += '<img class="vs-p' + (i === de ? ' vs-anda' : '') + '" data-de="' + i + '" data-para="' + para + '" src="' + imagemDaPeca(p) + '" style="left:' + (i % 8) * 12.5 + '%;top:' + Math.floor(i / 8) * 12.5 + '%">'; });
+  if (de >= 0) { const a = [de % 8 + .5, Math.floor(de / 8) + .5], b = [para % 8 + .5, Math.floor(para / 8) + .5];
+    h += '<svg class="vs-seta" viewBox="0 0 8 8"><defs><marker id="m' + lado + '" viewBox="0 0 4 4" refX="2" refY="2" markerWidth="2.4" markerHeight="2.4" orient="auto"><path d="M0 0L4 2L0 4z" fill="' + (cor === 'verde' ? '#58e23a' : '#ff4f78') + '"/></marker></defs>' +
+      '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="' + (cor === 'verde' ? '#58e23a' : '#ff4f78') + '" stroke-width=".22" stroke-linecap="round" marker-end="url(#m' + lado + ')" pathLength="1" stroke-dasharray="1 1" stroke-dashoffset="1"/></svg>'; }
+  return h + '</div>';
+}
+const FUNDO_TELA = { versus: 'linear-gradient(90deg,#3a0f2a,#1b1150 50%,#0f3a1a)', icone: 'radial-gradient(900px 900px at 50% 50%,#4a2cc0,#1b1150 60%,#07041a)', cronometro: 'radial-gradient(900px 900px at 50% 55%,#2a1f7a,#07041a)', numero: 'radial-gradient(900px 900px at 50% 55%,#4a2cc0,#140a45 70%,#07041a)',
   alerta: 'repeating-linear-gradient(135deg,#ff4f78 0 70px,#c2133f 70px 140px)',
   carimbo: 'radial-gradient(900px 900px at 50% 55%,#2a1f7a,#0b0624)', medidor: 'radial-gradient(900px 900px at 50% 60%,#1f1566,#07041a)',
+  celular: 'radial-gradient(1000px 1100px at 50% 52%,#3a24a8,#140a45 62%,#07041a)',
   lista: 'radial-gradient(900px 900px at 50% 55%,#2a1f7a,#0b0624)', frase: 'linear-gradient(160deg,#ffb53d,#ff7a2e 55%,#d9431f)' };
 let telaFeita = null;
 const esc = x => String(x).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
@@ -746,11 +774,24 @@ function montaTela(tl) {
     const m = x.match(/^(.*?)\s*(✓|✗|\?)$/), txt = m ? m[1] : x, k = m ? m[2] : '✓';
     return '<div class="t-item"><b class="' + (k === '✗' ? 'nao' : k === '?' ? 'duvida' : '') + '">' + k + '</b><span>' + esc(txt) + '</span></div>';
   }).join('') + '</div>';
-  else if (tl.modelo === 'frase') meio = '<div class="t-frase">' + (b ? '<em>' + esc(a) + '</em>' + esc(b) : esc(a)) + '</div>';
+  else if (tl.modelo === 'cronometro') meio = '<svg class="t-relogio" viewBox="0 0 400 400"><circle cx="200" cy="200" r="170" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="26"/>' +
+    '<circle class="t-anel" cx="200" cy="200" r="170" fill="none" stroke="#ffd36b" stroke-width="26" stroke-linecap="round" pathLength="100" stroke-dasharray="100 100" transform="rotate(-90 200 200)"/></svg>' +
+    '<div class="t-conta">' + esc(a) + '</div><div class="t-legenda">' + esc(b) + '</div>';
+  else if (tl.modelo === 'icone') meio = '<img class="t-icone" src="icones/' + esc(a.toLowerCase()) + '.svg" alt=""><div class="t-frase t-ico-tit">' + esc(b) + '</div>' + (c ? '<div class="t-sub">' + esc(c) + '</div>' : '');
+  else if (tl.modelo === 'versus') {
+    const [f1 = '', r1 = 'Iniciante', f2 = '', r2 = 'Mestre'] = tl.partes, sp = x => { const w = x.trim().split(/\s+/); const u = /^[a-h][1-8][a-h][1-8]$/.test(w[w.length - 1]) ? w.pop() : ''; return [w.join(' '), u]; };
+    const [fa, ua] = sp(f1), [fb, ub] = sp(f2);
+    meio = '<div class="vs"><div class="vs-lado"><b class="vs-r ruim">✗ ' + esc(r1) + '</b>' + miniTabuleiro(fa, ua, 'vermelha', 'a') + '</div>' +
+      '<div class="vs-x">×</div><div class="vs-lado"><b class="vs-r bom">✓ ' + esc(r2) + '</b>' + miniTabuleiro(fb, ub, 'verde', 'b') + '</div></div>';
+  }
+  // [tela celular arquivo | segundo]: só a moldura; a gravação entra na tela do celular na montagem (gera.js)
+  else if (tl.modelo === 'celular') { elTela.innerHTML = '<i class="t-fundo" style="background:' + FUNDO_TELA.celular + '"></i><div class="t-celular"><i></i></div>'; return; }
+  else if (tl.modelo === 'frase') meio = '<div class="t-frase' + (ehNotacao(a + ' ' + (b || '')) ? ' minus' : '') + '">' + (b ? '<em>' + esc(a) + '</em>' + esc(b) : esc(a)) + '</div>';
   elTela.innerHTML = '<i class="t-fundo" style="background:' + FUNDO_TELA[tl.modelo] + '"></i><div class="t-meio">' + meio + '</div>';
 }
 function animaTela(tl) {
   const d = tl.d, entra = Math.min(1, d / 0.3), m = elTela.querySelector('.t-meio');
+  if (tl.modelo === 'celular') return;   // a gravação entra por cima: o celular fica parado
   m.style.transform = 'translateY(' + n3(60 * (1 - suave(entra))) + 'px) scale(' + n3(0.92 + 0.08 * molinha(entra)) + ')';
   if (tl.modelo === 'numero') elTela.querySelector('.t-numero').style.transform = 'scale(' + n3(d < 0.45 ? 0.3 + 0.7 * molinha(d / 0.45) : 1) + ')';
   if (tl.modelo === 'carimbo') {
@@ -763,21 +804,45 @@ function animaTela(tl) {
     elTela.querySelector('.t-arco').setAttribute('stroke-dasharray', n3(v) + ' 100');
     elTela.querySelector('.t-valor').textContent = Math.round(v) + '%';
   }
+  if (tl.modelo === 'versus') {
+    const d = tl.d2;
+    ['a', 'b'].forEach((lado, k) => {
+      const ini = k ? 1.4 : 0.5, q = Math.max(0, Math.min(1, (d - ini) / 0.6)), s = suave(q);
+      const tab = elTela.querySelector('.vs-tab[data-lado="' + lado + '"]'); if (!tab) return;
+      const seta = tab.querySelector('line'), qs = Math.max(0, Math.min(1, (d - ini + 0.4) / 0.4));
+      if (seta) { seta.setAttribute('stroke-dashoffset', n3(1 - qs)); seta.style.opacity = qs > 0.05 ? 1 : 0; }
+      const p = tab.querySelector('.vs-anda'); if (p) { const de = +p.dataset.de, pa = +p.dataset.para;
+        p.style.left = n3(((de % 8) + ((pa % 8) - (de % 8)) * s) * 12.5) + '%'; p.style.top = n3((Math.floor(de / 8) + (Math.floor(pa / 8) - Math.floor(de / 8)) * s) * 12.5) + '%'; }
+      tab.parentNode.style.opacity = d < (k ? 1.0 : 0.1) ? 0.25 : 1;
+    });
+  }
+  if (tl.modelo === 'cronometro') {
+    const total = Math.max(1, parseInt(tl.partes[0]) || 5), passou = Math.min(total, tl.d2), falta = Math.max(0, total - passou);
+    elTela.querySelector('.t-conta').textContent = falta > 0 ? Math.ceil(falta) : '!';
+    elTela.querySelector('.t-anel').setAttribute('stroke-dasharray', n3(100 * falta / total) + ' 100');
+    elTela.querySelector('.t-anel').setAttribute('stroke', falta < 1.5 ? '#ff4f78' : '#ffd36b');
+  }
   if (tl.modelo === 'lista') elTela.querySelectorAll('.t-item').forEach((it, k) => {
     const q = Math.max(0, Math.min(1, (d - 0.15 - k * 0.35) / 0.25));
     it.style.opacity = q; it.style.transform = 'translateX(' + n3(-80 * (1 - suave(q))) + 'px)';
   });
 }
+const DUR_CAPA = 0.7;     // segundos da capa no começo (o Reel usa esse quadro como capa)
+// casas e lances (e4, Cf3, b8=D) ficam em minúsculas mesmo nos textos em caixa alta
+const ehNotacao = s => /[a-h][1-8]/.test(s || '');
 function desenhaShow(e) {
+  const capa = document.getElementById('capa');
+  capa.hidden = !e.capa;
+  if (e.capa) capa.style.opacity = e.capa.o;
   elMan.hidden = !e.man;
   if (e.man) {
     const pal = R.legendas[e.man.b].palavras;
-    elMan.innerHTML = e.man.ws.map((p, k) => '<span class="' + (pal[k].destaque ? 'forte' : '') + '" style="opacity:' + n3(Math.min(1, p * 2)) +
+    elMan.innerHTML = e.man.ws.map((p, k) => '<span class="' + (pal[k].destaque ? 'forte' + (ehNotacao(pal[k].texto) ? ' minus' : '') : '') + '" style="opacity:' + n3(Math.min(1, p * 2)) +
       ';transform:translateY(' + n3(26 * (1 - suave(p))) + 'px) scale(' + n3(pal[k].destaque ? 0.7 + 0.3 * molinha(p) : 1) + ')">' + esc(pal[k].texto) + '</span>').join('');
   }
   // o lance escrito some enquanto uma tela gráfica ou um cartaz cobrem o tabuleiro
-  elNota.hidden = !e.nota || !!(e.tela && e.tela.o > 0.5) || !!(e.cartaz && e.cartaz.o > 0.5);
-  if (e.nota) { elNota.textContent = e.nota.texto; elNota.style.transform = 'translateX(-50%) scale(' + e.nota.e + ')';
+  elNota.hidden = !e.nota || e.nota.o <= 0 || !!(e.tela && e.tela.o > 0.5) || !!(e.cartaz && e.cartaz.o > 0.5);
+  if (e.nota) { elNota.textContent = e.nota.texto; elNota.style.transform = 'translateX(-50%) scale(' + e.nota.e + ')'; elNota.style.opacity = e.nota.o;
     document.getElementById('hudLance').textContent = 'Lance ' + String(e.nota.k).padStart(2, '0') + ' / ' + String(R.totalNotas).padStart(2, '0'); }
   else document.getElementById('hudLance').textContent = '';
   elFlash.hidden = !e.flash;
@@ -787,7 +852,7 @@ function desenhaShow(e) {
   if (e.tela) {
     const chaveTela = e.tela.t0 + e.tela.modelo;
     if (chaveTela !== telaFeita) { montaTela(e.tela); telaFeita = chaveTela; }
-    elTela.style.opacity = e.tela.o; animaTela(e.tela);
+    elTela.style.opacity = e.tela.modelo === 'celular' ? 1 : e.tela.o; animaTela(e.tela);
   }
 }
 
@@ -799,8 +864,18 @@ async function prepara(roteiro) {
   tit.textContent = R.titulo; tit.classList.toggle('longo', R.titulo.length > 30);
   if (R.edicao === 'show') {
     document.getElementById('palco').classList.add('show'); elHud.hidden = false;
-    document.getElementById('hudNome').textContent = 'Xadrez Express' + (R.numero ? ' · Lição ' + String(R.numero).padStart(2, '0') : '');
+    document.getElementById('hudNome').textContent = 'Xadrez Express' + (R.serie ? ' · ' + R.serie : R.numero ? ' · Lição ' + String(R.numero).padStart(2, '0') : '');
     R.totalNotas = R.eventos.filter(ev => ev.tipo === 'nota').length;
+    document.getElementById('capaSerie').textContent = R.serie || (R.numero ? 'Lição ' + String(R.numero).padStart(2, '0') : 'Xadrez Express');
+    document.getElementById('capaTitulo').textContent = R.gancho || R.titulo;
+  }
+  if (R.avatar === 'reel') {
+    // nos Reels com o avatar, também abre com a capa: a frase-gancho grande (ou o título)
+    document.getElementById('palco').classList.add('reel-avatar');
+    document.getElementById('capaSerie').textContent = R.serie || (R.numero ? 'Lição ' + String(R.numero).padStart(2, '0') : 'Xadrez Express');
+    const ct = document.getElementById('capaTitulo');
+    ct.textContent = R.gancho || R.titulo;
+    ct.classList.toggle('longa', (R.gancho || R.titulo).length > 22);
   }
   elLegenda.hidden = !R.legenda;
   await document.fonts.load('700 84px "Chakra Petch"');
@@ -818,14 +893,54 @@ async function prepara(roteiro) {
 // O 3D só é redesenhado quando algo do 3D muda: a palavra da legenda trocando, por exemplo,
 // não custa um desenho novo do tabuleiro. Com o cartaz cobrindo tudo, o 3D fica parado.
 let ultima3d = null, ultimaHtml = null;
+// A faixa ([texto], XEQUE!) não pode tampar o que está em destaque: entre o meio, o alto e o pé
+// da área do tabuleiro, fica no lugar mais longe das casas do lance, do xeque, das marcas e setas.
+const ALTURAS_FAIXA = [0.5, 0.16, 0.84];
+function lugarDaFaixa(e) {
+  const casas = new Set();
+  // no xeque, a casa de saída já está vazia: não precisa ficar livre
+  const ehXeque = e.faixa && /xeque|mate/.test(e.faixa.classe || '');
+  if (e.veio >= 0 && !ehXeque) casas.add(e.veio); if (e.foi >= 0) casas.add(e.foi);
+  if (e.brilho) casas.add(e.brilho.casa);
+  e.marcas.forEach(m => casas.add(m.casa));
+  e.setas.forEach(sx => { casas.add(sx.de); casas.add(sx.para); });
+  e.pecas.forEach(p => { if (p.h > 0.05) casas.add(Math.round(p.l) * 8 + Math.round(p.c)); });
+  // o xeque: a linha entre a peça que chegou e o rei também fica livre
+  const linha = [];
+  if (e.brilho && e.foi >= 0) for (let k = 1; k < 6; k++) linha.push([e.foi, e.brilho.casa, k / 6]);
+  const etq = e.etq || [];
+  if (!casas.size && !etq.length) return 0.5;
+  poeCamera(e.cam);
+  const v = new THREE.Vector3(), ponto = (i, h) => {
+    v.set(mundoX(col(i)), TOPO + h, mundoZ(lin(i))).project(camera);
+    return [(v.x + 1) * 540, (1 - v.y) * 960];
+  };
+  const pts = [...casas].map(i => ponto(i, 0.4));
+  linha.forEach(([a, b, f]) => { const pa = ponto(a, 0.4), pb = ponto(b, 0.4); pts.push([pa[0] + (pb[0] - pa[0]) * f, pa[1] + (pb[1] - pa[1]) * f]); });
+  // as etiquetas flutuam acima da casa; o lance escrito fica embaixo (y ~1360)
+  etq.forEach(q => { pts.push(ponto(q.casa, 1.4)); pts.push(ponto(q.casa, 1.8)); });
+  if (e.nota && e.nota.o > 0) pts.push([510, 1365]);
+  // a área da faixa: x 80–940, y 600–1400 (a .area3d); a faixa tem uns 680 x 150 px
+  let melhor = 0.5, nota = -1;
+  ALTURAS_FAIXA.forEach((a, k) => {
+    const cy = 600 + 800 * a;
+    const livre = Math.min(...pts.map(([x, y]) => Math.max(Math.abs(y - cy) - 75, Math.abs(x - 510) - 340, 0) + Math.abs(y - cy) * 0.001));
+    const n = livre - k * 2;          // em empate, prefere o meio
+    if (n > nota) { nota = n; melhor = a; }
+  });
+  return melhor;
+}
 function quadro(t) {
   const e = estado(t);
+  if (e.faixa) e.faixa.y = lugarDaFaixa(e);
   const a3d = JSON.stringify([e.cam, e.pecas, e.veio, e.foi, e.marcas, e.setas, e.brilho, e.expl, e.mao, e.etq]);
-  const aHtml = JSON.stringify([e.leg, e.faixa, e.cartaz, e.man, e.nota, e.flash, e.treme, e.tela]);
+  if ((R.edicao === 'show' || R.avatar === 'reel') && t < DUR_CAPA) e.capa = { o: n3(Math.min(1, (DUR_CAPA - t) / 0.18)) };
+  const aHtml = JSON.stringify([e.leg, e.faixa, e.cartaz, e.man, e.nota, e.flash, e.treme, e.tela, e.capa]);
   const muda3d = a3d !== ultima3d && !(e.cartaz && e.cartaz.o >= 1) && !(e.tela && e.tela.o >= 1);
   if (!muda3d && aHtml === ultimaHtml) return false;
   if (muda3d) { ultima3d = a3d; desenha3d(e); }
-  if (aHtml !== ultimaHtml) { ultimaHtml = aHtml; desenhaHtml(e); if (R.edicao === 'show') desenhaShow(e); }
+  if (aHtml !== ultimaHtml) { ultimaHtml = aHtml; desenhaHtml(e); if (R.edicao === 'show') desenhaShow(e);
+    else if (R.avatar === 'reel') { const c = document.getElementById('capa'); c.hidden = !e.capa; if (e.capa) c.style.opacity = e.capa.o; } }
   // espera o navegador pôr o quadro novo na tela antes da foto
   return new Promise(r => requestAnimationFrame(() => r(true)));
 }

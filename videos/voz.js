@@ -43,10 +43,20 @@ function config(pasta) {
 // As vozes da conta (as clonadas vêm com category "cloned" ou "professional").
 async function vozes() { return pede('voices').voices; }
 
+// O texto do jeito que deve ser falado. A voz lê a letra "e" sozinha como a conjunção ("i"):
+// "e5" vira "é cinco", "d4" vira "dê quatro", e "E quatro" vira "É quatro".
+const LETRA = { a: 'á', b: 'bê', c: 'cê', d: 'dê', e: 'é', f: 'éfe', g: 'gê', h: 'agá' };
+const NUMERO = ['', 'um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito'];
+function falada(texto) {
+  return texto
+    .replace(/(^|[^\p{L}\p{N}])([a-hA-H])([1-8])(?![\p{L}\p{N}])/gu, (m, antes, l, n) => antes + LETRA[l.toLowerCase()] + ' ' + NUMERO[+n])
+    .replace(/(^|[^\p{L}])E (um|dois|três|quatro|cinco|seis|sete|oito)(?![\p{L}])/gu, '$1É $2');
+}
+
 // Grava `texto` em `arquivoMp3` e devolve as palavras com o segundo de cada uma.
 async function grava(texto, arquivoMp3, cfg) {
   if (!cfg || !cfg.voz) throw new Error('Falta dizer qual voz usar: crie voz.json na pasta das lições (veja videos/voz.js) ou rode --vozes para ver os códigos');
-  const corpo = { text: texto, model_id: cfg.modelo || 'eleven_multilingual_v2' };
+  const corpo = { text: falada(texto), model_id: cfg.modelo || 'eleven_multilingual_v2' };
   if (cfg.ajustes) corpo.voice_settings = cfg.ajustes;
   const j = pede('text-to-speech/' + encodeURIComponent(cfg.voz) + '/with-timestamps?output_format=mp3_44100_128', corpo);
   fs.writeFileSync(arquivoMp3, Buffer.from(j.audio_base64, 'base64'));
@@ -63,4 +73,4 @@ async function grava(texto, arquivoMp3, cfg) {
   return { fonte: 'elevenlabs', palavras: palavras };
 }
 
-module.exports = { config, vozes, grava };
+module.exports = { config, vozes, grava, falada };

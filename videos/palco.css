@@ -148,3 +148,17 @@ h1.longo{font-size:50px}
 .cartaz b{font-size:96px}
 .cartaz.logo img{width:380px;height:380px}
 .cartaz.logo b{font-size:84px}
+
+/* ------------------------------------------------------------- Reels com o avatar ("avatar: reel")
+   O professor fica inteiro no canto de baixo, à esquerda (o rosto dentro da zona segura, o corpo
+   descendo por baixo da legenda do Instagram). O tabuleiro sobe e encolhe um pouco, e a legenda
+   vira um balão de fala ao lado do rosto. */
+.reel-avatar .tab-moldura{left:160px;top:410px;width:710px;height:710px}
+.reel-avatar .legenda{left:400px;right:140px;top:1160px;height:310px;font-size:54px;line-height:1.12;
+  padding:18px 22px;border-radius:28px;background:rgba(13,7,48,.88);border:3px solid rgba(255,211,107,.55);
+  box-shadow:0 10px 40px rgba(0,0,0,.45);align-content:center;justify-content:flex-start}
+.reel-avatar .legenda::before{content:"";position:absolute;left:-22px;top:120px;border:12px solid transparent;
+  border-right:12px solid rgba(255,211,107,.55);border-width:14px 20px 14px 0}
+.reel-avatar .pe{display:none}
+.reel-avatar .legenda{top:1128px;height:206px;font-size:50px}
+.reel-avatar .legenda::before{top:80px}

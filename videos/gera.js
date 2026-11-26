@@ -144,6 +144,7 @@ async function geraVideo(arquivoLicao, op) {
   }
   const roteiro = L.roteiro(licao, tempos, durAudio);
   if (op.estilo) roteiro.estilo = op.estilo;
+  if (roteiro.avatar === 'reel') poeChamadaFinal(roteiro, nome);
   const duracao = roteiro.duracao + SOBRA;
   fs.mkdirSync(PASTA.prontos, { recursive: true });
 
@@ -177,6 +178,7 @@ async function geraVideo(arquivoLicao, op) {
   const estilos = [...new Set(trechos.map(x => x.estilo))];
   if (estilos.length < 2) {
     await filma(roteiro, trechos.length ? trechos[0].estilo : roteiro.estilo, duracao, audio, saida);
+    poeAvatar(roteiro, audio, duracao, saida, nome);
     console.log('  ✔ ' + path.relative(process.cwd(), saida) + '  (' + duracao.toFixed(1) + 's)');
     return saida;
   }
@@ -207,9 +209,218 @@ async function geraVideo(arquivoLicao, op) {
     '-map', '[v]', '-map', '0:a', '-c:v', 'libx264', '-preset', 'fast', '-crf', '18', '-pix_fmt', 'yuv420p',
     '-r', String(QPS), '-c:a', 'copy', '-movflags', '+faststart', saida]);
   fs.rmSync(tmp, { recursive: true, force: true });
+  poeAvatar(roteiro, audio, duracao, saida, nome);
   console.log('  ✔ ' + path.relative(process.cwd(), saida) + '  (' + duracao.toFixed(1) + 's, ' +
     trechos.map(x => x.estilo.toUpperCase() + ' ' + x.de.toFixed(1) + '-' + x.ate.toFixed(1) + 's').join(', ') + ')');
   return saida;
+}
+
+// ---------------------------------------------------------------- o avatar do professor
+// "avatar: sim" no cabeçalho: o professor (desenho) fica no canto de baixo, falando junto com a voz.
+// As poses e o poses.json ficam na pasta privada das lições (avatar/), porque são a imagem do dono.
+// A pose muda sozinha conforme a fala (pergunta, atenção, xeque-mate, a peça apresentada, o "até lá")
+// e pode ser escolhida no roteiro com [avatar pose]; o videos/avatar.py desenha e cola no vídeo.
+const AVATAR = { ancora: [260, 1600], caixa: [0, 1330, 700, 1910], olhos: 54 };
+const AVATAR2 = { caixa: [0, 1440, 470, 1910], dx: -30,
+  bolha: { cx: 203, cy: 1349, r: 115 },
+  // nos Reels: inteiro, com o rosto na zona segura e o corpo descendo por baixo da legenda do app
+  reel: { caixa: [0, 1110, 700, 1920], dx: -170 } };   // nos Reels: a bolha encosta no canto de baixo da zona segura (x 80, y 1480)   // a pose única: encosta embaixo, à esquerda
+const PECA_POSE = { p: 'peao', r: 'torre', n: 'cavalo', b: 'bispo', q: 'dama', k: 'rei' };
+function linhaDoAvatar(roteiro, poses) {
+  const tem = p => poses.includes(p);
+  const marcas = [];                       // [t, pose, prioridade]
+  const giro = ['explica', 'fala', 'apresenta'].filter(tem);
+  let g = 0, ultimaTroca = -9, perguntas = 0;
+  roteiro.legendas.forEach((b, k) => {
+    const txt = b.palavras.map(p => p.texto).join(' ');
+    let pose = null;
+    if (k === 0 && tem('apresenta')) pose = 'apresenta';
+    else if (/(até lá|até a próxima)/i.test(txt)) pose = 'joinha';
+    else if (/(parabéns|muito bem|isso aí|ótimo|conseguiu|vencemos)/i.test(txt)) pose = 'comemora';
+    else if (/(atenção|cuidado|importante|proibid|perig)/i.test(txt)) pose = 'atencao';
+    else if (/\?$/.test(txt.trim())) pose = (perguntas++ % 2) ? 'duvida' : 'pensa';
+    else if (b.ini - ultimaTroca > 6 && giro.length) pose = giro[g++ % giro.length];
+    if (pose && tem(pose)) { marcas.push([b.ini, pose, 1]); ultimaTroca = b.ini; }
+  });
+  roteiro.eventos.forEach(ev => {
+    if (ev.tipo === 'mostra') {
+      const pose = ev.peca === 'logo' ? 'joinha' : PECA_POSE[ev.peca.toLowerCase()];
+      if (pose && tem(pose)) marcas.push([ev.t, pose, 2]);
+    } else if (ev.tipo === 'lance' && ev.mate && tem('surpreso')) marcas.push([ev.t + (ev.dur || roteiro.durLance), 'surpreso', 2]);
+    else if (ev.tipo === 'tela' && ev.modelo === 'alerta' && tem('atencao')) marcas.push([ev.t, 'atencao', 2]);
+    else if (ev.tipo === 'avatar') {
+      if (!tem(ev.pose)) throw new Error('[avatar ' + ev.pose + ']: as poses são ' + poses.join(', '));
+      marcas.push([ev.t, ev.pose, 3]);
+    }
+  });
+  // as marcas mais fortes seguram a pose por um tempo: nada mais fraco troca nesse meio
+  marcas.sort((a, b) => a[0] - b[0] || b[2] - a[2]);
+  const linha = [[0, marcas.length && marcas[0][0] < 0.5 ? marcas[0][1] : (giro[0] || poses[0])]];
+  let trava = -1, forca = 0;
+  marcas.forEach(([t, pose, pr]) => {
+    const ult = linha[linha.length - 1];
+    if (t < trava && pr <= forca) return;
+    if (t - ult[0] < 1.2 && pr <= 1) return;            // não troca de pose rápido demais
+    if (pose === ult[1]) return;
+    if (t - ult[0] < 0.4) { ult[1] = pose; } else linha.push([Math.max(0, t), pose]);
+    if (pr >= 2) { trava = t + (pr === 3 ? 4 : 2.8); forca = pr; } else forca = 0;
+  });
+  return linha;
+}
+// Nos Reels com o avatar, o vídeo termina com uma chamada no balão de fala (salvar, mandar para um
+// amigo, comentar), com o professor fazendo joinha: dá um motivo para compartilhar e um fim claro.
+const CHAMADAS = ['Salve este vídeo para não esquecer!', 'Manda para um amigo que joga xadrez!',
+  'Você já sabia disso? Comenta aí!', 'Salve e treine na sua próxima partida!'];
+function poeChamadaFinal(roteiro, nome) {
+  let h = 0; for (const ch of nome) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const texto = CHAMADAS[h % CHAMADAS.length].split(' ');
+  const ult = roteiro.legendas[roteiro.legendas.length - 1];
+  const ini = Math.max(roteiro.duracao - 0.2, ult ? ult.fim + 0.25 : 0);
+  const pal = texto.map((t, k) => ({ texto: t, ini: ini + k * 0.08, fim: ini + k * 0.08 + 0.08, destaque: false }));
+  if (ult) ult.some = Math.min(ult.some, ini);
+  roteiro.legendas.push({ ini: ini, fim: pal[pal.length - 1].fim, some: ini + 2.4, palavras: pal, letras: 99, chamada: true });
+  roteiro.ctaT = ini;
+  roteiro.duracao = ini + 2.2;
+}
+// o avatar de uma pose só (avatar/avatar.json): os gestos e reações entram por pouco tempo,
+// por cima da pose base, e a cabeça acena nas palavras em *destaque*
+function linhaDoAvatar2(roteiro, av) {
+  const reel = roteiro.avatar === 'reel';
+  // nos Reels, a mão do dedo e a da explicação caem fora da tela ou sob a legenda do app: só o rosto
+  const gest = Object.assign({}, av.gestos, reel ? av.gestos_reel : {});
+  const tem = n => !!(gest[n] || (av.reacoes && av.reacoes[n]) || n === 'pensa');
+  const linha = [];                        // [t, nome, duração, prioridade]
+  let ultimoGesto = -9, perguntas = 0;
+  roteiro.legendas.forEach((b, k) => {
+    const txt = b.palavras.map(p => p.texto).join(' ');
+    const dur = Math.max(1.6, Math.min(3.2, b.fim - b.ini));
+    let g = null;
+    if (/(até lá|até a próxima)/i.test(txt)) g = 'joinha';
+    else if (/(parabéns|muito bem|isso aí|acertou|conseguiu|vencemos)/i.test(txt)) g = 'comemora';
+    else if (/(atenção|cuidado|importante|regra|nunca|sempre|lembre)/i.test(txt)) g = 'dedo';
+    else if (/\?$/.test(txt.trim())) g = 'pensa';
+    else if (k > 0 && b.ini - ultimoGesto > 7 && b.fim - b.ini > 1.5) g = 'explica';
+    if (g && tem(g)) { linha.push([b.ini, g, g === 'comemora' ? 1.8 : dur, 1]); if (g !== 'pensa') ultimoGesto = b.ini; }
+  });
+  // nos Reels, ele aponta para o tabuleiro nos lances que a fala destaca (o lance lento, o do [zoom],
+  // capturas e xeques), no máximo um a cada 6 segundos
+  if (tem('aponta')) {
+    let ult = -9;
+    roteiro.eventos.forEach((ev, k) => {
+      if (ev.tipo !== 'lance' || ev.mate) return;
+      const forte = ev.dur || ev.capturada || ev.xeque != null || (k && roteiro.eventos[k - 1].tipo === 'zoom');
+      if (forte && ev.t - ult > 6) { linha.push([Math.max(0, ev.t - 0.3), 'aponta', 1.8, 2]); ult = ev.t; }
+    });
+  }
+  roteiro.eventos.forEach(ev => {
+    if (ev.tipo === 'lance' && ev.mate && tem('surpreso')) linha.push([ev.t + (ev.dur || roteiro.durLance), 'surpreso', 1.7, 2]);
+    else if (ev.tipo === 'mostra' && ev.peca === 'logo' && tem('joinha')) linha.push([ev.t, 'joinha', 2.2, 2]);
+    else if (ev.tipo === 'tela' && ev.modelo === 'alerta' && tem('dedo')) linha.push([ev.t, 'dedo', 2.2, 2]);
+    else if (ev.tipo === 'avatar') {
+      if (!tem(ev.pose)) throw new Error('[avatar ' + ev.pose + ']: os gestos são ' + Object.keys(av.gestos || {}).concat(Object.keys(av.reacoes || {}), ['pensa']).join(', '));
+      linha.push([ev.t, ev.pose, 2.4, 3]);
+    }
+  });
+  // sem sobrepor: um gesto mais forte corta o mais fraco
+  linha.sort((a, b) => a[0] - b[0]);
+  const fim = [];
+  linha.forEach(g => {
+    const ult = fim[fim.length - 1];
+    if (ult && g[0] < ult[0] + ult[2]) {
+      if (g[3] > ult[3]) { ult[2] = Math.max(0.5, g[0] - ult[0]); if (ult[2] < 0.8) fim.pop(); fim.push(g); }
+      return;
+    }
+    fim.push(g);
+  });
+  if (roteiro.ctaT != null && tem('joinha')) {
+    while (fim.length && fim[fim.length - 1][0] + fim[fim.length - 1][2] > roteiro.ctaT) {
+      const u = fim[fim.length - 1]; if (u[0] < roteiro.ctaT - 0.6) { u[2] = roteiro.ctaT - u[0]; break; } fim.pop();
+    }
+    fim.push([roteiro.ctaT, 'joinha', 2.1, 3]);
+  }
+  const acenos = [];
+  roteiro.legendas.forEach(b => b.palavras.forEach(p => { if (p.destaque) acenos.push(p.ini); }));
+  // o professor olha para o tabuleiro quando um lance, uma seta ou uma marca aparece
+  const olhares = [];
+  roteiro.eventos.forEach(e => {
+    if (!['lance', 'seta', 'marca'].includes(e.tipo)) return;
+    const u = olhares[olhares.length - 1];
+    if (u && e.t - 0.2 < u[0] + u[1] + 0.4) u[1] = Math.min(2.6, e.t + 1.2 - u[0]); else olhares.push([Math.max(0, e.t - 0.2), 1.3]);
+  });
+  return { linha: fim.map(g => g.slice(0, 3)), acenos: acenos.filter((t, i) => !i || t - acenos[i - 1] > 0.8),
+    olhares: olhares.filter(o => !fim.some(g => (g[1] === 'comemora' || g[1] === 'surpreso') && o[0] < g[0] + g[2] && g[0] < o[0] + o[1])) };
+}
+// "avatar: reel": nos Reels, o canto de baixo fica sob o nome do perfil e a legenda do Instagram.
+// Então o avatar vira uma bolha redonda dentro da zona segura e só aparece quando não tampa a
+// explicação: na abertura (até o tabuleiro começar a ser usado), enquanto um cartaz grande
+// ([mostra ...]) ou uma tela cobre o tabuleiro, e no fecho, depois do último lance.
+function janelasDoReel(roteiro, duracao) {
+  const tab = ['lance', 'seta', 'marca', 'poe', 'posicao', 'tira', 'mao', 'etiqueta'];
+  const ev = roteiro.eventos;
+  const js = [];
+  const primeiro = ev.find(e => tab.includes(e.tipo) && e.t > 0.3);
+  js.push([0.75, Math.min(5.5, Math.max(2.5, primeiro ? primeiro.t - 0.1 : duracao))]);
+  ev.forEach((e, k) => {
+    if (e.tipo !== 'mostra' && !(e.tipo === 'tela' && e.modelo !== 'celular')) return;
+    const fim = ev.slice(k + 1).find(x => ['esconde', 'limpa', 'lance', 'posicao', 'tela', 'mostra'].includes(x.tipo));
+    const t1 = fim ? fim.t : duracao;
+    if (t1 - e.t >= 1.2) js.push([e.t + 0.15, t1 - 0.05]);
+  });
+  let ult = 0;
+  ev.forEach(e => { if (tab.includes(e.tipo)) ult = Math.max(ult, e.t + (e.tipo === 'lance' ? (e.dur || roteiro.durLance) : 0.3)); });
+  if (duracao - (ult + 0.5) >= 1.5) js.push([ult + 0.5, duracao - 0.15]);
+  js.sort((a, b) => a[0] - b[0]);
+  const fim = [];
+  js.forEach(j => {
+    const u = fim[fim.length - 1];
+    if (u && j[0] - u[1] < 0.8) u[1] = Math.max(u[1], j[1]); else fim.push(j.slice());
+  });
+  return fim;
+}
+function poeAvatar(roteiro, audio, duracao, saida, nome) {
+  if (!roteiro.avatar) return;
+  const umaPose = path.join(BASE, 'avatar', 'avatar.json');
+  if (fs.existsSync(umaPose)) {
+    const av = JSON.parse(fs.readFileSync(umaPose, 'utf8'));
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'xe-avatar-'));
+    const entrada = path.join(tmp, 'sem-avatar.mp4');
+    fs.renameSync(saida, entrada);
+    let h = 0; for (const ch of nome) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    const l = linhaDoAvatar2(roteiro, av);
+    const cfg = Object.assign({ pasta: path.join(BASE, 'avatar'), fps: QPS, duracao: duracao, audio: audio, semente: h % 100000,
+      caixa: AVATAR2.caixa, dx: AVATAR2.dx, entrada: entrada, saida: saida }, l);
+    if (roteiro.avatar === 'reel') { cfg.caixa = AVATAR2.reel.caixa; cfg.dx = AVATAR2.reel.dx; cfg.reel = true; }
+    fs.writeFileSync(path.join(tmp, 'avatar.json'), JSON.stringify(cfg));
+    console.log('  avatar: ' + (l.linha.map(([t, p]) => p + ' ' + t.toFixed(1) + 's').join(', ') || 'só a pose base'));
+    try { roda('python3', [path.join(AQUI, 'avatar2.py'), path.join(tmp, 'avatar.json')]); }
+    catch (e) { fs.renameSync(entrada, saida); throw e; }
+    fs.rmSync(tmp, { recursive: true, force: true });
+    return;
+  }
+  const pasta = path.join(BASE, 'avatar'), marc = path.join(pasta, 'poses.json');
+  if (!fs.existsSync(marc)) { console.log('  ⚠ avatar: não achei ' + marc + '; o vídeo sai sem o avatar'); return; }
+  const poses = Object.keys(JSON.parse(fs.readFileSync(marc, 'utf8'))).filter(k => !k.startsWith('_') && fs.existsSync(path.join(pasta, k + '.png')));
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'xe-avatar-'));
+  const entrada = path.join(tmp, 'sem-avatar.mp4');
+  fs.renameSync(saida, entrada);
+  let h = 0; for (const ch of nome) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const cfg = { pasta: pasta, fps: QPS, duracao: duracao, poses: linhaDoAvatar(roteiro, poses), audio: audio, semente: h % 100000,
+    ancora: AVATAR.ancora, caixa: AVATAR.caixa, olhos: AVATAR.olhos, largura: LARGURA, altura: ALTURA, entrada: entrada, saida: saida };
+  fs.writeFileSync(path.join(tmp, 'avatar.json'), JSON.stringify(cfg));
+  console.log('  avatar: ' + cfg.poses.map(([t, p]) => p + ' ' + t.toFixed(1) + 's').join(', '));
+  try { roda('python3', [path.join(AQUI, 'avatar.py'), path.join(tmp, 'avatar.json')]); }
+  catch (e) { fs.renameSync(entrada, saida); throw e; }
+  fs.rmSync(tmp, { recursive: true, force: true });
+}
+
+function escolheMusica(clima, saida) {
+  const pasta = path.join(BASE, 'musicas');
+  if (!fs.existsSync(pasta)) return null;
+  const opcoes = fs.readdirSync(pasta).filter(f => new RegExp('^' + clima + '(_\\d+)?\\.mp3$').test(f)).sort();
+  if (!opcoes.length) return null;
+  const nome = path.basename(saida);
+  let h = 0; for (const ch of nome) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return path.join(pasta, opcoes[h % opcoes.length]);
 }
 
 // Os efeitos sonoros da edição "show": que som toca, em que segundo e com que volume.
@@ -236,6 +447,40 @@ function efeitosSonoros(roteiro) {
 }
 
 // Filma o roteiro num estilo e monta o MP4 com o áudio.
+// a tela do celular desenhado pelo palco (palco3d.css, .t-celular i)
+const CEL = { x: 240, y: 500, w: 541, h: 920 };
+// cada [tela celular] vale até o próximo lance, posição, tela, [limpa] ou [esconde]
+// a gravação começa com a página em branco, ainda carregando: pula esse pedaço
+const brancos = {};
+function inicioSemBranco(arq) {
+  if (brancos[arq] != null) return brancos[arq];
+  let ini = 0;
+  try {
+    const r = require('child_process').execFileSync('ffmpeg', ['-v', 'error', '-t', '6', '-i', arq, '-vf',
+      'fps=10,scale=54:92,signalstats,metadata=print:key=lavfi.signalstats.YAVG:file=-', '-f', 'null', '-'], { encoding: 'utf8' });
+    const ys = [...r.matchAll(/YAVG=([\d.]+)/g)].map(m => +m[1]);
+    const k = ys.findIndex(y => y < 233);
+    ini = k > 0 ? k / 10 + 0.1 : 0;
+  } catch (e) {}
+  return (brancos[arq] = ini);
+}
+function janelasDoCelular(roteiro, duracao) {
+  const fecha = ['lance', 'posicao', 'tela', 'limpa', 'esconde'];
+  const js = []; let aberta = null;
+  roteiro.eventos.forEach(ev => {
+    if (aberta && fecha.includes(ev.tipo)) { aberta.ate = ev.t; js.push(aberta); aberta = null; }
+    if (ev.tipo === 'tela' && ev.modelo === 'celular') {
+      const nome = (ev.partes[0] || '').trim(), ini = parseFloat(ev.partes[1]) || 0;
+      let arq = path.isAbsolute(nome) ? nome : path.join(BASE, nome);
+      if (!/\.(mp4|mov|webm)$/i.test(arq)) arq += '.mp4';
+      if (!fs.existsSync(arq)) throw new Error('[tela celular]: não achei a gravação ' + arq);
+      aberta = { arquivo: arq, ini: Math.max(ini, inicioSemBranco(arq)), de: Math.max(ev.t, 0.75) };   // depois da capa
+    }
+  });
+  if (aberta) { aberta.ate = duracao; js.push(aberta); }
+  return js;
+}
+
 async function filma(roteiro, estilo, duracao, audio, saida) {
   const pagina = await abrePalco(estilo);
   await pagina.evaluate(r => window.XEV.prepara(r), Object.assign({}, roteiro, { estilo: estilo }));
@@ -268,13 +513,33 @@ async function filma(roteiro, estilo, duracao, audio, saida) {
   // na edição "show", os efeitos sonoros (pasta sons/ das lições) entram no segundo de cada acontecimento
   const sons = efeitosSonoros(roteiro);
   sons.forEach(e => args.push('-i', e.arquivo));
-  let mix = '[1:a]' + (audio ? 'loudnorm=I=-16:TP=-1.5:LRA=11,' : '') + 'apad' + (sons.length ? '[voz];' : '[a]');
-  if (sons.length) {
-    sons.forEach((e, k) => { const ms = Math.round(e.t * 1000); mix += '[' + (3 + k) + ':a]aresample=48000,adelay=' + ms + ':all=1,volume=' + e.vol + '[s' + k + '];'; });
-    mix += '[voz]' + sons.map((e, k) => '[s' + k + ']').join('') + 'amix=inputs=' + (sons.length + 1) + ':normalize=0:duration=first[a]';
-  }
+  // música de fundo ("musica: suspense" no cabeçalho -> musicas/suspense.mp3 da pasta das lições), baixinha
+  // com várias versões do mesmo clima (suspense_1.mp3, suspense_2.mp3...), cada vídeo pega uma,
+  // sempre a mesma para o mesmo vídeo, para os vídeos parecidos não soarem iguais
+  const fMusica = roteiro.musica ? escolheMusica(roteiro.musica, saida) : null;
+  const comMusica = fMusica && fs.existsSync(fMusica);
+  if (comMusica) args.push('-stream_loop', '-1', '-i', fMusica);
+  const extras = sons.length + (comMusica ? 1 : 0);
+  // [tela celular arquivo | segundo]: a gravação de tela entra dentro do celular desenhado pelo palco
+  const clipes = janelasDoCelular(roteiro, duracao);
+  clipes.forEach(c => args.push('-i', c.arquivo));
+  const base = 3 + sons.length + (comMusica ? 1 : 0);
+  let cel = '', ultimo = 'q';
+  clipes.forEach((c, k) => {
+    cel += '[' + (base + k) + ':v]trim=start=' + c.ini.toFixed(3) + ',setpts=PTS-STARTPTS,fps=' + QPS + ',scale=' + CEL.w + ':' + CEL.h +
+      ':force_original_aspect_ratio=increase,crop=' + CEL.w + ':' + CEL.h + ':0:0,format=yuv420p,tpad=stop_mode=clone:stop_duration=600,setpts=PTS+' + c.de.toFixed(3) + '/TB[c' + k + '];' +
+      '[' + ultimo + '][c' + k + ']overlay=' + CEL.x + ':' + CEL.y + ':enable=\'between(t,' + c.de.toFixed(3) + ',' + c.ate.toFixed(3) + ')\':eof_action=pass[k' + k + '];';
+    ultimo = 'k' + k;
+  });
+  // com música, a voz é dividida em duas: uma vai para a mistura e a outra comanda o "ducking"
+  // (a música baixa sozinha enquanto a voz fala e volta a subir nas pausas)
+  let mix = '[1:a]' + (audio ? 'loudnorm=I=-16:TP=-1.5:LRA=11,' : '') + 'apad' + (comMusica ? ',asplit=2[voz][vozsc];' : extras ? '[voz];' : '[a]');
+  sons.forEach((e, k) => { const ms = Math.round(e.t * 1000); mix += '[' + (3 + k) + ':a]aresample=48000,adelay=' + ms + ':all=1,volume=' + e.vol + '[s' + k + '];'; });
+  if (comMusica) mix += '[' + (3 + sons.length) + ':a]aresample=48000,atrim=0:' + d + ',volume=0.32,afade=t=in:d=0.8,afade=t=out:st=' + Math.max(0, duracao - 1.5).toFixed(2) + ':d=1.5[mu0];' +
+    '[mu0][vozsc]sidechaincompress=threshold=0.02:ratio=6:attack=30:release=450:makeup=1[mu];';
+  if (extras) mix += '[voz]' + sons.map((e, k) => '[s' + k + ']').join('') + (comMusica ? '[mu]' : '') + 'amix=inputs=' + (extras + 1) + ':normalize=0:duration=first[a]';
   args.push('-filter_complex',
-    '[0:v]fps=' + QPS + ',format=yuv420p[q];[q][2:v]overlay=x=\'-W+W*t/' + d + '\':y=H-10:shortest=0[v];' + mix,
+    '[0:v]fps=' + QPS + ',format=yuv420p[q];' + cel + '[' + ultimo + '][2:v]overlay=x=\'-W+W*t/' + d + '\':y=H-10:shortest=0[v];' + mix,
     '-map', '[v]', '-map', '[a]', '-t', d,
     '-c:v', 'libx264', '-preset', 'fast', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', String(QPS),
     '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', saida);

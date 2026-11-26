@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><!-- apito do árbitro -->
+<path d="M90 160 H250 L330 120 V200 L250 200 A80 80 0 1 1 90 160 Z" fill="#ffd36b" stroke="#c98a12" stroke-width="8" stroke-linejoin="round"/>
+<circle cx="150" cy="235" r="34" fill="#c98a12"/><rect x="230" y="150" width="30" height="20" rx="4" fill="#1b1150"/>
+<path d="M90 160 Q60 120 80 80" fill="none" stroke="#ff4f78" stroke-width="10" stroke-linecap="round"/>
+<path d="M300 70 l20 -24 M330 95 l30 -10 M270 55 l2 -30" stroke="#fff" stroke-width="10" stroke-linecap="round"/></svg>

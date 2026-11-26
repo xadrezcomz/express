@@ -113,6 +113,11 @@ Alguns efeitos são automáticos, sem ordem nenhuma:
   a faixa **XEQUE!**. Se for mate, a casa fica dourada e a faixa é **XEQUE-MATE!**. Só funciona com
   os dois reis no tabuleiro.
 
+**Fala diferente da legenda.** `{trinta e duas|32}` faz a voz falar "trinta e duas" e a legenda
+mostrar "32" (bom para números, que a voz erra no gênero quando vêm em algarismos). As casas
+escritas como `e5`, `D4` ou `E quatro` são faladas pelo nome da letra ("é cinco", "dê quatro"):
+sem isso a voz lê o "e" como a conjunção ("i").
+
 Os lances não passam por conferência de regra: a peça vai de uma casa à outra. Isso permite
 posições de ensino (um cavalo sozinho no tabuleiro, sem reis). Linhas começadas por `#` são
 anotações e não entram na fala.
@@ -152,6 +157,18 @@ E estas ordens (só no 3D):
 | `[tela lista Item ✓ \| Item ✗ \| Item ?]` | lista que entra item por item |
 | `[tela frase linha pequena \| LINHA GRANDE]` | uma frase de impacto em tela cheia |
 
+| `[tela cronometro 5 \| Ache o lance!]` | contagem regressiva (para desafios) |
+| `[tela icone trofeu \| Título \| subtítulo]` | uma ilustração de `videos/icones/` (relogio, trofeu, celular, apito, livro, lampada, alvo) |
+| `[tela versus FEN lance \| Iniciante \| FEN lance \| Mestre]` | dois tabuleirinhos lado a lado: o lance errado (vermelho) e o certo (verde) |
+| `[tela celular pasta/gravacao \| 4]` | um celular grande na tela, tocando uma gravação de tela (mp4 vertical) a partir do segundo 4; o caminho é relativo à pasta das lições. Fica até o próximo lance, `[esconde]`, `[limpa]`, posição ou tela |
+| `[zoom]` | a câmera chega bem perto do próximo lance (o golpe decisivo) |
+| `[lance e5d3 lento]` | a peça anda em câmera lenta |
+
+Cabeçalho da edição show: `serie: Armadilha #2 de 8` (aparece na barra e na capa) e
+`musica: suspense` (trilha de `musicas/` da pasta das lições, baixinha por baixo da voz). Todo
+vídeo show abre com uma **capa** de 0,7 s (título grande e série), que o `posta.js` usa como capa
+do Reel.
+
 A tela gráfica cobre o tabuleiro até um `[esconde]`, `[limpa]`, lance, `[posicao]` ou outra tela.
 
 ## O estilo 3D
@@ -170,6 +187,84 @@ estilo daquele segundo. Deixe pelo menos 1 segundo entre duas trocas.
 O 3D é desenhado pelo processador (sem placa de vídeo), então demora mais: uma lição de 30
 segundos leva cerca de 1 minuto e meio, contra uns 30 segundos no 2D. `--2d` força o 2D numa
 lição que tem `estilo: 3d`.
+
+## O avatar do professor
+
+Com `avatar: sim` no cabeçalho, o professor (um desenho) aparece no canto de baixo, à esquerda,
+falando junto com a voz: a boca abre e fecha com o volume do áudio, os olhos piscam e o corpo
+balança de leve. Tudo é feito aqui, com programas gratuitos (`videos/avatar.py`, em Python, com
+numpy, scipy e Pillow); não usa nenhum serviço pago.
+
+As imagens são a cara do dono do curso, então ficam na pasta privada das lições, em `avatar/`:
+um PNG com fundo transparente por pose e o `poses.json`, que marca em cada pose, em pixels da
+imagem:
+
+- cada olho: os dois cantos (`c`), o ponto mais alto da pálpebra (`topo`) e o mais baixo do olho
+  (`baixo`). A pálpebra desce seguindo o ângulo daquele olho, coberta com a pele lisa de volta
+  dele, e fecha num arco com a linha dos cílios; a armação dos óculos fica por cima
+  (`"armacao": true` quando ela cruza o próprio olho);
+- a boca: os dois cantos (`c`) e o meio da linha onde ela abre (`meio`: a borda de baixo dos
+  dentes de cima, ou o encontro dos lábios). O programa acha a borda exata perto dessa linha, e o
+  queixo desce na direção do queixo daquela pose (perpendicular aos cantos da boca).
+
+A boca abre com o volume da voz e fica redonda nos "o" e "u" (ele usa o tempo de cada palavra
+do `.palavras.json` do áudio). Sem a pasta `avatar/`, o vídeo sai sem o avatar.
+
+A pose muda sozinha conforme a fala:
+
+| Quando | Pose |
+|---|---|
+| a primeira frase | `apresenta` |
+| uma pergunta | `pensa` e `duvida`, alternando |
+| "atenção", "cuidado", "importante", `[tela alerta]` | `atencao` |
+| "parabéns", "muito bem", "isso aí" | `comemora` |
+| um xeque-mate | `surpreso` |
+| `[mostra cavalo]` (e as outras peças) | segurando a peça: `peao`, `torre`, `cavalo`, `bispo`, `dama`, `rei` |
+| "até lá", `[mostra logo]` | `joinha` |
+| no resto, a cada 6 segundos ou mais | `explica`, `fala` e `apresenta`, em rodízio |
+
+Para escolher a pose num ponto da fala, use `[avatar surpreso]` (vale por uns 4 segundos).
+O avatar é colado no vídeo pronto e leva uns 40 segundos a mais por minuto de vídeo.
+
+Ele ocupa a faixa de baixo da tela, abaixo do tabuleiro (até 10 px da borda, para a barrinha de
+progresso continuar à vista). Nos Reels essa faixa fica por baixo do nome do perfil e da legenda
+do Instagram: lá use `avatar: reel`. O layout muda para dar lugar a ele: o tabuleiro sobe e
+encolhe um pouco (710 px, logo abaixo do título), o rodapé sai, e a legenda vira um balão de fala
+ao lado do rosto. O professor fica inteiro e o vídeo todo no canto de baixo, à esquerda: o rosto
+dentro da zona segura e o corpo descendo até a borda, por baixo da legenda do app. No 3D, a parte
+de baixo da tela escurece para o tabuleiro sumir antes do balão.
+
+### O avatar de uma pose só (o padrão)
+
+Se a pasta `avatar/` tiver um `avatar.json`, vale o avatar de uma pose só (`videos/avatar2.py`),
+que se mexe em vez de trocar de desenho. São várias imagens do mesmo desenho, do mesmo tamanho
+e com o rosto no mesmo lugar, em que só muda um pedaço:
+
+- `base`: a pose de descanso, de boca fechada;
+- `bocas`: uma por som (A, E, I, O, U, M, F e um sorriso para as pausas). A fala vira sons letra
+  a letra, no tempo de cada palavra. A boca não troca de imagem: o programa mede (fluxo óptico)
+  como cada ponto dos lábios anda da pose de descanso até cada som e deforma a boca aos poucos.
+  O quanto ela abre segue o volume da voz, com a inércia de uma mola (acelera e freia), e na
+  passagem de um som para outro os movimentos se misturam antes das cores, sem imagem fantasma;
+- `olhos`: meio fechado e fechado (a piscada, às vezes dupla) e olhando para baixo (nas perguntas);
+- `gestos`: o braço explicando (de tempos em tempos), o dedo levantado ("atenção", "importante",
+  "regra") e o joinha ("até lá", `[mostra logo]`); a boca e os olhos continuam animados;
+- `reacoes`: comemorando ("parabéns", "muito bem") e surpreso (no xeque-mate), por pouco tempo.
+
+O corpo respira, a cabeça balança de leve e acena nas palavras em `*destaque*`.
+`[avatar dedo]` (ou `explica`, `joinha`, `pensa`, `comemora`, `surpreso`) força um gesto.
+
+## Postar no Instagram
+
+`node videos/posta.js NOME` converte `videos/prontos/NOME.mp4` para o formato de Reels do Instagram,
+cria o post com a legenda de `instagram/NOME.txt` (na pasta privada das lições) e envia o vídeo,
+mas **não publica**: fica um rascunho que expira em 24 horas. `--publica` publica de verdade e anota
+o link em `instagram/publicados.json`. A conta e o quadro da capa ficam em `instagram.json`
+(`{ "conta": "ID da conta do Instagram", "capa_ms": 1500 }`).
+
+O token da Meta (login do Facebook para Empresas, com `instagram_content_publish`) nunca fica em
+arquivo: nas sessões do Claude na nuvem ele é um segredo de rede do ambiente para
+`graph.facebook.com` e `rupload.facebook.com`; em outro computador, a variável `META_TOKEN`.
 
 ## Para rodar
 
