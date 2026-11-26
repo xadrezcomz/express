@@ -194,6 +194,7 @@
 .palco3d.reel-avatar .capa-logo{display:none}
 .palco3d.reel-avatar .capa-titulo{font-size:104px;padding:0 90px 0 80px}
 .palco3d.reel-avatar .capa-titulo.longa{font-size:84px}
+.palco3d.reel-avatar .capa-serie{font-size:28px;white-space:nowrap}
 /* os gestos dos Reels levantam a mão ao lado do rosto (até x 640, a partir de y 1340):
    o balão sobe e fica acima dela */
 .palco3d.reel-avatar .legenda3d{top:1128px;height:206px;font-size:50px}
